@@ -31,13 +31,13 @@ initial begin
     // $display("  [0x08]: 0x%08h", instr_ram[2]);
 end
 `else
+// For synthesis, exclude memory initialization and use a memory generator/IP for large memories.
+`ifndef SYNTHESIS
 initial begin
     // Initialize instruction memory with NOPs
-    integer i;
-    for (i = 0; i < MEM_SIZE; i = i + 1) begin
-        instr_ram[i] = 32'h00000013; // Default to NOP instruction
-    end
+    $readmemh("fibonacci.hex", instr_ram);
 end
+`endif
 `endif
 
 // Port 1: Instruction fetch (always word-aligned)

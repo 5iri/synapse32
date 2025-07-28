@@ -127,12 +127,10 @@ def runCocotbTests():
     rtl_dir = os.path.join(root_dir, "rtl")
     incl_dir = os.path.join(rtl_dir, "include")
     instr_defines_file = os.path.join(rtl_dir, "instr_defines.vh")
-    decoder_file = os.path.join(rtl_dir, "core_modules", "decoder.v")
+    verilog_files = [os.path.join(rtl_dir, "core_modules", "decoder.v"), os.path.join(rtl_dir, "core_modules", "alu.v")]
 
     run(
-        verilog_sources=[
-            decoder_file        
-        ],
+        verilog_sources=verilog_files,
         toplevel="decoder",
         module="test_decoder_gcc",
         simulator="verilator",

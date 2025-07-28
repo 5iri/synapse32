@@ -1,0 +1,24 @@
+#------------------------------------------------------------
+#  Synapse32 — clean Yosys build script
+#  Call with:  yosys -s yosys.ys
+#------------------------------------------------------------
+
+# SystemVerilog (+ include dir + SYNTHESIS define) ------------
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/core_modules/*.v
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/pipeline_stages/*.v
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/execution_unit.v
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/data_mem.v
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/memory_unit.v
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/riscv_cpu.v
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/instr_mem.v
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/seven_seg.v
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/writeback.v
+read_verilog -sv -I../rtl/include -DSYNTHESIS ../rtl/top.v
+
+# Hierarchy check and synthesis -------------------------------
+hierarchy -top top
+synth      -top top
+
+# Optionally write out a netlist -------------------------------
+# write_json synapse32.json
+# write_verilog synapse32_syn.v

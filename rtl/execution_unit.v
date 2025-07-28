@@ -32,8 +32,8 @@ module execution_unit(
     output reg jump_signal,
     output reg [31:0] jump_addr,
     output reg [31:0] mem_addr,
-    output reg [31:0] rs1_value_out,
-    output reg [31:0] rs2_value_out,
+    output wire [31:0] rs1_value_out,
+    output wire [31:0] rs2_value_out,
     output reg flush_pipeline,
     
     // Add interrupt/exception inputs
@@ -100,13 +100,15 @@ always @(*) begin
     endcase
 end
 
+
+wire [31:0] alu_output;
 alu alu_inst(
     .rs1(rs1_value),
     .rs2(rs2_value),
     .imm(imm),
     .instr_id(instr_id),
     .pc_input(jump_addr),
-    .ALUoutput()
+    .ALUoutput(alu_output)
 );
 
 // For all R-type instructions, the exec_output is the output of the ALU
@@ -138,10 +140,10 @@ always @(*) begin
     end else begin
         case (opcode)
             7'b0110011: begin // R-type instructions
-            exec_output = alu_inst.ALUoutput;
+            exec_output = alu_output;
             end
             7'b0010011: begin // I-type instructions
-            exec_output = alu_inst.ALUoutput;
+            exec_output = alu_output;
             end
             7'b0000011: begin // Load instructions
             mem_addr = rs1_value + imm;

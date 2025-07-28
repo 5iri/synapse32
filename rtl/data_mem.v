@@ -17,13 +17,16 @@ module data_mem #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32, MEM_SIZE = 1048576
     // Array of 1MB bytes
     reg [7:0] data_ram [0:MEM_SIZE-1];
 
-    // Initialize memory to zeros
+    // Initialize memory to zeros (simulation only, not for synthesis)
+    `ifndef SYNTHESIS
     initial begin
         integer i;
         for (i = 0; i < MEM_SIZE; i = i + 1) begin
             data_ram[i] = 8'h00;
         end
     end
+    `endif
+    // For synthesis, use a memory generator/IP for large memories instead of behavioral code.
     `ifdef COCOTB_SIM
     //dump 80 registers to a wire using generate statement so that I can scope them
     // This is useful for debugging in cocotb

@@ -211,15 +211,19 @@ module riscv_cpu (
     wire ebreak_exception;
 
     // Instantiate interrupt controller
+    wire [31:0] csr_mstatus;
+    wire [31:0] csr_mie;
+    wire [31:0] csr_mip;
+
     interrupt_controller int_ctrl_inst (
         .clk(clk),
         .rst(rst),
         .timer_interrupt(timer_interrupt),
         .software_interrupt(software_interrupt),
         .external_interrupt(external_interrupt),
-        .mstatus(csr_file_inst.mstatus),
-        .mie(csr_file_inst.mie),
-        .mip(csr_file_inst.mip),
+        .mstatus(csr_mstatus),
+        .mie(csr_mie),
+        .mip(csr_mip),
         .interrupt_pending(interrupt_pending),
         .interrupt_cause(interrupt_cause),
         .interrupt_taken(interrupt_taken),
@@ -228,6 +232,8 @@ module riscv_cpu (
     );
 
     // Instantiate CSR file at CPU level
+    wire [31:0] csr_mtvec;
+    wire [31:0] csr_mepc;
     csr_file csr_file_inst (
         .clk(clk),
         .rst(rst),
@@ -237,6 +243,11 @@ module riscv_cpu (
         .read_enable(csr_read_enable),
         .read_data(csr_read_data),
         .csr_valid(csr_valid),
+        .mstatus(csr_mstatus),
+        .mie(csr_mie),
+        .mip(csr_mip),
+        .mtvec(csr_mtvec),
+        .mepc(csr_mepc),
         .interrupt_pending(interrupt_pending),
         .interrupt_cause_in(interrupt_cause),
         .interrupt_pc_in(interrupt_pc),
@@ -284,8 +295,8 @@ module riscv_cpu (
         // Interrupt connections
         .interrupt_pending(interrupt_pending),
         .interrupt_cause(interrupt_cause),
-        .mtvec(csr_file_inst.mtvec),
-        .mepc(csr_file_inst.mepc),
+        .mtvec(csr_mtvec),
+        .mepc(csr_mepc),
         .interrupt_taken(interrupt_taken),
         .mret_instruction(mret_instruction),
         .ecall_exception(ecall_exception),
