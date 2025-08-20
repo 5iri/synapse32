@@ -122,6 +122,34 @@ The regression tests include:
 - [Chanchal Bahrani](https://github.com/Chanchal1010)
 - [Shri Vishakh Devanand](https://github.com/5iri)
 
+
+## Formal Verification
+
+Formal verification of the Synapse-32 CPU is performed using [Yosys's riscv-formal](https://github.com/cliffordwolf/riscv-formal) together with [SymbiYosys (SBY)](https://symbiyosys.readthedocs.io/en/latest/).
+
+### Verification Flow
+
+- The verification environment is set up in the `formal/` directory, with integration tests and instruction-specific checks in subfolders.
+- SBY configuration files (e.g., `formal/integration/verify_rv32i.sby`) define the verification tasks, including the modules to check, properties to prove, and the engines to use.
+- The [riscv-formal](https://github.com/YosysHQ/riscv-formal) framework provides a set of formal properties for RISC-V cores, which are instantiated and checked against the Synapse-32 design.
+- To run a verification task, use:
+   ```bash
+   cd formal
+   python run_verification_suite.py
+   ```
+- The results and counterexamples (if any) are generated in the corresponding output folders.
+
+### What Is Verified
+
+- The CPU is checked for compliance with the RV32I instruction set and correct pipeline behavior.
+- Properties such as correct instruction execution, hazard handling, and control flow are formally proven using riscv-formal checkers.
+- Additional checks can be added for integration and fault scenarios.
+
+### Interpreting Results
+
+- If all properties are proven, the verification passes.
+- If a counterexample is found, the output folder will contain traces to help debug the issue.
+
 ### Acknowledgements and Resources
 
 - [SRA VJTI Eklavya 2023](https://sravjti.in/)
