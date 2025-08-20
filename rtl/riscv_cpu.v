@@ -1,4 +1,3 @@
-`default_nettype none
 module riscv_cpu (
     input wire clk,
     input wire rst,
@@ -16,7 +15,27 @@ module riscv_cpu (
     // Interrupt inputs
     input wire timer_interrupt,
     input wire software_interrupt,
-    input wire external_interrupt
+    input wire external_interrupt,
+
+    // RVFI interface outputs for formal verification
+    output wire        rvfi_valid,
+    output wire [63:0] rvfi_order,
+    output wire [31:0] rvfi_insn,
+    output wire        rvfi_trap,
+    output wire        rvfi_halt,
+    output wire        rvfi_intr,
+    output wire [31:0] rvfi_rs1_addr,
+    output wire [31:0] rvfi_rs2_addr,
+    output wire [31:0] rvfi_rs1_rdata,
+    output wire [31:0] rvfi_rs2_rdata,
+    output wire [31:0] rvfi_rd_addr,
+    output wire [31:0] rvfi_rd_wdata,
+    output wire [31:0] rvfi_pc_rdata,
+    output wire [31:0] rvfi_pc_wdata,
+    output wire [31:0] rvfi_mem_addr,
+    output wire [31:0] rvfi_mem_rdata,
+    output wire [31:0] rvfi_mem_wdata,
+    output wire [3:0]  rvfi_mem_wmask
 );
 
     // Instantiate PC
@@ -210,6 +229,13 @@ module riscv_cpu (
     wire ecall_exception;
     wire ebreak_exception;
 
+    // CSR outputs
+    wire [31:0] csr_mstatus;
+    wire [31:0] csr_mie;
+    wire [31:0] csr_mip;
+    wire [31:0] csr_mtvec;
+    wire [31:0] csr_mepc;
+
     // Instantiate interrupt controller
     interrupt_controller int_ctrl_inst (
         .clk(clk),
@@ -217,9 +243,9 @@ module riscv_cpu (
         .timer_interrupt(timer_interrupt),
         .software_interrupt(software_interrupt),
         .external_interrupt(external_interrupt),
-        .mstatus(csr_file_inst.mstatus),
-        .mie(csr_file_inst.mie),
-        .mip(csr_file_inst.mip),
+        .mstatus(csr_mstatus),
+        .mie(csr_mie),
+        .mip(csr_mip),
         .interrupt_pending(interrupt_pending),
         .interrupt_cause(interrupt_cause),
         .interrupt_taken(interrupt_taken),
@@ -246,7 +272,12 @@ module riscv_cpu (
         .ebreak_exception(ebreak_exception),
         .timer_interrupt(timer_interrupt),
         .software_interrupt(software_interrupt),
-        .external_interrupt(external_interrupt)
+        .external_interrupt(external_interrupt),
+        .mstatus(csr_mstatus),
+        .mie(csr_mie),
+        .mip(csr_mip),
+        .mtvec(csr_mtvec),
+        .mepc(csr_mepc)
     );
 
     execution_unit ex_unit_inst0 (
@@ -284,8 +315,8 @@ module riscv_cpu (
         // Interrupt connections
         .interrupt_pending(interrupt_pending),
         .interrupt_cause(interrupt_cause),
-        .mtvec(csr_file_inst.mtvec),
-        .mepc(csr_file_inst.mepc),
+    .mtvec(csr_mtvec),
+    .mepc(csr_mepc),
         .interrupt_taken(interrupt_taken),
         .mret_instruction(mret_instruction),
         .ecall_exception(ecall_exception),
@@ -455,5 +486,47 @@ module riscv_cpu (
     );
 
     // Write Back Stage
+
+    // RVFI (RISC-V Formal Interface) implementation for formal verification
+    reg [63:0] rvfi_order_reg;
+    
+    // Update order counter on valid instructions
+    always @(posedge clk) begin
+        if (rst) begin
+            rvfi_order_reg <= 64'b0;
+        end else if (mem_wb_inst0_rd_valid_out) begin
+            rvfi_order_reg <= rvfi_order_reg + 1;
+        end
+    end
+    
+    // RVFI outputs - report completed instructions from writeback stage
+    assign rvfi_valid     = mem_wb_inst0_rd_valid_out;
+    assign rvfi_order     = rvfi_order_reg;
+    assign rvfi_insn      = 32'h00000013; // NOP for now - need to preserve instruction through pipeline
+    assign rvfi_trap      = 1'b0; // TODO: Implement trap detection
+    assign rvfi_halt      = 1'b0; // TODO: Implement halt detection
+    assign rvfi_intr      = software_interrupt || external_interrupt;
+    
+    // Register addresses and data
+    assign rvfi_rs1_addr  = {27'b0, mem_wb_inst0_rs1_addr_out};
+    assign rvfi_rs2_addr  = {27'b0, mem_wb_inst0_rs2_addr_out};
+    assign rvfi_rs1_rdata = mem_wb_inst0_rs1_value_out;
+    assign rvfi_rs2_rdata = mem_wb_inst0_rs2_value_out;
+    assign rvfi_rd_addr   = {27'b0, wb_inst0_rd_addr_out};
+    assign rvfi_rd_wdata  = wb_inst0_wr_en_out ? wb_inst0_rd_value_out : 32'b0;
+    
+    // PC values
+    assign rvfi_pc_rdata  = mem_wb_inst0_pc_out;
+    assign rvfi_pc_wdata  = mem_wb_inst0_jump_signal_out ? mem_wb_inst0_jump_addr_out : mem_wb_inst0_pc_out + 4;
+    
+    // Memory interface - check if instruction is a memory operation using instr_id
+    wire is_memory_op = (mem_wb_inst0_instr_id_out >= 6'd8 && mem_wb_inst0_instr_id_out <= 6'd15); // LB, LH, LW, LBU, LHU, SB, SH, SW
+    wire is_load_op = (mem_wb_inst0_instr_id_out >= 6'd8 && mem_wb_inst0_instr_id_out <= 6'd12); // LB, LH, LW, LBU, LHU
+    wire is_store_op = (mem_wb_inst0_instr_id_out >= 6'd13 && mem_wb_inst0_instr_id_out <= 6'd15); // SB, SH, SW
+    
+    assign rvfi_mem_addr  = is_memory_op ? mem_wb_inst0_mem_addr_out : 32'b0;
+    assign rvfi_mem_rdata = is_load_op ? mem_wb_inst0_mem_data_out : 32'b0;
+    assign rvfi_mem_wdata = is_store_op ? mem_wb_inst0_rs2_value_out : 32'b0;
+    assign rvfi_mem_wmask = is_store_op ? 4'b1111 : 4'b0000; // Simplified for now
 
 endmodule

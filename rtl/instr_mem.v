@@ -16,6 +16,14 @@ module instr_mem #(
 // Array of 32-bit words (keeps $readmemh compatibility)
 reg [DATA_WIDTH-1:0] instr_ram [0:MEM_SIZE-1];
 
+// Local variables for always blocks
+reg [ADDR_WIDTH-3:0] word_addr;
+reg [1:0] byte_offset;
+reg [31:0] word_data;
+reg [31:0] next_word_data;
+reg [7:0] byte_data;
+reg [15:0] halfword_data;
+
 `ifdef COCOTB_SIM
 initial begin
     `ifdef INSTR_HEX_FILE
@@ -31,9 +39,9 @@ initial begin
     // $display("  [0x08]: 0x%08h", instr_ram[2]);
 end
 `else
+integer i;
 initial begin
     // Initialize instruction memory with NOPs
-    integer i;
     for (i = 0; i < MEM_SIZE; i = i + 1) begin
         instr_ram[i] = 32'h00000013; // Default to NOP instruction
     end
@@ -49,15 +57,8 @@ always @(*) begin
     end
 end
 
-// Port 2: Data access with byte/halfword/word support
 always @(*) begin
     // Extract word address and byte offset
-    reg [ADDR_WIDTH-3:0] word_addr;
-    reg [1:0] byte_offset;
-    reg [31:0] word_data;
-    reg [7:0] byte_data;
-    reg [15:0] halfword_data;
-    
     word_addr = instr_addr_p2[ADDR_WIDTH-1:2];
     byte_offset = instr_addr_p2[1:0];
     
@@ -86,7 +87,6 @@ always @(*) begin
     // Handle cross-word boundary access for halfwords and words
     if (byte_offset == 2'b11 && (load_type == 3'b001 || load_type == 3'b101)) begin
         // Halfword access that crosses word boundary
-        reg [31:0] next_word_data;
         if (word_addr + 1 < MEM_SIZE) begin
             next_word_data = instr_ram[word_addr + 1];
         end else begin
@@ -97,7 +97,6 @@ always @(*) begin
     
     if (byte_offset != 2'b00 && load_type == 3'b010) begin
         // Word access that crosses word boundary - need to combine two words
-        reg [31:0] next_word_data;
         if (word_addr + 1 < MEM_SIZE) begin
             next_word_data = instr_ram[word_addr + 1];
         end else begin

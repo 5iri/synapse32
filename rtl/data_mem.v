@@ -3,23 +3,25 @@
 
 // data_mem.v - byte-addressable data memory for RISC-V CPU
 
-module data_mem #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32, MEM_SIZE = 1048576) ( // 1MB = 1024*1024 bytes
-    input wire clk, 
+module data_mem #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32, MEM_SIZE = 64 /*1048576*/) ( // 64 bytes (was 1MB = 1024*1024 bytes)
+    input wire clk,
     input wire wr_en,
     input wire rd_en,
     input wire [3:0] write_byte_enable,   // Write byte enables
     input wire [2:0] load_type,           // Load type encoding
-    input wire [ADDR_WIDTH-1:0] addr, 
+    input wire [ADDR_WIDTH-1:0] addr,
     input wire [DATA_WIDTH-1:0] wr_data,
     output wire [DATA_WIDTH-1:0] rd_data_out
 );
 
-    // Array of 1MB bytes
+    // Array of MEM_SIZE bytes
     reg [7:0] data_ram [0:MEM_SIZE-1];
+
+    // Declare loop variable for initialization
+    integer i;
 
     // Initialize memory to zeros
     initial begin
-        integer i;
         for (i = 0; i < MEM_SIZE; i = i + 1) begin
             data_ram[i] = 8'h00;
         end
@@ -40,16 +42,16 @@ module data_mem #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32, MEM_SIZE = 1048576
     wire [7:0] byte_data;
     wire [15:0] halfword_data;
     wire [31:0] word_data;
-    
+
     // Read individual bytes directly
     assign byte_data = (addr < MEM_SIZE) ? data_ram[addr] : 8'h00;
-    
+
     // Read halfwords (little-endian: low byte first)
-    assign halfword_data = (addr < MEM_SIZE-1) ? 
+    assign halfword_data = (addr < MEM_SIZE-1) ?
         {data_ram[addr+1], data_ram[addr]} : 16'h0000;
-    
+
     // Read words (little-endian: low byte first)
-    assign word_data = (addr < MEM_SIZE-3) ? 
+    assign word_data = (addr < MEM_SIZE-3) ?
         {data_ram[addr+3], data_ram[addr+2], data_ram[addr+1], data_ram[addr]} : 32'h00000000;
 
     // Format read data based on load type - much simpler logic

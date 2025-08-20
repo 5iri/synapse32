@@ -69,31 +69,32 @@ module uart (
         baud_reload = 1'b0;
     end
     
-    // Handle register writes (only updates registers, no counter manipulation)
+    // Handle register writes (only configuration registers, not status)
+    reg tx_data_write_request;  // Internal signal to request new data transmission
+    reg [7:0] tx_data_pending;  // Data to be transmitted when ready
+    
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            tx_data <= 8'h00;
             baud_div <= DEFAULT_BAUD_DIVISOR;
             tx_enable <= 1'b1;
-            tx_start_pending <= 1'b0;
-            tx_busy <= 1'b0;
             baud_reload <= 1'b1;  // Force reload after reset
+            tx_data_write_request <= 1'b0;
+            tx_data_pending <= 8'h00;
         end else begin
             // Clear baud_reload flag after one cycle
             baud_reload <= 1'b0;
+            // Clear write request after one cycle (will be picked up by state machine)
+            tx_data_write_request <= 1'b0;
             
             if (write_enable && uart_valid) begin
                 case (addr)
                     `UART_DATA: begin
-                        // Single-byte transmit buffer: if busy, set tx_fifo_full but do not buffer additional bytes.
+                        // Request data transmission if not busy
                         if (!tx_busy && tx_enable) begin
-                            tx_data <= write_data[7:0];
-                            tx_start_pending <= 1'b1;  // Set pending flag
-                            tx_busy <= 1'b1;           // Set busy immediately
-                            tx_fifo_empty <= 1'b0;
-                        end else begin
-                            tx_fifo_full <= 1'b1;
+                            tx_data_pending <= write_data[7:0];
+                            tx_data_write_request <= 1'b1;
                         end
+                        // Note: tx_fifo_full will be handled in the main state machine
                     end
                     `UART_CONTROL: begin
                         tx_enable <= write_data[0];
@@ -123,7 +124,7 @@ module uart (
         end
     end
     
-    // UART transmitter state machine and baud counter
+    // UART transmitter state machine, baud counter, and all status signals
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             tx_state <= TX_IDLE;
@@ -132,7 +133,22 @@ module uart (
             baud_counter <= 16'b1;  // Start at 1
             tx_fifo_empty <= 1'b1;
             tx_fifo_full <= 1'b0;
+            tx_start_pending <= 1'b0;
+            tx_busy <= 1'b0;
+            tx_data <= 8'h00;
         end else begin
+            // Handle data write request
+            if (tx_data_write_request && !tx_busy && tx_enable) begin
+                tx_data <= tx_data_pending;
+                tx_start_pending <= 1'b1;
+                tx_busy <= 1'b1;
+                tx_fifo_empty <= 1'b0;
+                tx_fifo_full <= 1'b0;  // Clear any previous full flag
+            end else if (tx_data_write_request && (tx_busy || !tx_enable)) begin
+                // Set fifo full if trying to write while busy
+                tx_fifo_full <= 1'b1;
+            end
+            
             // Handle baud counter reload
             if (baud_reload) begin
                 baud_counter <= baud_div;

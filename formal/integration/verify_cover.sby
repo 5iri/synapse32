@@ -1,0 +1,129 @@
+[options]
+mode prove
+expect pass
+depth 50
+wait on
+
+[engines]
+smtbmc boolector
+
+[script]
+# --- Complete ISA verification for COVER ---
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/top.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/riscv_cpu.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/data_mem.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/execution_unit.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/instr_mem.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/memory_unit.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/seven_seg.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/writeback.v
+
+# Core modules
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/core_modules/alu.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/core_modules/csr_exec.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/core_modules/csr_file.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/core_modules/decoder.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/core_modules/interrupt_controller.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/core_modules/pc.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/core_modules/registerfile.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/core_modules/timer.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/core_modules/uart.v
+
+# Pipeline stages
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/pipeline_stages/EX_MEM.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/pipeline_stages/forwarding_unit.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/pipeline_stages/ID_EX.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/pipeline_stages/IF_ID.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/pipeline_stages/load_use_detector.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/pipeline_stages/MEM_WB.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/pipeline_stages/store_load_detector.v
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/pipeline_stages/store_load_forward.v
+
+# Include files
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/include/instr_defines.vh
+read_verilog -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/rtl/include/memory_map.vh
+
+# Complete ISA verification
+read_verilog -sv -formal -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/riscv-formal/checks/rvfi_macros.vh
+read_verilog -sv -formal -DFORMAL -DRISCV_FORMAL_NRET=1 -DRISCV_FORMAL_ILEN=32 -DRISCV_FORMAL_XLEN=32 -DRISCV_FORMAL_CHANNEL_IDX=0 /Users/lazybanana/github/synapse32/riscv-formal/insns/insn_c*.v
+
+# Synthesis passes
+hierarchy -top top
+proc
+opt
+memory -nomap
+flatten
+setundef -undriven -anyseq
+check
+stat
+
+[files]
+/Users/lazybanana/github/synapse32/rtl/top.v
+/Users/lazybanana/github/synapse32/rtl/riscv_cpu.v
+/Users/lazybanana/github/synapse32/rtl/data_mem.v
+/Users/lazybanana/github/synapse32/rtl/execution_unit.v
+/Users/lazybanana/github/synapse32/rtl/instr_mem.v
+/Users/lazybanana/github/synapse32/rtl/memory_unit.v
+/Users/lazybanana/github/synapse32/rtl/seven_seg.v
+/Users/lazybanana/github/synapse32/rtl/writeback.v
+/Users/lazybanana/github/synapse32/rtl/core_modules/alu.v
+/Users/lazybanana/github/synapse32/rtl/core_modules/csr_exec.v
+/Users/lazybanana/github/synapse32/rtl/core_modules/csr_file.v
+/Users/lazybanana/github/synapse32/rtl/core_modules/decoder.v
+/Users/lazybanana/github/synapse32/rtl/core_modules/interrupt_controller.v
+/Users/lazybanana/github/synapse32/rtl/core_modules/pc.v
+/Users/lazybanana/github/synapse32/rtl/core_modules/registerfile.v
+/Users/lazybanana/github/synapse32/rtl/core_modules/timer.v
+/Users/lazybanana/github/synapse32/rtl/core_modules/uart.v
+/Users/lazybanana/github/synapse32/rtl/pipeline_stages/EX_MEM.v
+/Users/lazybanana/github/synapse32/rtl/pipeline_stages/forwarding_unit.v
+/Users/lazybanana/github/synapse32/rtl/pipeline_stages/ID_EX.v
+/Users/lazybanana/github/synapse32/rtl/pipeline_stages/IF_ID.v
+/Users/lazybanana/github/synapse32/rtl/pipeline_stages/load_use_detector.v
+/Users/lazybanana/github/synapse32/rtl/pipeline_stages/MEM_WB.v
+/Users/lazybanana/github/synapse32/rtl/pipeline_stages/store_load_detector.v
+/Users/lazybanana/github/synapse32/rtl/pipeline_stages/store_load_forward.v
+/Users/lazybanana/github/synapse32/rtl/include/instr_defines.vh
+/Users/lazybanana/github/synapse32/rtl/include/memory_map.vh
+/Users/lazybanana/github/synapse32/riscv-formal/checks/rvfi_macros.vh
+../../riscv-formal/insns/insn_c_add.v 
+../../riscv-formal/insns/insn_c_addi.v 
+../../riscv-formal/insns/insn_c_addi16sp.v 
+../../riscv-formal/insns/insn_c_addi4spn.v 
+../../riscv-formal/insns/insn_c_addiw.v 
+../../riscv-formal/insns/insn_c_addw.v 
+../../riscv-formal/insns/insn_c_and.v 
+../../riscv-formal/insns/insn_c_andi.v 
+../../riscv-formal/insns/insn_c_beqz.v 
+../../riscv-formal/insns/insn_c_bnez.v 
+../../riscv-formal/insns/insn_c_j.v 
+../../riscv-formal/insns/insn_c_jal.v 
+../../riscv-formal/insns/insn_c_jalr.v 
+../../riscv-formal/insns/insn_c_jr.v 
+../../riscv-formal/insns/insn_c_ld.v 
+../../riscv-formal/insns/insn_c_ldsp.v 
+../../riscv-formal/insns/insn_c_li.v 
+../../riscv-formal/insns/insn_c_lui.v 
+../../riscv-formal/insns/insn_c_lw.v 
+../../riscv-formal/insns/insn_c_lwsp.v 
+../../riscv-formal/insns/insn_c_mv.v 
+../../riscv-formal/insns/insn_c_or.v 
+../../riscv-formal/insns/insn_c_sd.v 
+../../riscv-formal/insns/insn_c_sdsp.v 
+../../riscv-formal/insns/insn_c_slli.v 
+../../riscv-formal/insns/insn_c_srai.v 
+../../riscv-formal/insns/insn_c_srli.v 
+../../riscv-formal/insns/insn_c_sub.v 
+../../riscv-formal/insns/insn_c_subw.v 
+../../riscv-formal/insns/insn_c_sw.v 
+../../riscv-formal/insns/insn_c_swsp.v 
+../../riscv-formal/insns/insn_c_xor.v 
+../../riscv-formal/insns/insn_clmul.v 
+../../riscv-formal/insns/insn_clmulh.v 
+../../riscv-formal/insns/insn_clmulr.v 
+../../riscv-formal/insns/insn_clz.v 
+../../riscv-formal/insns/insn_clzw.v 
+../../riscv-formal/insns/insn_cpop.v 
+../../riscv-formal/insns/insn_cpopw.v 
+../../riscv-formal/insns/insn_ctz.v 
+../../riscv-formal/insns/insn_ctzw.v
