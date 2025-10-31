@@ -31,7 +31,7 @@ def assemble_riscv_instruction(assembly_code, bin_file="temp.bin"):
         f.write(assembly_code)
 
     subprocess.run([
-        "riscv64-unknown-elf-as", "-march=rv32i_zifencei", "-mabi=ilp32", "-o", "temp.o", "temp.s"
+        "riscv64-unknown-elf-as", "-march=rv32im_zifencei", "-mabi=ilp32", "-o", "temp.o", "temp.s"
     ], check=True)
 
     subprocess.run([
@@ -120,6 +120,14 @@ async def test_decoder_exhaustive(dut):
         ("lui x16, 0x12345", {"opcode": 0b0110111, "rs1": 0, "rs2": 0, "rd": 16, "instr_id": 0x24, "imm": 0x12345000}),
         # Add fence.i test
         ("fence.i", {"opcode": 0b0001111, "rs1": 0, "rs2": 0, "rd": 0, "instr_id": 0x26, "imm": 0}),
+        ("mul x1, x2, x3", {"opcode": 0b0110011, "rs1": 2, "rs2": 3, "rd": 1, "instr_id": 0x30}),
+        ("mulh x4, x5, x6", {"opcode": 0b0110011, "rs1": 5, "rs2": 6, "rd": 4, "instr_id": 0x31}),
+        ("mulhsu x7, x8, x9", {"opcode": 0b0110011, "rs1": 8, "rs2": 9, "rd": 7, "instr_id": 0x32}),
+        ("mulhu x10, x11, x12", {"opcode": 0b0110011, "rs1": 11, "rs2": 12, "rd": 10, "instr_id": 0x33}),
+        ("div x13, x14, x15", {"opcode": 0b0110011, "rs1": 14, "rs2": 15, "rd": 13, "instr_id": 0x34}),
+        ("divu x16, x17, x18", {"opcode": 0b0110011, "rs1": 17, "rs2": 18, "rd": 16, "instr_id": 0x35}),
+        ("rem x19, x20, x21", {"opcode": 0b0110011, "rs1": 20, "rs2": 21, "rd": 19, "instr_id": 0x36}),
+        ("remu x22, x23, x24", {"opcode": 0b0110011, "rs1": 23, "rs2": 24, "rd": 22, "instr_id": 0x37}),
     ]
 
     for instr, expected in instructions:
