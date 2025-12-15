@@ -327,7 +327,7 @@ def runCocotbTests():
             module="test_csr",
             testcase=test_name,
             includes=[str(incl_dir)],
-            simulator="icarus",
+            simulator="verilator",
             timescale="1ns/1ps",
             plus_args=[f"+dumpfile={waveform_path}"]
         )

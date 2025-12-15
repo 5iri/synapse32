@@ -11,7 +11,10 @@ module top (
     
     // UART output
     output wire uart_tx,
-    
+
+    // Bidirectional GPIO port (32 pins)
+    inout  wire [31:0] gpio,
+
     // Optional debug outputs
     output wire [31:0] pc_debug,
     output wire [31:0] instr_debug
@@ -20,12 +23,7 @@ module top (
     // Wires to connect CPU and memories
     wire [31:0] cpu_pc_out;
     wire [31:0] instr_to_cpu;
-    wire [31:0] cpu_mem_read_addr;
-    wire [31:0] cpu_mem_write_addr;
-    wire [31:0] cpu_mem_write_data;
     wire [31:0] mem_read_data;
-    wire cpu_mem_write_en;
-    wire cpu_mem_read_en;
     wire [31:0] data_mem_addr;
     wire [3:0] cpu_write_byte_enable;  // Write byte enables
     wire [2:0] cpu_load_type;          // Load type
@@ -40,7 +38,15 @@ module top (
     wire [31:0] uart_read_data;
     wire uart_valid;
     wire uart_access;
-    
+
+    // GPIO module wires (internal)
+    wire [31:0] gpio_read_data;
+    wire gpio_valid;
+    wire gpio_access;
+    wire [31:0] gpio_in_int;
+    wire [31:0] gpio_out_int;
+    wire [31:0] gpio_oe_int;
+
     // Memory address decoding using memory map
     wire data_mem_access;
     wire timer_access;
@@ -48,19 +54,22 @@ module top (
     
     // Use memory map macros for clean address decoding
     assign data_mem_access = `IS_DATA_MEM(data_mem_addr);
-    assign timer_access = `IS_TIMER_MEM(data_mem_addr);
-    assign uart_access = `IS_UART_MEM(data_mem_addr);
+    assign timer_access    = `IS_TIMER_MEM(data_mem_addr);
+    assign uart_access     = `IS_UART_MEM(data_mem_addr);
+    assign gpio_access     = `IS_GPIO_MEM(data_mem_addr);
     assign instr_mem_access = `IS_INSTR_MEM(data_mem_addr);
     
     // Select the appropriate address for memory access
     assign data_mem_addr = cpu_mem_write_en ? cpu_mem_write_addr : cpu_mem_read_addr;
     
     // Multiplex read data based on address
-    assign mem_read_data = timer_access ? timer_read_data : 
-                          data_mem_access ? data_mem_read_data :
-                          uart_access ? uart_read_data :
-                            instr_mem_access ? instr_read_data : 32'h00000000;
-    
+    assign mem_read_data = timer_access    ? timer_read_data      :
+                           data_mem_access ? data_mem_read_data   :
+                           uart_access     ? uart_read_data       :
+                           gpio_access     ? gpio_read_data       :
+                           instr_mem_access ? instr_read_data     :
+                           32'h00000000;
+
     // Debug outputs
     assign pc_debug = cpu_pc_out;
     assign instr_debug = instr_to_cpu;
@@ -140,6 +149,31 @@ module top (
         .read_data(uart_read_data),
         .uart_valid(uart_valid),
         .tx(uart_tx)
+    );
+
+    // Bidirectional GPIO pads: sample external pins and drive them
+    assign gpio_in_int = gpio;
+
+    genvar gi;
+    generate
+        for (gi = 0; gi < 32; gi = gi + 1) begin : gpio_buf
+            assign gpio[gi] = gpio_oe_int[gi] ? gpio_out_int[gi] : 1'bz;
+        end
+    endgenerate
+
+    // Instantiate GPIO module
+    gpio gpio_inst (
+        .clk(clk),
+        .rst(rst),
+        .addr(data_mem_addr),
+        .write_data(cpu_mem_write_data),
+        .write_enable(cpu_mem_write_en && gpio_access),
+        .read_enable(cpu_mem_read_en && gpio_access),
+        .read_data(gpio_read_data),
+        .gpio_valid(gpio_valid),
+        .gpio_in(gpio_in_int),
+        .gpio_out(gpio_out_int),
+        .gpio_oe(gpio_oe_int)
     );
 
 `ifdef COCOTB_SIM

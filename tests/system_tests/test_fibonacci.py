@@ -257,7 +257,7 @@ def runCocotbTests():
         module="test_fibonacci",
         testcase="test_fibonacci_program",
         includes=[str(incl_dir)],
-        simulator="icarus",
+        simulator="verilator",
         timescale="1ns/1ps",
         plus_args=[f"+dumpfile={waveform_path}"],
         defines=[f"INSTR_HEX_FILE=\"{hex_file}\""]  # Pass as Verilog define
