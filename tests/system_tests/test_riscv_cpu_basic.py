@@ -304,7 +304,7 @@ def runCocotbTests():
             module="test_riscv_cpu_basic",
             testcase=test_name,
             includes=[str(incl_dir)],
-            simulator="icarus",
+            simulator="verilator",
             timescale="1ns/1ps",
             plus_args=[f"+dumpfile={waveform_path}"]
         )

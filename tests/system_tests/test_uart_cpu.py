@@ -508,7 +508,7 @@ def runCocotbTests():
             module="test_uart_cpu",
             testcase=f"test_{test_name}",
             includes=[str(incl_dir)],
-            simulator="icarus",
+            simulator="verilator",
             timescale="1ns/1ps",
             defines=[f"INSTR_HEX_FILE=\"{hex_file}\""],
             plus_args=[f"+dumpfile={waveform_path}"],

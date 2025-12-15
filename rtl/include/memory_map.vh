@@ -48,11 +48,22 @@
 `define UART_CONTROL        32'h20000008  // Control register
 `define UART_BAUD           32'h2000000C  // Baud rate divisor
 
+// GPIO Peripheral (32-bit port)
+`define GPIO_BASE           32'h20001000
+`define GPIO_SIZE           32'h00001000  // 4KB region
+`define GPIO_END            32'h20001FFF
+
+// GPIO Register Offsets
+`define GPIO_DATA           32'h20001000  // Data register (read/write)
+`define GPIO_DIR            32'h20001004  // Direction register (1=output, 0=input)
+`define GPIO_IN             32'h20001008  // Input value (read-only)
+
 // Memory access helper macros
 `define IS_INSTR_MEM(addr)  ((addr) <= `INSTR_MEM_SIZE)
 `define IS_TIMER_MEM(addr)  ((addr) >= `TIMER_BASE && (addr) <= `TIMER_END)
 `define IS_DATA_MEM(addr)   ((addr) >= `DATA_MEM_BASE && (addr) <= `DATA_MEM_END)
 `define IS_PERIPH_MEM(addr) ((addr) >= `PERIPH_BASE && (addr) <= `PERIPH_END)
 `define IS_UART_MEM(addr)   ((addr) >= `UART_BASE && (addr) <= `UART_END)
+`define IS_GPIO_MEM(addr)   ((addr) >= `GPIO_BASE && (addr) <= `GPIO_END)
 
 `endif // MEMORY_MAP_VH
