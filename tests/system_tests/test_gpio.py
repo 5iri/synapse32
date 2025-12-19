@@ -5,18 +5,27 @@ import subprocess
 import os
 import logging
 from pathlib import Path
+from collections import defaultdict
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
-DATA_MEM_BASE = 0x10000000
-GPIO_RESULT_ADDR = DATA_MEM_BASE + 0x00
-GPIO_OUT_TEST_BASE = DATA_MEM_BASE + 0x10
-
 GPIO_BASE = 0x20001000
-GPIO_DATA_ADDR = GPIO_BASE + 0x00
-GPIO_DIR_ADDR  = GPIO_BASE + 0x04
-GPIO_IN_ADDR = GPIO_BASE + 0x08
+GPIO_DATA_ADDR = GPIO_BASE + 0x00  # 0x20001000
+GPIO_DIR_ADDR  = GPIO_BASE + 0x04  # 0x20001004
+GPIO_IN_ADDR   = GPIO_BASE + 0x08  # 0x20001008
+
+GPIO_LOG_BASE = GPIO_BASE + 0x0C   # First word after GPIO_IN
+CPU_DONE_ADDR = GPIO_BASE + 0x40   # Completion flag location
+
+OUTPUT_MASK = 0x00000007
+OUTPUT_PATTERNS = [0x0, 0x1, 0x3, 0x7]
+LOG_ENTRY_COUNT = 2 + len(OUTPUT_PATTERNS) + 2  # reset data/dir + samples + final dir/data
+
+
+def gpio_log_addr(index: int) -> int:
+    """Compute the log word address inside the GPIO window."""
+    return GPIO_LOG_BASE + 4 * index
 
 
 def compile_gpio_c():
@@ -156,6 +165,25 @@ def compile_gpio_c():
     )
     log.info("Generated instruction memory hex: %s", hex_file)
 
+    # Disassemble the ELF to show instructions
+    log.info("\n" + "="*70)
+    log.info("DISASSEMBLED INSTRUCTIONS FROM gpio_test.c:")
+    log.info("="*70)
+    result = subprocess.run(
+        [
+            "riscv64-unknown-elf-objdump",
+            "-d",
+            "-M",
+            "numeric,no-aliases",
+            str(elf_file),
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    log.info(result.stdout)
+    log.info("="*70 + "\n")
+
     return hex_file
 
 
@@ -176,109 +204,90 @@ async def test_gpio_c_program(dut):
     await ClockCycles(dut.clk, 5)
     dut.rst.value = 0
 
-    # Ensure GPIO[1] starts low from the testbench side
-    try:
-        dut.gpio[1].value = 0
-    except Exception:
-        # If gpio is not present (unexpected), fail early
-        assert False, "DUT has no 'gpio' port, cannot run GPIO C test"
-
+    log_entries = defaultdict(list)
+    gpio_dir_writes = []
+    gpio_data_writes = []
+    cpu_done = False
     max_cycles = 20000
-    seen_result = False
-    result_value = 0
-
-    # Trace GPIO-related bus activity
-    dir_writes = []
-    data_writes = []
-    gpio_in_reads = []
-    gpio_in_read_count = 0
-    all_writes = []
 
     for cycle in range(max_cycles):
         await RisingEdge(dut.clk)
 
-        # Drive GPIO[1] from the testbench to simulate an external signal.
-        # Keep it low for some initial cycles so the firmware's polling loop
-        # sees at least a few zero reads, then raise it and keep it high.
-        if cycle < 10:
-            dut.gpio[1].value = 0
-        else:
-            dut.gpio[1].value = 1
+        if dut.cpu_mem_write_en.value:
+            addr = int(dut.cpu_mem_write_addr.value)
+            data_val = dut.cpu_mem_write_data.value
+            if data_val.is_resolvable:
+                data = int(data_val) & 0xFFFFFFFF
+            else:
+                sanitized = data_val.binstr.replace("x", "0").replace("z", "0").replace("?", "0")
+                data = int(sanitized, 2) & 0xFFFFFFFF
+                dut._log.debug(
+                    "Resolved write data with X/Z bits at cycle %d (addr=0x%08x, raw=%s -> 0x%08x)",
+                    cycle,
+                    addr,
+                    data_val.binstr,
+                    data,
+                )
 
-        # Track reads from GPIO_IN on the bus for coverage / introspection.
-        if hasattr(dut, "cpu_mem_read_en") and int(dut.cpu_mem_read_en.value):
-            addr = int(dut.cpu_mem_read_addr.value)
-            if addr == GPIO_IN_ADDR:
-                # Sample the pad value. Some bits may be high‑Z; map X/Z to 0
-                # so that we can still get an integer snapshot for debug.
-                try:
-                    raw = dut.gpio.value
-                    val_str = raw.binstr.replace("z", "0").replace("x", "0")
-                    gpio_in_reads.append(int(val_str, 2))
-                except Exception:
-                    gpio_in_reads.append(0)
-                gpio_in_read_count += 1
+            if GPIO_LOG_BASE <= addr < CPU_DONE_ADDR:
+                log_entries[addr].append(data)
 
-        # Track memory writes
-        if hasattr(dut, "cpu_mem_write_en") and int(dut.cpu_mem_write_en.value):
-            waddr = int(dut.cpu_mem_write_addr.value)
-            # cpu_mem_write_data may have X/Z bits early in reset; map them to 0
-            # so we can still log and match on the low byte.
-            try:
-                raw_w = dut.cpu_mem_write_data.value
-                w_str = raw_w.binstr.replace("z", "0").replace("x", "0")
-                wdata = int(w_str, 2)
-            except Exception:
-                wdata = 0
+            if addr == GPIO_DIR_ADDR:
+                gpio_dir_writes.append(data)
+            elif addr == GPIO_DATA_ADDR:
+                gpio_data_writes.append(data)
 
-            if len(all_writes) < 64:
-                all_writes.append((waddr, wdata))
+            if addr == CPU_DONE_ADDR and (data & 0xFF) == 1:
+                cpu_done = True
+                dut._log.info("CPU_DONE flag set at cycle %d", cycle)
+                break
 
-            if waddr == GPIO_DIR_ADDR:
-                dir_writes.append(wdata)
-            if waddr == GPIO_DATA_ADDR:
-                data_writes.append(wdata)
+    assert cpu_done, "Firmware never signalled completion (CPU_DONE not observed)"
 
-            if waddr == GPIO_RESULT_ADDR:
-                seen_result = True
-                result_value = wdata
-
-
-    if not seen_result:
-        # Diagnostic dump to help understand why the basic result wasn't observed.
-        print("\n[GPIO DEBUG] GPIO_RESULT_ADDR was not written")
-        print(f"[GPIO DEBUG] Total dir_writes: {len(dir_writes)}")
-        print(f"[GPIO DEBUG] Total data_writes: {len(data_writes)}")
-        print(f"[GPIO DEBUG] gpio_in_read_count: {gpio_in_read_count}")
-        print(f"[GPIO DEBUG] First few GPIO_IN reads (pad value): {gpio_in_reads[:8]}")
-        print("[GPIO DEBUG] First few bus writes (addr, data):")
-        for (a, d) in all_writes[:16]:
-            print(f"    addr=0x{a:08x}, data=0x{d:08x}")
-
-    assert seen_result, "GPIO_RESULT_ADDR was never written"
-
-    # We expect at least one write to GPIO_DIR/Data from the C program.
-    assert dir_writes, "No writes to GPIO_DIR were observed"
-    assert data_writes, "No writes to GPIO_DATA were observed"
-
-    # At some point GPIO_DIR and GPIO_DATA should have configured GPIO[0] as
-    # an output and driven it high.
-    assert any((d & 0x1) == 0x1 for d in dir_writes), (
-        f"GPIO_DIR never had bit 0 set, dir_writes={dir_writes}"
-    )
-    assert any((d & 0x1) == 0x1 for d in data_writes), (
-        f"GPIO_DATA never had bit 0 set, data_writes={data_writes}"
+    valid_log_addr_set = {gpio_log_addr(i) for i in range(LOG_ENTRY_COUNT)}
+    unexpected = sorted(addr for addr in log_entries if addr not in valid_log_addr_set)
+    assert not unexpected, f"Unexpected firmware logs at addresses: {unexpected}"
+    dut._log.debug(
+        "Captured log entries: %s",
+        {
+            f"0x{addr:08x}": [f"0x{val:08x}" for val in values]
+            for addr, values in sorted(log_entries.items())
+        },
     )
 
-    # We should have seen at least one read from GPIO_IN.
-    assert gpio_in_reads, "No reads from GPIO_IN were observed"
-    assert gpio_in_read_count >= 1, "Expected at least one read from GPIO_IN"
-
-    # Bit 0 should have been driven high at least once; GPIO_RESULT snapshot
-    # must reflect that (low bit set).
-    assert (result_value & 0x1) == 0x1, (
-        f"Expected GPIO bit 0 high in snapshot, got 0x{result_value:08x}"
+    expected_log_values = (
+        [0, 0]
+        + [pattern & OUTPUT_MASK for pattern in OUTPUT_PATTERNS]
+        + [OUTPUT_MASK, OUTPUT_PATTERNS[-1] & OUTPUT_MASK]
     )
+
+    for idx, expected_value in enumerate(expected_log_values):
+        addr = gpio_log_addr(idx)
+        writes = log_entries.get(addr)
+        assert writes, f"No firmware write captured for log slot {idx} (0x{addr:08x})"
+        observed = writes[-1] & 0xFFFFFFFF
+        assert observed == expected_value, (
+            f"Log slot {idx} at 0x{addr:08x}: expected 0x{expected_value:08x}, "
+            f"got 0x{observed:08x}"
+        )
+
+    assert gpio_dir_writes, "GPIO_DIR never written by firmware"
+    assert gpio_dir_writes[-1] == OUTPUT_MASK, (
+        f"GPIO_DIR expected 0x{OUTPUT_MASK:08x}, saw 0x{gpio_dir_writes[-1]:08x}"
+    )
+
+    assert len(gpio_data_writes) >= len(OUTPUT_PATTERNS), (
+        f"Expected at least {len(OUTPUT_PATTERNS)} GPIO_DATA writes, "
+        f"saw {len(gpio_data_writes)}"
+    )
+    observed_patterns = [val & OUTPUT_MASK for val in gpio_data_writes[-len(OUTPUT_PATTERNS):]]
+    expected_patterns = [val & OUTPUT_MASK for val in OUTPUT_PATTERNS]
+    assert observed_patterns == expected_patterns, (
+        f"GPIO_DATA write sequence mismatch: expected {expected_patterns}, "
+        f"got {observed_patterns}"
+    )
+
+    dut._log.info("GPIO firmware test completed successfully.")
 
 def runCocotbTests():
     """Run the GPIO C test via cocotb-test."""
