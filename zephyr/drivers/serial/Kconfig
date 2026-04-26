@@ -1,0 +1,7 @@
+config UART_SYNAPSE32
+	bool "Synapse32 UART driver"
+	default y
+	depends on DT_HAS_SYNAPSE32_UART_ENABLED
+	select SERIAL_HAS_DRIVER
+	help
+	  Enable the Synapse32 polling UART driver (TX-only).

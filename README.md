@@ -116,6 +116,29 @@ The regression tests include:
 - **CSR Tests**: Validates the control and status register operations.
 - **UART Tests**: Validates the UART communication functionality.
 
+## Zephyr
+
+Synapse32 includes an out-of-tree Zephyr port under `zephyr/` and a minimal
+sample application under `samples/zephyr_hello/`. Keep the upstream Zephyr
+checkout outside this repository, then point Zephyr at this repository as an
+extra module:
+
+```bash
+west build -p always \
+  -b synapse32_sim/synapse32 \
+  samples/zephyr_hello \
+  -d /tmp/zephyr_synapse32_build \
+  -- -DZEPHYR_EXTRA_MODULES=$PWD
+```
+
+Run the built image in the cocotb simulator:
+
+```bash
+python3 sim/run_zephyr.py /tmp/zephyr_synapse32_build/zephyr/zephyr.bin
+```
+
+More details are in [zephyr/README.md](zephyr/README.md).
+
 ## Contributors
 
 - [Saish Karole](https://github.com/saishock1504)

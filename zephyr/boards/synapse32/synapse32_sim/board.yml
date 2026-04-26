@@ -1,0 +1,6 @@
+board:
+  name: synapse32_sim
+  full_name: Synapse32 cocotb simulator
+  vendor: synapse32
+  socs:
+    - name: synapse32

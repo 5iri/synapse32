@@ -1,0 +1,8 @@
+name: synapse32
+build:
+  cmake: zephyr
+  kconfig: zephyr/Kconfig
+  settings:
+    soc_root: zephyr
+    board_root: zephyr
+    dts_root: zephyr

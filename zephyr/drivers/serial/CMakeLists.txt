@@ -1,0 +1,1 @@
+zephyr_sources_ifdef(CONFIG_UART_SYNAPSE32 uart_synapse32.c)

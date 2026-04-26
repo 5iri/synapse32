@@ -1,0 +1,14 @@
+description: Synapse32 UART (TX-only polling)
+
+compatible: "synapse32,uart"
+
+include: [uart-controller.yaml, base.yaml]
+
+properties:
+  reg:
+    required: true
+  current-speed:
+    required: true
+  clock-frequency:
+    type: int
+    description: Source clock for baud divisor (defaults to cpu clock-frequency)

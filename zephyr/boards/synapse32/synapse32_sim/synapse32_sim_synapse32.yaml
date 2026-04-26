@@ -1,0 +1,14 @@
+identifier: synapse32_sim/synapse32
+name: Synapse32 cocotb simulator
+type: mcu
+arch: riscv
+toolchain:
+  - cross-compile
+  - zephyr
+ram: 1024
+flash: 512
+supported:
+  - serial
+testing:
+  ignore_tags:
+    - net

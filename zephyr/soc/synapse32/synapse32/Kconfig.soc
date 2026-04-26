@@ -1,0 +1,13 @@
+config SOC_SYNAPSE32
+	bool
+	help
+	  Synapse32 RV32I CPU (RV32I + Zicsr + Zifencei).
+
+config SOC_FAMILY_SYNAPSE32
+	bool
+
+config SOC_FAMILY
+	default "synapse32" if SOC_FAMILY_SYNAPSE32
+
+config SOC
+	default "synapse32" if SOC_SYNAPSE32

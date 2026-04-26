@@ -1,0 +1,2 @@
+config BOARD_SYNAPSE32_SIM
+	select SOC_SYNAPSE32

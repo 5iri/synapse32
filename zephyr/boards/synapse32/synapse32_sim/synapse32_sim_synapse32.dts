@@ -1,0 +1,31 @@
+/dts-v1/;
+
+#include <synapse32.dtsi>
+
+/ {
+	model = "Synapse32 cocotb simulator";
+	compatible = "synapse32,sim", "synapse32";
+
+	chosen {
+		zephyr,flash = &imem;
+		zephyr,sram = &dmem;
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+	};
+};
+
+&imem {
+	status = "okay";
+	reg = <0x80000000 DT_SIZE_K(512)>;
+};
+
+&dmem {
+	status = "okay";
+	reg = <0x10000000 DT_SIZE_K(1024)>;
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+	clock-frequency = <DT_FREQ_M(100)>;
+};

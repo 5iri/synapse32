@@ -1,0 +1,4 @@
+family:
+  - name: synapse32
+    socs:
+      - name: synapse32
