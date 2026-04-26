@@ -8,6 +8,7 @@ The bin is converted to a Verilog hex file and loaded via $readmemh
 in unified_mem.v.
 """
 import logging
+import os
 import subprocess
 import sys
 from decimal import Decimal
@@ -148,7 +149,7 @@ def run_cocotb(hex_path: Path):
         python_search=[str(SIM_DIR)],
         sim_build=str(SIM_DIR / "sim_build_zephyr"),
         force_compile=True,
-        extra_args=["--trace"],
+        waves=os.getenv("WAVES", "0") == "1",
     )
 
 
