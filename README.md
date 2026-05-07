@@ -72,7 +72,7 @@ To compile the CPU and run the simulation of the example hello world program, fo
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # On Windows use .venv\Scripts\activate
-   pip install -r ../tests/requirements.txt # install cocotb and other dependencies
+   uv pip install -r ../requirements.txt
    ```
 
 3. Compile the CPU using python script:
@@ -98,7 +98,7 @@ To run the regression tests, follow these steps:
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # On Windows use .venv\Scripts\
-   pip install -r requirements.txt
+   uv pip install -r ../requirements.txt
    ```
 3. Run the regression tests using pytest:
    ```bash
@@ -118,26 +118,24 @@ The regression tests include:
 
 ## Zephyr
 
-Synapse32 includes an out-of-tree Zephyr port under `zephyr/` and a minimal
-sample application under `samples/zephyr_hello/`. Keep the upstream Zephyr
-checkout outside this repository, then point Zephyr at this repository as an
-extra module:
+The repo includes a checked-in Zephyr hello-world binary for simulator bring-up
+at [sim/zephyr_hello.bin](/Users/siriboi/github/synapse32/sim/zephyr_hello.bin).
+
+Run it with:
 
 ```bash
-west build -p always \
-  -b synapse32_sim/synapse32 \
-  samples/zephyr_hello \
-  -d /tmp/zephyr_synapse32_build \
-  -- -DZEPHYR_EXTRA_MODULES=$PWD
+python sim/run_zephyr_sim.py
 ```
 
-Run the built image in the cocotb simulator:
+To try another Zephyr image manually:
 
 ```bash
-python3 sim/run_zephyr.py /tmp/zephyr_synapse32_build/zephyr/zephyr.bin
+python sim/run_zephyr_sim.py path/to/zephyr.bin
 ```
 
-More details are in [zephyr/README.md](zephyr/README.md).
+The sample source lives under `samples/zephyr_hello/`, and the exact one-time
+regeneration process for `sim/zephyr_hello.bin` is documented in
+[zephyr/README.md](zephyr/README.md).
 
 ## Contributors
 

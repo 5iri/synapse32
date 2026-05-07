@@ -1,14 +1,15 @@
 """Run a prebuilt Zephyr image on the synapse32 cocotb testbench.
 
 Usage:
-    python3 sim/run_zephyr.py [path/to/zephyr.bin]
+    python3 sim/run_zephyr_sim.py [path/to/zephyr.bin]
 
-Defaults to /tmp/zephyr_synapse32_build/zephyr/zephyr.bin.
+Defaults to sim/zephyr_hello.bin in this repository.
 The bin is converted to a Verilog hex file and loaded via $readmemh
 in unified_mem.v.
 """
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from decimal import Decimal
@@ -22,10 +23,10 @@ from cocotb.triggers import RisingEdge, Timer, ClockCycles
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
-DEFAULT_BIN = Path("/tmp/zephyr_synapse32_build/zephyr/zephyr.bin")
 SIM_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SIM_DIR.parent
 RTL_DIR = REPO_ROOT / "rtl"
+DEFAULT_BIN = SIM_DIR / "zephyr_hello.bin"
 
 CPU_CLOCK_HZ = 100_000_000
 ZEPHYR_BAUD = 115200
@@ -40,7 +41,7 @@ class UartMonitor:
         self.received = bytearray()
         self.monitoring = True
         log.info(
-            "UART monitor: clk=%dHz, divisor=%d → ~%d baud",
+            "UART monitor: clk=%dHz, divisor=%d -> ~%d baud",
             cpu_clock_freq, baud_divisor, cpu_clock_freq // baud_divisor,
         )
 
@@ -50,14 +51,13 @@ class UartMonitor:
                 await RisingEdge(self.clk)
                 if not self.monitoring:
                     return
-            # 1.5 bit periods to centre of bit 0
+            # 1.5 bit periods to center of bit 0
             await Timer(Decimal(self.baud_period_cycles * 1.5 * 10), units="ns")
             byte = 0
             for bit in range(8):
                 byte |= (int(self.tx.value) << bit)
                 if bit < 7:
                     await Timer(Decimal(self.baud_period_cycles * 10), units="ns")
-            # stop bit
             await Timer(Decimal(self.baud_period_cycles * 10), units="ns")
             self.received.append(byte & 0xFF)
 
@@ -68,10 +68,32 @@ class UartMonitor:
         self.monitoring = False
 
 
+def resolve_bin_path(argv: list[str]) -> Path:
+    if len(argv) > 1:
+        return Path(argv[1]).expanduser()
+    return DEFAULT_BIN
+
+
 def bin_to_hex(bin_path: Path, hex_path: Path):
     """Convert a flat binary into the Verilog readmemh format unified_mem expects."""
+    objcopy = os.getenv("RISCV_OBJCOPY")
+    if not objcopy:
+        for candidate in (
+            "riscv64-unknown-elf-objcopy",
+            "riscv64-zephyr-elf-objcopy",
+            "riscv32-unknown-elf-objcopy",
+        ):
+            if shutil.which(candidate):
+                objcopy = candidate
+                break
+    if not objcopy:
+        raise FileNotFoundError(
+            "Could not find a RISC-V objcopy. Set RISCV_OBJCOPY or install a "
+            "RISC-V GNU toolchain."
+        )
+
     subprocess.run([
-        "riscv64-unknown-elf-objcopy",
+        objcopy,
         "-I", "binary",
         "-O", "verilog",
         "--verilog-data-width=4",
@@ -104,9 +126,12 @@ async def run_zephyr(dut):
     for cycle in range(max_cycles):
         await RisingEdge(dut.clk)
         if SUCCESS_NEEDLE in monitor.received and not found:
-            log.info("Detected '%s' at cycle %d, draining trailing output", SUCCESS_NEEDLE.decode(), cycle)
+            log.info(
+                "Detected '%s' at cycle %d, draining trailing output",
+                SUCCESS_NEEDLE.decode(),
+                cycle,
+            )
             found = True
-            # 1 byte = 10 baud bits = baud_div*10 cycles. Drain ~80 bytes worth.
             await ClockCycles(dut.clk, baud_div * 10 * 80)
             break
         if cycle - last_log_cycle >= 200_000:
@@ -140,7 +165,7 @@ def run_cocotb(hex_path: Path):
     run(
         verilog_sources=rtl_sources(),
         toplevel="top",
-        module="run_zephyr",
+        module="run_zephyr_sim",
         testcase="run_zephyr",
         includes=[str(RTL_DIR / "include"), str(RTL_DIR)],
         simulator="verilator",
@@ -154,9 +179,9 @@ def run_cocotb(hex_path: Path):
 
 
 if __name__ == "__main__":
-    bin_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_BIN
+    bin_path = resolve_bin_path(sys.argv)
     if not bin_path.exists():
-        log.error("Zephyr bin not found: %s — did you run `west build`?", bin_path)
+        log.error("Zephyr bin not found: %s", bin_path)
         sys.exit(1)
 
     build_dir = SIM_DIR / "build"
