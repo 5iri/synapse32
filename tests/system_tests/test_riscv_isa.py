@@ -89,7 +89,10 @@ def runCocotbTests():
     repo_root = _find_repo_root()
     rtl_dir = repo_root / "rtl"
     incl_dir = rtl_dir / "include"
-    hex_file = os.environ["ISA_HEX_FILE"]
+    # Keep the image path stable across test invocations.  The comparison
+    # driver replaces this file between tests, so the Verilator model does
+    # not need to be rebuilt for every ELF.
+    hex_file = os.environ.get("ISA_SIM_HEX_FILE") or os.environ["ISA_HEX_FILE"]
 
     sources = []
     for root, _, files in os.walk(rtl_dir):
@@ -97,8 +100,14 @@ def runCocotbTests():
             if file.endswith((".v", ".sv")):
                 sources.append(os.path.join(root, file))
 
-    sim_build = Path.cwd() / "sim_build" / "sim_build_riscv_isa"
-    if sim_build.exists():
+    sim_build = Path(
+        os.environ.get(
+            "ISA_SIM_BUILD",
+            str(Path.cwd() / "sim_build" / "sim_build_riscv_isa"),
+        )
+    )
+    force_compile = os.environ.get("ISA_FORCE_COMPILE", "0") == "1"
+    if force_compile and sim_build.exists():
         shutil.rmtree(sim_build)
 
     run(
@@ -111,7 +120,7 @@ def runCocotbTests():
         timescale="1ns/1ps",
         defines=[f'INSTR_HEX_FILE="{hex_file}"'],
         sim_build=str(sim_build),
-        force_compile=True,
+        force_compile=force_compile,
     )
 
 
