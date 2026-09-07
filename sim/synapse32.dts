@@ -31,7 +31,11 @@
 		};
 	};
 
-	/* 64MB unified RAM — OpenSBI at base, kernel at +2MB (0x80200000) */
+	/*
+	 * 64MB unified RAM, matching INSTR_MEM_SIZE in
+	 * rtl/include/memory_map.vh: OpenSBI at the base, kernel at +2MB
+	 * (FW_JUMP_ADDR = 0x80200000 in build_opensbi.sh).
+	 */
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0x80000000 0x04000000>;

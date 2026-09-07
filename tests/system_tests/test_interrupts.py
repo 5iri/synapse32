@@ -334,6 +334,49 @@ async def test_wfi_interrupt(dut):
     print("WFI interrupt wake test passed!")
 
 @cocotb.test()
+async def test_wfi_interrupt_with_global_mie_clear(dut):
+    """WFI must resume on an enabled pending interrupt with MIE clear."""
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.start())
+
+    dut.timer_interrupt.value = 0
+    dut.software_interrupt.value = 0
+    dut.external_interrupt.value = 0
+    dut.rst.value = 1
+    await ClockCycles(dut.clk, 5)
+    dut.rst.value = 0
+
+    mem_writes = {}
+    irq_armed = False
+    irq_pulse = 0
+
+    for _ in range(400):
+        if int(dut.cpu_mem_write_en.value):
+            addr = int(dut.cpu_mem_write_addr.value)
+            mem_writes[addr] = int(dut.cpu_mem_write_data.value)
+
+        if not irq_armed and mem_writes.get(0x02000000) == 0x11:
+            irq_armed = True
+            irq_pulse = 4
+            dut.software_interrupt.value = 1
+
+        if irq_pulse > 0:
+            irq_pulse -= 1
+            if irq_pulse == 0:
+                dut.software_interrupt.value = 0
+
+        if mem_writes.get(0x02000008) == 1:
+            break
+        await RisingEdge(dut.clk)
+
+    assert mem_writes.get(0x02000000) == 0x11, "Pre-WFI marker missing"
+    assert mem_writes.get(0x02000004) == 0x22, (
+        "WFI did not resume while global MIE was clear"
+    )
+    assert mem_writes.get(0x02000008) == 1, "Completion flag missing"
+    assert 0x0200000C not in mem_writes, "Interrupt was delivered despite MIE=0"
+
+@cocotb.test()
 async def test_wfi_pending_no_global(dut):
     """Test WFI resumes on an enabled pending interrupt even with MIE=0."""
     print("Starting WFI pending-with-global-disabled test...")
@@ -400,15 +443,19 @@ async def test_arch_cpu_idle_resume(dut):
     await ClockCycles(dut.clk, 5)
 
     sp_base = 0x10000100
-    return_pc = 0x80000018
+    return_pc = 0x80000020
     scratch_base = 0x10002000
+    saved_s0 = 0x12345678
 
     # Seed the stack frame and architectural state while reset is asserted.
+    # Stack addresses are physical here, so they must go through
+    # _phys_word_index(): unified_mem stores the data region *after* the whole
+    # instruction region, not at index 0.
     dut.cpu_inst.rf_inst0.register_file[2].value = sp_base
     dut.cpu_inst.rf_inst0.register_file[8].value = 0xCAFEBABE
     dut.cpu_inst.rf_inst0.register_file[1].value = 0x11111111
-    dut.unified_mem_inst.instr_ram[(sp_base - 0x10000000 + 8) // 4].value = 0x12345678
-    dut.unified_mem_inst.instr_ram[(sp_base - 0x10000000 + 12) // 4].value = return_pc
+    dut.unified_mem_inst.instr_ram[_phys_word_index(sp_base + 8)].value = saved_s0
+    dut.unified_mem_inst.instr_ram[_phys_word_index(sp_base + 12)].value = return_pc
 
     csr = dut.cpu_inst.csr_file_inst
     csr.privilege_mode.value = 0x1
@@ -424,7 +471,7 @@ async def test_arch_cpu_idle_resume(dut):
     mem_writes = {}
     reached_return = False
 
-    for cycle in range(40):
+    for cycle in range(200):
         await RisingEdge(dut.clk)
 
         sample = {
@@ -452,7 +499,6 @@ async def test_arch_cpu_idle_resume(dut):
 
         if sample["pc"] == return_pc:
             reached_return = True
-            break
 
         if int(dut.cpu_mem_write_en.value):
             addr = int(dut.cpu_mem_write_addr.value) & 0xFFFFFFFF
@@ -460,7 +506,24 @@ async def test_arch_cpu_idle_resume(dut):
             mem_writes[addr] = data
             print(f"Cycle {cycle}: Memory write addr=0x{addr:08x} data=0x{data:08x}")
 
-    assert reached_return, "arch_cpu_idle reproducer never reached the return target"
+        if mem_writes.get(scratch_base + 8) == 1:
+            break
+
+    pc_tail = " ".join(f"{s['cycle']}:0x{s['pc']:08x}" for s in observed[-12:])
+    assert mem_writes.get(scratch_base + 8) == 1, (
+        "Return block never ran: the core did not return through the loaded ra "
+        f"(reached_return={reached_return}, last PCs: {pc_tail})"
+    )
+    assert mem_writes.get(scratch_base) == return_pc, (
+        f"ret used the wrong return address: stored ra="
+        f"0x{mem_writes.get(scratch_base, 0):08x}, expected 0x{return_pc:08x}"
+    )
+    assert mem_writes.get(scratch_base + 4) == 0x77, "Marker store missing"
+    assert int(dut.cpu_inst.rf_inst0.register_file[8].value) == saved_s0, (
+        "Post-WFI load of s0 did not retire: s0="
+        f"0x{int(dut.cpu_inst.rf_inst0.register_file[8].value):08x}, "
+        f"expected 0x{saved_s0:08x}"
+    )
 
     stall_at_post_wfi = [
         s for s in observed if s["pc"] == 0x80000008 and s["wfi_stall"] == 1
@@ -498,7 +561,8 @@ async def test_arch_cpu_idle_resume_mmu(dut):
     scratch_pa = 0x10001000
     root_pt_pa = 0x10002000
     l0_pt_pa = 0x10003000
-    return_pc = code_va + 0x18
+    return_pc = code_va + 0x20
+    saved_s0 = 0x12345678
 
     def pte_leaf(ppn, flags):
         return ((ppn & 0xFFFFF) << 10) | flags
@@ -507,7 +571,7 @@ async def test_arch_cpu_idle_resume_mmu(dut):
         return ((ppn & 0xFFFFF) << 10) | 0x001
 
     # Seed stack frame.
-    dut.unified_mem_inst.instr_ram[_phys_word_index(stack_pa + 8)].value = 0x12345678
+    dut.unified_mem_inst.instr_ram[_phys_word_index(stack_pa + 8)].value = saved_s0
     dut.unified_mem_inst.instr_ram[_phys_word_index(stack_pa + 12)].value = return_pc
 
     # Root entry for vpn1=0x200, then leaf entries for vpn0=0/1/2.
@@ -534,7 +598,7 @@ async def test_arch_cpu_idle_resume_mmu(dut):
     mem_writes = {}
     reached_return = False
 
-    for cycle in range(80):
+    for cycle in range(300):
         await RisingEdge(dut.clk)
 
         sample = {
@@ -564,15 +628,33 @@ async def test_arch_cpu_idle_resume_mmu(dut):
 
         if sample["pc"] == return_pc:
             reached_return = True
-            break
 
+        # cpu_mem_write_addr is the pre-translation address, so these keys are
+        # the scratch page's virtual addresses.
         if int(dut.cpu_mem_write_en.value):
             addr = int(dut.cpu_mem_write_addr.value) & 0xFFFFFFFF
             data = int(dut.cpu_mem_write_data.value) & 0xFFFFFFFF
             mem_writes[addr] = data
             print(f"Cycle {cycle}: Memory write addr=0x{addr:08x} data=0x{data:08x}")
 
-    assert reached_return, "MMU arch_cpu_idle reproducer never reached the return target"
+        if mem_writes.get(scratch_va + 8) == 1:
+            break
+
+    pc_tail = " ".join(f"{s['cycle']}:0x{s['pc']:08x}" for s in observed[-12:])
+    assert mem_writes.get(scratch_va + 8) == 1, (
+        "Return block never ran: the core did not return through the loaded ra "
+        f"(reached_return={reached_return}, last PCs: {pc_tail})"
+    )
+    assert mem_writes.get(scratch_va) == return_pc, (
+        f"ret used the wrong return address: stored ra="
+        f"0x{mem_writes.get(scratch_va, 0):08x}, expected 0x{return_pc:08x}"
+    )
+    assert mem_writes.get(scratch_va + 4) == 0x77, "Marker store missing"
+    assert int(dut.cpu_inst.rf_inst0.register_file[8].value) == saved_s0, (
+        "Post-WFI load of s0 did not retire: s0="
+        f"0x{int(dut.cpu_inst.rf_inst0.register_file[8].value):08x}, "
+        f"expected 0x{saved_s0:08x}"
+    )
     assert not any(s["ifault"] or s["lfault"] or s["sfault"] for s in observed), (
         "Unexpected MMU fault during idle reproducer"
     )
@@ -659,10 +741,10 @@ def run_timer_interrupt_test():
     
     # Main program - sets up timer and waits for interrupt
     main_program = [
-        # Setup interrupt vector to 0x80000100 where handler is placed.
+        # Setup interrupt vector at instruction-memory base + 0x100.
         0x80000137,  # lui x2, 0x80000       # Set x2 = 0x80000000
-        0x10010113,  # addi x2, x2, 0x100    # x2 = 0x80000100 (handler at instruction 64, byte 0x100)
-        0x30511073,  # csrw mtvec, x2        # Set mtvec = 0x80000100 (direct mode)
+        0x10010113,  # addi x2, x2, 0x100    # x2 = 0x80000100 (handler at instruction 64)
+        0x30511073,  # csrw mtvec, x2        # Set mtvec to the handler address
         
         # Enable timer interrupts  
         0x08000093,  # addi x1, x0, 128      # Set x1 = 0x80 (MTIE bit)
@@ -731,7 +813,7 @@ def run_timer_interrupt_test():
 def run_wfi_interrupt_test():
     """Create program that executes WFI and resumes after a SW interrupt."""
     main_program = [
-        0x800000b7,  # lui x1, 0x80000      # x1 = 0x80000000
+        0x800000b7,  # lui x1, 0x80000      # mtvec base = 0x80000000
         0x10008093,  # addi x1, x1, 0x100   # mtvec = 0x80000100
         0x30509073,  # csrw mtvec, x1
         0x00800093,  # addi x1, x0, 8       # MSIE
@@ -764,6 +846,33 @@ def run_wfi_interrupt_test():
     hex_file = create_interrupt_test_hex(test_name, instr_mem)
     return test_name, hex_file
 
+def run_wfi_interrupt_with_global_mie_clear_test():
+    """Create a WFI program with MSIE set but global MIE deliberately clear."""
+    main_program = [
+        0x800000b7,  # lui x1, 0x80000          # mtvec base = 0x80000000
+        0x10008093,  # addi x1, x1, 0x100       # mtvec = 0x80000100
+        0x30509073,  # csrw mtvec, x1
+        0x00800093,  # addi x1, x0, 8           # MSIE only
+        0x30409073,  # csrw mie, x1
+        0x02000137,  # lui x2, 0x2000           # data base: 0x02000000
+        0x01100213,  # addi x4, x0, 0x11        # pre-WFI marker
+        0x00412023,  # sw x4, 0(x2)
+        0x10500073,  # wfi
+        0x02200293,  # addi x5, x0, 0x22        # post-WFI marker
+        0x00512223,  # sw x5, 4(x2)
+        0x00100313,  # addi x6, x0, 1
+        0x00612423,  # sw x6, 8(x2)
+        0x0000006F,  # jal x0, 0
+    ]
+
+    while len(main_program) < 64:
+        main_program.append(0x00000013)
+
+    instr_mem = main_program + [0x00000013] * 4
+    test_name = "wfi_interrupt_with_global_mie_clear"
+    hex_file = create_interrupt_test_hex(test_name, instr_mem)
+    return test_name, hex_file
+
 def run_wfi_pending_no_global_test():
     """Create program that proves WFI resumes on a pending enabled interrupt
     even when the global MIE bit is clear.
@@ -789,13 +898,21 @@ def run_wfi_pending_no_global_test():
     return test_name, hex_file
 
 def run_arch_cpu_idle_resume_test():
-    """Encode Linux arch_cpu_idle() plus a tiny return target.
+    """Encode Linux arch_cpu_idle() plus a return target only `ret` can reach.
 
     0x80000000: fence
     0x80000004: wfi
     0x80000008: lw ra, 12(sp)
-    0x8000000c: ret
-    0x80000018: store loaded RA, store marker, store done, spin
+    0x8000000c: lw s0, 8(sp)
+    0x80000010: addi sp, sp, 0x10
+    0x80000014: ret                -> must land on 0x80000020
+    0x80000018: spin               <- fall-through trap
+    0x8000001c: spin               <- fall-through trap
+    0x80000020: store loaded RA, store marker, store done, spin
+
+    The two spins matter: if the return block sat at 0x80000018 it would be the
+    fall-through address of `ret`, so the core would walk into it in program
+    order and the test would pass without the return address ever being used.
     """
     instr_mem = [
         0x0FF0000F,  # fence
@@ -803,7 +920,9 @@ def run_arch_cpu_idle_resume_test():
         0x00C12083,  # lw ra, 12(sp)
         0x00812403,  # lw s0, 8(sp)
         0x01010113,  # addi sp, sp, 0x10
-        0x00008067,  # ret
+        0x00008067,  # ret                  -> 0x80000020 via the loaded ra
+        0x0000006F,  # jal x0, 0            # trap the fall-through path
+        0x0000006F,  # jal x0, 0
         0x100023B7,  # lui x7, 0x10002      -> 0x10002000
         0x0013A023,  # sw ra, 0(x7)
         0x07700293,  # addi x5, x0, 0x77
@@ -818,14 +937,20 @@ def run_arch_cpu_idle_resume_test():
     return test_name, hex_file
 
 def run_arch_cpu_idle_resume_mmu_test():
-    """Same idle helper, but return target stores into a mapped scratch page."""
+    """Same idle helper, but return target stores into a mapped scratch page.
+
+    Layout matches run_arch_cpu_idle_resume_test: the return block sits at
+    +0x20 behind two spins, so it is reachable only through the loaded ra.
+    """
     instr_mem = [
         0x0FF0000F,  # fence
         0x10500073,  # wfi
         0x00C12083,  # lw ra, 12(sp)
         0x00812403,  # lw s0, 8(sp)
         0x01010113,  # addi sp, sp, 0x10
-        0x00008067,  # ret
+        0x00008067,  # ret                  -> code_va + 0x20 via the loaded ra
+        0x0000006F,  # jal x0, 0            # trap the fall-through path
+        0x0000006F,  # jal x0, 0
         0x800023B7,  # lui x7, 0x80002      -> 0x80002000
         0x0013A023,  # sw ra, 0(x7)
         0x07700293,  # addi x5, x0, 0x77
@@ -871,6 +996,7 @@ def runCocotbTests():
         ("mret_test", run_mret_test),
         ("timer_interrupt", run_timer_interrupt_test),
         ("wfi_interrupt", run_wfi_interrupt_test),
+        ("wfi_interrupt_with_global_mie_clear", run_wfi_interrupt_with_global_mie_clear_test),
         ("wfi_pending_no_global", run_wfi_pending_no_global_test),
         ("arch_cpu_idle_resume", run_arch_cpu_idle_resume_test),
         ("arch_cpu_idle_resume_mmu", run_arch_cpu_idle_resume_mmu_test),

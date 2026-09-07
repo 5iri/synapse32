@@ -1,5 +1,5 @@
 import cocotb
-from cocotb.triggers import FallingEdge, ReadOnly, RisingEdge, Timer
+from cocotb.triggers import ClockCycles, FallingEdge, ReadOnly, RisingEdge, Timer
 from cocotb.clock import Clock
 import pytest
 import os
@@ -8,8 +8,12 @@ RESET_PC_BASE = 0x80000000
 NOP = 0x00000013
 
 
-async def run_csr_test_program(dut, instr_mem):
-    """Helper function to run a CSR test program"""
+async def run_csr_test_program(dut, instr_mem, max_cycles=None):
+    """Helper function to run a CSR test program.
+
+    ``max_cycles`` overrides the default budget for programs that stall long
+    enough that one cycle per instruction is not enough to retire them.
+    """
     # Dictionary to track register values
     reg_values = {i: 0 for i in range(32)}
     trace_pipeline = os.getenv("TRACE_PIPELINE", "0") == "1"
@@ -35,7 +39,9 @@ async def run_csr_test_program(dut, instr_mem):
     cocotb.start_soon(drive_instruction_memory())
     
     # Feed instructions and track CSR operations
-    for cycle in range(len(instr_mem) + 30):  # +20 ensures pipeline drains fully
+    if max_cycles is None:
+        max_cycles = len(instr_mem) + 10
+    for cycle in range(max_cycles):
         await RisingEdge(dut.clk)
         await ReadOnly()
         
@@ -96,6 +102,9 @@ async def run_csr_test_program(dut, instr_mem):
                 )
             except Exception:
                 pass
+
+    # Allow the final writeback value to reach the clocked register file.
+    await ClockCycles(dut.clk, 15)
             
     # Print final register values
     print("\nFinal register values:")
@@ -363,7 +372,9 @@ async def test_csr_machine_mode_riscv_tests_sequence(dut):
         0x34002573,  # csrr   a0,  mscratch
     ]
 
-    await run_csr_test_program(dut, instr_mem)
+    # Every CSR op here stalls the pipeline for several cycles, so the default
+    # one-cycle-per-instruction budget retires only part of the program.
+    await run_csr_test_program(dut, instr_mem, max_cycles=len(instr_mem) * 8 + 20)
 
     a0 = int(dut.rf_inst0.register_file[10].value)
     a1 = int(dut.rf_inst0.register_file[11].value)
@@ -1166,9 +1177,12 @@ async def test_mpp_set_on_m_mode_illegal_instruction(dut):
 async def test_m_mode_illegal_csr_probe_pattern(dut):
     """OpenSBI-style CSR probe: swap mtvec, probe unknown CSR, restore mtvec.
 
-    OpenSBI probes optional CSRs (e.g. mtopi/0xFB0) by installing a temporary
+    OpenSBI probes optional CSRs (e.g. the AIA CSRs) by installing a temporary
     mtvec, attempting the access, and relying on the trap handler to advance
-    mepc+4 and mret back. Verifies the full round-trip: trap → probe handler →
+    mepc+4 and mret back. The probed CSR must be one this core does not
+    implement: mtopi/0xFB0 reads as 0 here (see csr_valid in csr_file.v), so
+    this probes mtopei/0x35C, which is absent from csr_valid and therefore
+    raises an illegal-instruction trap. Verifies the full round-trip: trap → probe handler →
     mret → M-mode execution resumes at the instruction after the probe.
     """
     print("Starting M-mode illegal CSR probe pattern test...")
@@ -1190,8 +1204,8 @@ async def test_m_mode_illegal_csr_probe_pattern(dut):
     instr_mem[0] = 0x05000093
     # 0x04: csrrw x2, mtvec, x1        # save old mtvec in x2, install probe handler
     instr_mem[1] = 0x30509173
-    # 0x08: csrr x0, 0xFB0             # probe mtopi (AIA ext, unknown → illegal instr)
-    instr_mem[2] = 0xFB002073
+    # 0x08: csrr x0, 0x35C             # probe mtopei (AIA ext, unimplemented → illegal instr)
+    instr_mem[2] = 0x35C02073
     # 0x0C: csrw mtvec, x2             # restore mtvec (reached after probe mret)
     instr_mem[3] = 0x30511073
     # 0x10: addi x5, x0, 0xAA         # sentinel: probe handled, execution continued
@@ -1209,7 +1223,10 @@ async def test_m_mode_illegal_csr_probe_pattern(dut):
     # 0x5C: mret
     instr_mem[23] = 0x30200073
 
-    await run_csr_test_program(dut, instr_mem)
+    # The probe trap plus the handler's CSR ops stall well past the default
+    # one-cycle-per-instruction budget; the jal at 0x14 parks execution, so
+    # spare cycles are harmless.
+    await run_csr_test_program(dut, instr_mem, max_cycles=len(instr_mem) * 4 + 20)
 
     x3 = int(dut.rf_inst0.register_file[3].value)
     x5 = int(dut.rf_inst0.register_file[5].value)
@@ -1308,9 +1325,10 @@ async def test_csr_mret(dut):
     instr_mem[4] = 0x00000073
     # 0x14: addi x6, x0, 0xBB              # executes only if mret returned here
     instr_mem[5] = 0x0BB00313
-    # 0x18: jal x0, 0                      # hold here after the return path
-    # Prevents fall-through into the handler region at 0x40, which would
-    # otherwise execute as ordinary code and clobber trap CSRs.
+    # 0x18: jal x0, 0                      # park here; without this the PC keeps
+    #                                      # walking through the NOP padding into
+    #                                      # the handler and re-executes it in
+    #                                      # U-mode, trapping and clobbering mcause
     instr_mem[6] = 0x0000006F
 
     # Handler at 0x40 (word index 16):

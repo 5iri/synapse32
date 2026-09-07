@@ -10,6 +10,9 @@ UART_IDLE_CYCLES = int(os.getenv("UART_IDLE_CYCLES", "200000"))
 BOOT_TIMEOUT_CYCLES = int(os.getenv("BOOT_TIMEOUT_CYCLES", "5000000"))
 STATUS_INTERVAL_CYCLES = int(os.getenv("STATUS_INTERVAL_CYCLES", "250000"))
 CLOCK_PERIOD_NS = int(os.getenv("CLOCK_PERIOD_NS", "20"))
+# Reaching UART idle only proves the firmware emitted *something*. Require the
+# banner so a single stray byte followed by a wedged hart fails the test.
+EXPECTED_BANNER = os.getenv("EXPECTED_BANNER", "OpenSBI v")
 DEBUG_BOOT_LOGS = os.getenv("DEBUG_BOOT_LOGS", "0") == "1"
 
 
@@ -50,6 +53,9 @@ class UartConsole:
 
         self.prev_tx_state = tx_state
         return emitted
+
+    def text(self) -> str:
+        return self.received.decode("ascii", errors="replace")
 
     async def next_byte(self, dut):
         await RisingEdge(dut.clk)
@@ -134,7 +140,7 @@ def dump_status(dut, cycle, force=False):
         "uart_rbr": _read_value(uart.rbr, 0),
         "uart_irq": _read_value(uart.interrupt, 0),
         "plic_pending": _read_value(plic.pending_1, 0) if plic is not None else 0,
-        "plic_claimed": _read_value(plic.claimed_1, 0) if plic is not None else 0,
+        "plic_gateway_busy": _read_value(plic.gateway_busy_1, 0) if plic is not None else 0,
         "plic_enable_m": _read_value(plic.enable_m_1, 0) if plic is not None else 0,
         "plic_enable_s": _read_value(plic.enable_s_1, 0) if plic is not None else 0,
         "plic_ext_irq": _read_value(plic.external_interrupt, 0) if plic is not None else 0,
@@ -158,12 +164,23 @@ def dump_status(dut, cycle, force=False):
         "stall=%(pipeline_stall)d hazard=%(hazard_stall)d "
         "rx_state=%(uart_rx_state)d rx_dr=%(uart_rx_dr)d rx_oe=%(uart_rx_oe)d "
         "rbr=0x%(uart_rbr)02x uart_irq=%(uart_irq)d "
-        "plic_pending=%(plic_pending)d plic_claimed=%(plic_claimed)d "
+        "plic_pending=%(plic_pending)d plic_gateway_busy=%(plic_gateway_busy)d "
         "plic_en_m=%(plic_enable_m)d plic_en_s=%(plic_enable_s)d plic_irq=%(plic_ext_irq)d "
         "a0=0x%(a0)08x a1=0x%(a1)08x "
         "a2=0x%(a2)08x a3=0x%(a3)08x a4=0x%(a4)08x a5=0x%(a5)08x s1=0x%(s1)08x",
         values,
     )
+
+
+def _assert_banner(dut, console):
+    text = console.text()
+    if EXPECTED_BANNER not in text:
+        raise AssertionError(
+            f"UART went idle without the expected banner {EXPECTED_BANNER!r} "
+            f"(captured {len(console.received)} bytes, "
+            f"pc=0x{int(dut.pc_debug.value):08x}):\n{text}"
+        )
+    cocotb.log.info("Found expected banner %r in UART output", EXPECTED_BANNER)
 
 
 async def monitor_traps(dut):
@@ -200,7 +217,7 @@ async def monitor_traps(dut):
             )
 
         if mem_pf and not prev_mem_pf:
-            cocotb.log.error(
+            cocotb.log.info(
                 "MEM trap: pc=0x%08x ex_mem_addr=0x%08x read_req=%d mem_wr_en=%d "
                 "load_pf=%d store_pf=%d fault_addr=0x%08x read_addr=0x%08x write_addr=0x%08x "
                 "priv=%d scause=0x%08x stval=0x%08x",
@@ -218,7 +235,7 @@ async def monitor_traps(dut):
                 _read_value(dut.cpu_inst.csr_file_inst.stval, 0),
             )
             if reg_trace:
-                cocotb.log.error(
+                cocotb.log.info(
                     "Recent fp/sp/ra writes: %s",
                     ", ".join(
                         f"x{rd}=0x{val:08x}@pc=0x{pc:08x}/insn=0x{insn:08x}"
@@ -227,7 +244,7 @@ async def monitor_traps(dut):
                 )
 
         if instr_pf and not prev_instr_pf:
-            cocotb.log.error(
+            cocotb.log.info(
                 "IF trap: pc=0x%08x id_ex_pc=0x%08x instr=0x%08x priv=%d scause=0x%08x stval=0x%08x",
                 _read_value(dut.pc_debug, 0),
                 _read_value(dut.cpu_inst.id_ex_inst0_pc_out, 0),
@@ -239,7 +256,7 @@ async def monitor_traps(dut):
 
         if (scause in (0x0000000C, 0x0000000D, 0x0000000F) and
                 (scause != prev_scause or sepc != prev_sepc or stval != prev_stval)):
-            cocotb.log.error(
+            cocotb.log.info(
                 "CSR trap: scause=0x%08x sepc=0x%08x stval=0x%08x mepc=0x%08x "
                 "pc=0x%08x ex_mem_pc=0x%08x ex_mem_addr=0x%08x read_req=%d mem_wr_en=%d "
                 "load_pf=%d store_pf=%d fault_addr=0x%08x read_addr=0x%08x write_addr=0x%08x "
@@ -261,7 +278,7 @@ async def monitor_traps(dut):
                 _read_value(dut.cpu_inst.csr_file_inst.privilege_mode, 0),
             )
             if reg_trace:
-                cocotb.log.error(
+                cocotb.log.info(
                     "Recent fp/sp/ra writes: %s",
                     ", ".join(
                         f"x{rd}=0x{val:08x}@pc=0x{pc:08x}/insn=0x{insn:08x}"
@@ -301,6 +318,7 @@ async def boot_opensbi(dut):
         if last_uart_cycle is not None and (cycle - last_uart_cycle) >= UART_IDLE_CYCLES:
             print("\n\n=== UART idle, stopping simulation ===")
             cocotb.log.info("Captured %d UART bytes", len(console.received))
+            _assert_banner(dut, console)
             dump_status(dut, cycle)
             return
 
@@ -313,9 +331,12 @@ async def boot_opensbi(dut):
             f"(pc=0x{int(dut.pc_debug.value):08x})"
         )
 
+    # The idle path returned above, so UART was still active at the deadline:
+    # this is BOOT_TIMEOUT_CYCLES running out, not UART_IDLE_CYCLES.
     raise AssertionError(
-        f"Timed out {UART_IDLE_CYCLES} cycles after last UART byte "
-        f"(captured {len(console.received)} bytes, pc=0x{int(dut.pc_debug.value):08x})"
+        f"Still emitting UART output when BOOT_TIMEOUT_CYCLES ({BOOT_TIMEOUT_CYCLES}) "
+        f"expired (captured {len(console.received)} bytes, "
+        f"pc=0x{int(dut.pc_debug.value):08x})"
     )
 
 

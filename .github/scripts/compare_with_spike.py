@@ -109,9 +109,24 @@ def run_spike(elf: Path) -> tuple[bool, str]:
     return ok, detail
 
 
-def run_verilator(repo_root: Path, hex_file: Path, tohost: int, max_cycles: int) -> tuple[bool, str]:
+def run_verilator(
+    repo_root: Path,
+    hex_file: Path,
+    runtime_hex: Path,
+    sim_build: Path,
+    tohost: int,
+    max_cycles: int,
+    compile_model: bool,
+) -> tuple[bool, str]:
+    # The image is read by the RTL at simulator start.  Keep the Verilog
+    # define and build directory constant, changing only the file contents.
+    runtime_hex.parent.mkdir(parents=True, exist_ok=True)
+    runtime_hex.write_bytes(hex_file.read_bytes())
     env = os.environ.copy()
-    env["ISA_HEX_FILE"] = str(hex_file)
+    env["ISA_HEX_FILE"] = str(runtime_hex)
+    env["ISA_SIM_HEX_FILE"] = str(runtime_hex)
+    env["ISA_SIM_BUILD"] = str(sim_build)
+    env["ISA_FORCE_COMPILE"] = "1" if compile_model else "0"
     env["ISA_TOHOST_ADDR"] = hex(tohost)
     env["ISA_MAX_CYCLES"] = str(max_cycles)
     rc = run([sys.executable, "tests/system_tests/test_riscv_isa.py"], env=env, cwd=repo_root)
@@ -148,16 +163,26 @@ def main() -> int:
         return 2
 
     out_hex_dir = repo_root / ".github" / "artifacts" / "isa" / "build_hex"
+    runtime_hex = repo_root / ".github" / "artifacts" / "isa" / "runtime.hex"
+    sim_build = repo_root / ".github" / "artifacts" / "isa" / "sim_build_riscv_isa"
     results = []
     mismatches = []
 
-    for elf in tests:
+    for index, elf in enumerate(tests):
         try:
             th = tohost_addr(elf)
             hex_file = out_hex_dir / f"{elf.name}.hex"
             elf_to_hex(elf, hex_file)
             spike_ok, spike_log = run_spike(elf)
-            verilator_ok, verilator_log = run_verilator(repo_root, hex_file, th, args.max_cycles)
+            verilator_ok, verilator_log = run_verilator(
+                repo_root,
+                hex_file,
+                runtime_hex,
+                sim_build,
+                th,
+                args.max_cycles,
+                compile_model=index == 0,
+            )
             same = spike_ok == verilator_ok
             rec = {
                 "test": elf.name,

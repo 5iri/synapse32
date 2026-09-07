@@ -124,7 +124,7 @@ make opensbi-run
 
 Useful targets:
 
-- `make deps` installs the Python simulator dependencies into `/workspace/.venv`
+- `make deps` installs the Python simulator dependencies into `venv/` at the repo root
 - `make opensbi-build` rebuilds `sim/.out/opensbi/opensbi.hex`
 - `make uart-run` boots the current `IMAGE` without rebuilding OpenSBI
 - `make opensbi-waves` keeps an FST waveform at `sim/.out/waveforms/opensbi_boot.fst`
@@ -181,6 +181,9 @@ or:
 ```bash
 screen sim/.out/synapse32-tty 115200
 ```
+
+Use `Ctrl-A d` to detach from `screen` without stopping the simulator. `Ctrl-]`
+terminates the simulator session.
 
 The PTY flow also keeps raw UART logs under `sim/.out/`:
 
