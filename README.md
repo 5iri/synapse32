@@ -2,6 +2,9 @@
 
 Synapse-32 is a 32-bit RISC-V CPU core written in Verilog, supporting RV32IMA instructions, along with Zicsr, Zifencei, and Zihintpause.
 
+An [Arty A7-35T FPGA target](fpga/arty_a7_35t/README.md) adds DDR3, sequential
+Sv32 translation, a UART image loader, and a Linux/OpenSBI build and boot flow.
+
 ## Processor Architecture
 
 Detailed block diagrams are available in [docs/system_diagram.md](docs/system_diagram.md).

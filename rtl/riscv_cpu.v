@@ -1,7 +1,7 @@
 `default_nettype none
 `include "memory_map.vh"
 `include "instr_defines.vh"
-module riscv_cpu (
+module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
     input wire clk,
     input wire rst,
     input wire [31:0] module_instr_in,
@@ -414,8 +414,30 @@ module riscv_cpu (
     assign mem_wait = (module_mem_rd_en || module_mem_wr_en) &&
                       !(module_data_rvalid_in && !amo_read_phase) &&
                       !mem_stage_page_fault_taken;
-    assign ex_stage_active = !mem_wait;
-    wire pipeline_hold = wfi_stall || store_buf_busy_stall || fence_drain_stall || mem_wait;
+    wire is_multiply_divide = id_ex_inst0_instr_valid_out &&
+        ((id_ex_inst0_instr_id_out == INSTR_MUL) || (id_ex_inst0_instr_id_out == INSTR_MULH) ||
+         (id_ex_inst0_instr_id_out == INSTR_MULHSU) || (id_ex_inst0_instr_id_out == INSTR_MULHU) ||
+         (id_ex_inst0_instr_id_out == INSTR_DIV) || (id_ex_inst0_instr_id_out == INSTR_DIVU) ||
+         (id_ex_inst0_instr_id_out == INSTR_REM) || (id_ex_inst0_instr_id_out == INSTR_REMU));
+    wire md_done, md_busy;
+    wire [31:0] md_result;
+    wire md_wait = ITERATIVE_MULDIV && is_multiply_divide && !md_done;
+    generate if (ITERATIVE_MULDIV) begin: iterative_m
+        iterative_muldiv muldiv (
+            .clk(clk), .rst(rst), .cancel(pipeline_flush),
+            .start(is_multiply_divide && !mem_wait),
+            .consume(md_done && !pipeline_hold),
+            .instr_id(id_ex_inst0_instr_id_out),
+            .lhs(ex_inst0_rs1_value_out), .rhs(ex_inst0_rs2_value_out),
+            .busy(md_busy), .done(md_done), .result(md_result)
+        );
+    end else begin: combinational_m
+        assign md_done=1'b0;
+        assign md_busy=1'b0;
+        assign md_result=32'b0;
+    end endgenerate
+    assign ex_stage_active = !mem_wait && !md_wait;
+    wire pipeline_hold = wfi_stall || store_buf_busy_stall || fence_drain_stall || mem_wait || md_wait;
     assign pipeline_stall = hazard_stall || pipeline_hold;
 
     always @(posedge clk or posedge rst) begin
@@ -541,7 +563,7 @@ module riscv_cpu (
     // the raw EX result for dependent instructions.
     wire [31:0] ex_mem_forward_result = is_sc_w ? sc_result : ex_mem_inst0_exec_output_out;
 
-    execution_unit ex_unit_inst0 (
+    execution_unit #(.IMPLEMENT_M(!ITERATIVE_MULDIV)) ex_unit_inst0 (
         .rs1(id_ex_inst0_rs1_value_out),
         .rs2(id_ex_inst0_rs2_value_out),
         .imm(id_ex_inst0_imm_out),
@@ -631,7 +653,7 @@ module riscv_cpu (
         .clk(clk),
         .rst(rst),
         .hold(mem_wait),
-        .flush(mem_stage_page_fault_taken ||
+        .flush((md_wait && !mem_wait) || mem_stage_page_fault_taken ||
                instr_stage_page_fault_taken ||
                synchronous_exception_taken ||
                interrupt_taken_qualified),
@@ -642,7 +664,7 @@ module riscv_cpu (
         .rs2_value_in(ex_inst0_rs2_value_out),
         .pc_in(id_ex_inst0_pc_out),
         .mem_addr_in(ex_inst0_mem_addr_out),
-        .exec_output_in(ex_inst0_exec_output_out),
+        .exec_output_in((ITERATIVE_MULDIV && is_multiply_divide) ? md_result : ex_inst0_exec_output_out),
         .jump_signal_in(ex_inst0_jump_signal_out),
         .jump_addr_in(ex_inst0_jump_addr_out),
         .instr_id_in(id_ex_inst0_instr_id_out),

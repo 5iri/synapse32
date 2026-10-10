@@ -23,6 +23,7 @@ LINUX_SYSTEM_MAP="$LINUX_OUT_DIR/System.map"
 LINUX_ELF="$LINUX_OUT_DIR/fw_payload.elf"
 LINUX_BIN="$LINUX_OUT_DIR/fw_payload.bin"
 LINUX_HEX="$LINUX_OUT_DIR/synapse32.hex"
+DEVICE_TREE="${DEVICE_TREE:-$script_dir/synapse32.dts}"
 INIT_SRC="$LINUX_OUT_DIR/init.c"
 INIT_BIN="$ROOTFS_DIR/init"
 BUSYBOX_OUT_DIR="${BUSYBOX_OUT_DIR:-$LINUX_OUT_DIR/busybox-build}"
@@ -178,6 +179,15 @@ clone_or_update() {
     local git_ref="$2"
     local dest="$3"
 
+    if [ "${SKIP_SOURCE_FETCH:-0}" = 1 ]; then
+        git -C "$dest" rev-parse --verify "$git_ref^{commit}" >/dev/null
+        if [ "$(git -C "$dest" rev-parse HEAD)" != "$(git -C "$dest" rev-parse "$git_ref^{commit}")" ]; then
+            echo "Cached source $dest is not at $git_ref" >&2
+            exit 1
+        fi
+        return
+    fi
+
     if [ ! -d "$dest/.git" ]; then
         echo "==> Cloning $(basename "$dest") @ $git_ref..."
         git clone --depth 1 --branch "$git_ref" "$repo_url" "$dest"
@@ -226,7 +236,7 @@ require_tool "${OPENSBI_CROSS_COMPILE}gcc"
 require_tool "${OPENSBI_CROSS_COMPILE}objcopy"
 
 echo "==> Compiling device tree..."
-dtc -O dtb -o "$DTB" "$script_dir/synapse32.dts"
+dtc -O dtb -o "$DTB" "$DEVICE_TREE"
 
 clone_or_update "$LINUX_REPO" "$LINUX_VERSION" "$LINUX_DIR"
 clone_or_update "$OPENSBI_REPO" "$OPENSBI_VERSION" "$OPENSBI_DIR"
@@ -270,6 +280,8 @@ set_kconfig_disabled "$BUSYBOX_CONFIG" CONFIG_TC
 set_kconfig_disabled "$BUSYBOX_CONFIG" CONFIG_IP
 set_kconfig_disabled "$BUSYBOX_CONFIG" CONFIG_IFCONFIG
 set_kconfig_disabled "$BUSYBOX_CONFIG" CONFIG_ROUTE
+# RV32 has time64 syscalls; BusyBox 1.36.1's hwclock assumes SYS_settimeofday.
+set_kconfig_disabled "$BUSYBOX_CONFIG" CONFIG_HWCLOCK
 make -C "$BUSYBOX_DIR" O="$BUSYBOX_OUT_DIR" -j"$(num_jobs)" ARCH=riscv CROSS_COMPILE="$KERNEL_CROSS_COMPILE" busybox
 cp "$BUSYBOX_OUT_DIR/busybox" "$BUSYBOX_BIN"
 chmod 0755 "$BUSYBOX_BIN"
@@ -888,6 +900,11 @@ cp "$LINUX_DIR/System.map" "$LINUX_SYSTEM_MAP"
 
 echo "==> Building OpenSBI fw_payload..."
 OPENSBI_BUILD_DIR="$LINUX_OUT_DIR/opensbi-build"
+opensbi_flags=()
+if [ "${LLVM:-}" = 1 ]; then
+    # Clang 23 adds a warning for unused globals in OpenSBI 1.4's Cadence UART.
+    opensbi_flags+=("platform-cflags-y=-Wno-error=unused-but-set-global -Wno-unknown-warning-option")
+fi
 make -C "$OPENSBI_DIR" O="$OPENSBI_BUILD_DIR" clean
 make -C "$OPENSBI_DIR" -j"$(num_jobs)" \
     O="$OPENSBI_BUILD_DIR" \
@@ -896,11 +913,11 @@ make -C "$OPENSBI_DIR" -j"$(num_jobs)" \
     FW_PAYLOAD_PATH="$LINUX_IMAGE" \
     FW_FDT_PATH="$DTB" \
     FW_TEXT_START=0x80000000 \
-    FW_PAYLOAD_ALIGN=0x1000 \
+    FW_PAYLOAD_ALIGN="${FW_PAYLOAD_ALIGN:-0x1000}" \
     PLATFORM_RISCV_XLEN=32 \
     PLATFORM_RISCV_ISA="$PLATFORM_RISCV_ISA" \
     PLATFORM_RISCV_ABI="$PLATFORM_RISCV_ABI" \
-    CROSS_COMPILE="$OPENSBI_CROSS_COMPILE"
+    CROSS_COMPILE="$OPENSBI_CROSS_COMPILE" "${opensbi_flags[@]}"
 
 cp "$OPENSBI_BUILD_DIR/platform/generic/firmware/fw_payload.elf" "$LINUX_ELF"
 "${OPENSBI_CROSS_COMPILE}objcopy" \

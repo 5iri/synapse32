@@ -10,7 +10,7 @@
 //   5. Per byte: poll LSR[5] (THRE=1 = ready), write THR
 //   RX: poll LSR[0] (DR=1 = data ready), read RBR
 
-module uart (
+module uart #(parameter DIVISOR_SCALE = 1, DEFAULT_DIVISOR = 10) (
     input  wire        clk,
     input  wire        rst,
     input  wire [31:0] addr,
@@ -45,8 +45,8 @@ reg        tx_start_pending;
 reg [3:0]  tx_state;
 reg [3:0]  tx_bit_count;
 reg        tx_out;
-reg [15:0] baud_counter;
-reg [15:0] baud_div;
+reg [19:0] baud_counter;
+reg [19:0] baud_div;
 
 localparam TX_IDLE  = 4'd0;
 localparam TX_START = 4'd1;
@@ -55,7 +55,7 @@ localparam TX_STOP  = 4'd3;
 localparam TX_FIFO_DEPTH = 16;
 
 // Default baud divisor: 10 cycles/bit for fast simulation
-localparam DEFAULT_BAUD_DIV = 16'd10;
+localparam [19:0] DEFAULT_BAUD_DIV = 20'(DEFAULT_DIVISOR);
 
 assign tx = tx_out;
 
@@ -76,7 +76,7 @@ reg tx_fifo_cleared;
 reg [2:0]  rx_state;
 reg [7:0]  rx_shift;
 reg [2:0]  rx_bit_count;
-reg [15:0] rx_baud_counter;
+reg [19:0] rx_baud_counter;
 reg        rx_prev;     // previous rx sample for edge detect
 reg [7:0]  rbr;         // Receive Buffer Register
 reg        rx_oe;       // LSR[1]: Overrun Error
@@ -139,15 +139,15 @@ initial begin
     tx_state         = TX_IDLE;
     tx_bit_count     = 4'b0;
     tx_out           = 1'b1;
-    baud_div         = DEFAULT_BAUD_DIV;
-    baud_counter     = 16'd1;
+    baud_div         = DIVISOR_SCALE == 1 ? DEFAULT_BAUD_DIV : 20'(DEFAULT_BAUD_DIV*DIVISOR_SCALE-1);
+    baud_counter     = 20'd1;
     tx_fifo_head     = 4'd0;
     tx_fifo_tail     = 4'd0;
     tx_fifo_count    = 5'd0;
     rx_state         = RX_IDLE;
     rx_shift         = 8'h00;
     rx_bit_count     = 3'b0;
-    rx_baud_counter  = 16'd0;
+    rx_baud_counter  = 20'd0;
     rx_prev          = 1'b1;
     rbr              = 8'h00;
     rx_oe            = 1'b0;
@@ -172,15 +172,15 @@ always @(posedge clk or posedge rst) begin
         tx_state         <= TX_IDLE;
         tx_bit_count     <= 4'b0;
         tx_out           <= 1'b1;
-        baud_div         <= DEFAULT_BAUD_DIV;
-        baud_counter     <= 16'd1;
+        baud_div         <= DIVISOR_SCALE == 1 ? DEFAULT_BAUD_DIV : 20'(DEFAULT_BAUD_DIV*DIVISOR_SCALE-1);
+        baud_counter     <= 20'd1;
         tx_fifo_head     <= 4'd0;
         tx_fifo_tail     <= 4'd0;
         tx_fifo_count    <= 5'd0;
         rx_state         <= RX_IDLE;
         rx_shift         <= 8'h00;
         rx_bit_count     <= 3'b0;
-        rx_baud_counter  <= 16'd0;
+        rx_baud_counter  <= 20'd0;
         rx_prev          <= 1'b1;
         rbr              <= 8'h00;
         rx_oe            <= 1'b0;
@@ -295,7 +295,7 @@ always @(posedge clk or posedge rst) begin
                 end
                 3'd3: begin
                     if (lcr[7] && !write_data[7])
-                        baud_div <= {dlh, dll};
+                        baud_div <= DIVISOR_SCALE == 1 ? {4'b0,dlh,dll} : 20'({4'b0,dlh,dll}*DIVISOR_SCALE-1);
                     lcr <= write_data[7:0];
                 end
                 3'd7: scr <= write_data[7:0];
@@ -318,7 +318,7 @@ always @(posedge clk or posedge rst) begin
                 // Falling edge on rx = start bit
                 if (rx_prev && !rx) begin
                     // Wait half a baud period to sample in the middle of start bit
-                    rx_baud_counter <= {1'b0, baud_div[15:1]};
+                    rx_baud_counter <= {1'b0, baud_div[19:1]};
                     rx_state        <= RX_START;
                 end
             end

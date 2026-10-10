@@ -1,6 +1,6 @@
 `default_nettype none
 `include "instr_defines.vh"
-module execution_unit(
+module execution_unit #(parameter IMPLEMENT_M = 1) (
     input wire [31:0] rs1,
     input wire [31:0] rs2,
     input wire [31:0] imm,
@@ -237,7 +237,7 @@ always @(*) begin
     endcase
 end
 
-alu alu_inst(
+alu #(.IMPLEMENT_M(IMPLEMENT_M)) alu_inst(
     .rs1(rs1_value),
     .rs2(rs2_value),
     .imm(imm),
