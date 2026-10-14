@@ -132,6 +132,22 @@ UART command`. Its `--keep-open` UART reader remains connected so the board
 retains the loaded image. Logs: `build/hardware-live-test.log` and
 `build/hardware-live-uart.log`.
 
+### Subsequent interactive acceptance
+
+Typing a later command on the normal bitstream echoed its first character and
+then halted with LED3 lit, indicating a latched fabric fault. A temporary ILA
+build captures CPU PC, instruction/data bus and virtual addresses, translation
+context, and fatal-error signals. It was armed for twelve minutes and did not
+reproduce the fault: both a command after five seconds of idle and a command
+typed through `console.py` returned `TERMINAL_OK`.
+
+The current debug run's UART reader remains open at
+`build/fault-reproduction-uart.log`. The Linux-host console client was verified
+against it in a real terminal and detached without closing the reader. The
+original fault is not yet explained; these results establish basic boot and
+interactive use, not sustained runtime reliability. Debug artifacts are local
+under `build/board/fault-debug.*` and `cpu-fault-capture.log`.
+
 ```text
 1ba296a2ad4f893b03c21aada5bdbb00f6226e369e04d1b48046419ecfc9c584  12 Hz fw_payload.bin
 ```

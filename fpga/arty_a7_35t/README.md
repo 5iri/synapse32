@@ -99,6 +99,17 @@ connection after a successful test:
 python3 fpga/arty_a7_35t/test_board.py /dev/ttyUSB1 --keep-open
 ```
 
+While that reader is running, type into Linux from a second **Linux host** terminal:
+
+```sh
+python3 fpga/arty_a7_35t/console.py /dev/ttyUSB1 --log fpga/arty_a7_35t/build/hardware-uart.log
+```
+
+Use the same `--log` path as the reader. This client tails its output and sends
+keystrokes without reconfiguring the UART. Enter requests a prompt; Ctrl+C
+interrupts a Linux command, and Ctrl+] detaches the client while leaving the
+reader and loaded image running. Start with `uname -a`, `ls`, or `free`.
+
 `--console-only` skips uploading and tests an already running Linux console.
 If reopening the port resets your board, remove the processor-reset jumper JP2
 or keep the existing connection open. See [Digilent's reference manual](https://media.digikey.com/pdf/Data%20Sheets/Digilent%20PDFs/Arty_A7_RM_Web.pdf).
@@ -182,6 +193,9 @@ The physical-board test on 2026-10-14 confirmed DDR calibration, a CRC-accepted
 1 Mbaud image upload, OpenSBI, Linux startup and a BusyBox shell executing
 `echo FPGA_BOOT_OK; uname -a` over UART with the 12 Hz kernel. See
 [validation results](VALIDATION.md) for the captured evidence.
+Later interactive testing exposed a fabric fault after idle on the normal
+bitstream. The temporary ILA build accepted repeated commands, including the
+console client, but that intermittent fault remains under investigation.
 
 The CPU and walker intentionally issue one outstanding access at a time. This
 keeps the A7-35T implementation small but makes Linux substantially slower than
