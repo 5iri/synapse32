@@ -126,27 +126,60 @@ with `LLVM=1 make -C fpga/arty_a7_35t linux`, then program and run `test-board`.
 The 100 Hz failure logs remain under `build/baseline-100hz/`; successful UART
 evidence is in `build/hardware-12hz-repeat-uart.log` and the live capture files.
 
-The corrected final run returned `K` in 215.5 seconds, reached userspace at
+The initial repeat run returned `K` in 215.5 seconds, reached userspace at
 131.2 seconds and printed `PASS: physical FPGA reached Linux shell and executed
-UART command`. Its `--keep-open` UART reader remains connected so the board
-retains the loaded image. Logs: `build/hardware-live-test.log` and
-`build/hardware-live-uart.log`.
+UART command`. Archived logs: `build/hardware-live-test.log` and
+`build/hardware-live-uart.log`. The later console regression and current
+physical-board results follow.
 
-### Subsequent interactive acceptance
+### Interactive-console interrupt regression
 
-Typing a later command on the normal bitstream echoed its first character and
-then halted with LED3 lit, indicating a latched fabric fault. A temporary ILA
-build captures CPU PC, instruction/data bus and virtual addresses, translation
-context, and fatal-error signals. It was armed for twelve minutes and did not
-reproduce the fault: both a command after five seconds of idle and a command
-typed through `console.py` returned `TERMINAL_OK`.
+Later interactive input exposed a repeatable console stall. A temporary ILA
+build captured the CPU and interrupt state while the UART reader stayed open.
+The stalled snapshot in `build/board/runtime-12.csv` shows:
 
-The current debug run's UART reader remains open at
-`build/fault-reproduction-uart.log`. The Linux-host console client was verified
-against it in a real terminal and detached without closing the reader. The
-original fault is not yet explained; these results establish basic boot and
-interactive use, not sustained runtime reliability. Debug artifacts are local
-under `build/board/fault-debug.*` and `cpu-fault-capture.log`.
+- `scause = 0x80000009` (supervisor external interrupt), `mip = 0x220`.
+- UART IRQ, PLIC IRQ, PLIC pending and gateway busy are all zero.
+- Fabric fault is zero; the CPU continues executing interrupt-handler code.
+- CLINT `mtime` and the CSR cycle counter agree exactly.
+
+The CPU was copying the hardware SEIP read value into its software-pending
+latch when OpenSBI cleared STIP with `CSRRC mip`. The software latch then kept
+external interrupts pending after the UART/PLIC source was cleared. The
+[RISC-V SEIP rule](https://docs.riscv.org/reference/isa/priv/machine.html)
+requires the hardware signal to be excluded from this writeback.
+
+CSR execution now carries an operand write mask to the CSR file. Pending
+software bits absent from a set/clear operand retain their software latch;
+full CSR writes still replace them. The regression couples the actual CSR
+execution and register-file modules, reproduces the failure before the fix,
+and passes after it. It covers register/immediate set, clear and write forms,
+and verifies that software SEIP injection still works. All nineteen existing
+CSR regressions and the CSR trap-priority regression pass.
+
+The corrected bitstream `build/board/synapse32_linux_irqfix.bit` passes setup
+and hold timing (WNS +0.657 ns, WHS +0.050 ns), DRC, CDC and AXI bus-skew checks.
+The physical board accepted the unchanged 12 Hz payload in 215.5 seconds,
+executed the initial boot/uname command, and then passed twelve further
+commands, including one after a sixty-second idle period. The actual
+`console.py` client returned `USER_CONSOLE_OK`, interrupted `sleep 30` with
+Ctrl+C, and returned `AFTER_CTRL_C`. Detaching it preserved the UART reader;
+a Ghostty window titled `FPGA Linux` uses that same reader and log.
+
+The three existing memory/UART test runners pass, and the new pending-CSR
+runner passes separately under pytest. `test-core` now collects all four.
+The earlier LED3 fabric fault has not been independently traced to this
+interrupt bug; none occurred during this corrected-board acceptance run.
+The BLAKE2s boot warning and slow uncached execution remain.
+
+Current logs: `build/irqfix-board-test.log`, `build/irqfix-host-test.log` and
+`build/irqfix-uart.log`. The retained reader uses the latter log. The standard
+`build/board/synapse32_linux.bit` is now a copy of the verified corrected
+bitstream; `synapse32_linux_before_irqfix.bit` preserves the previous image.
+
+```text
+827f9aa09840bb3995572c710299f6fc82f0cba500a25c0fbaa2a458d2fac7a4  synapse32_linux_irqfix.bit
+```
 
 ```text
 1ba296a2ad4f893b03c21aada5bdbb00f6226e369e04d1b48046419ecfc9c584  12 Hz fw_payload.bin

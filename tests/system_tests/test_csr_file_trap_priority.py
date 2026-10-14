@@ -32,6 +32,7 @@ def _clear_inputs(dut):
         getattr(dut, name).value = 0
     dut.csr_addr.value = 0
     dut.write_data.value = 0
+    dut.write_mask.value = 0xFFFF_FFFF
     dut.interrupt_cause_in.value = 0
     dut.interrupt_pc_in.value = 0
     dut.exception_pc_in.value = 0

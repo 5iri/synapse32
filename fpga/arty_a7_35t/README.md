@@ -193,9 +193,11 @@ The physical-board test on 2026-10-14 confirmed DDR calibration, a CRC-accepted
 1 Mbaud image upload, OpenSBI, Linux startup and a BusyBox shell executing
 `echo FPGA_BOOT_OK; uname -a` over UART with the 12 Hz kernel. See
 [validation results](VALIDATION.md) for the captured evidence.
-Later interactive testing exposed a fabric fault after idle on the normal
-bitstream. The temporary ILA build accepted repeated commands, including the
-console client, but that intermittent fault remains under investigation.
+An interactive-console stall was traced to CSR read-modify-write copying a
+live UART interrupt into a sticky software-pending bit. The corrected CPU
+preserves pending bits absent from the CSR operand; repeated physical-board
+commands now succeed, including after a one-minute idle period. See the
+validation notes for the interrupt capture and remaining runtime limitations.
 
 The CPU and walker intentionally issue one outstanding access at a time. This
 keeps the A7-35T implementation small but makes Linux substantially slower than

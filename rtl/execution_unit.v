@@ -30,6 +30,7 @@ module execution_unit #(parameter IMPLEMENT_M = 1) (
     output wire [11:0] csr_addr,
     output wire csr_read_enable,
     output wire [31:0] csr_write_data,
+    output wire [31:0] csr_write_mask,
     output wire csr_write_enable,
     
     output reg [31:0] exec_output,
@@ -187,6 +188,7 @@ csr_exec csr_exec_inst (
     .rs1_addr(rs1_addr),
     .csr_read_data(csr_read_data),
     .csr_write_data(csr_write_data),
+    .csr_write_mask(csr_write_mask),
     .csr_write_enable(csr_write_enable),
     .rd_value(csr_rd_value)
 );

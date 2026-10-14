@@ -28,4 +28,8 @@ test-phy:
 test-linux:
 	bash test_linux.sh $(IMAGE)
 test-core:
-	cd ../.. && $(PYTHON_RUN) -m pytest tests/system_tests/test_memory_wait.py tests/system_tests/test_uart_rx_fifo.py tests/system_tests/test_uart_plic_rearm.py -q
+	cd ../.. && $(PYTHON_RUN) -m pytest \
+		tests/system_tests/test_memory_wait.py \
+		tests/system_tests/test_uart_rx_fifo.py \
+		tests/system_tests/test_uart_plic_rearm.py \
+		tests/system_tests/test_csr_pending_rmw.py -q

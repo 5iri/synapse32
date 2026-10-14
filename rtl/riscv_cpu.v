@@ -256,6 +256,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
     wire [11:0] csr_addr;
     wire [31:0] csr_read_data;
     wire [31:0] csr_write_data;
+    wire [31:0] csr_write_mask;
     wire csr_write_enable;
     wire csr_read_enable;
     wire csr_valid;
@@ -526,6 +527,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
         .rst(rst),
         .csr_addr(csr_addr),
         .write_data(csr_write_data),
+        .write_mask(csr_write_mask),
         .write_enable(csr_write_enable && ex_stage_active),
         .read_enable(csr_read_enable),
         .read_data(csr_read_data),
@@ -588,6 +590,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
         .csr_addr(csr_addr),
         .csr_read_enable(csr_read_enable),
         .csr_write_data(csr_write_data),
+        .csr_write_mask(csr_write_mask),
         .csr_write_enable(csr_write_enable),
         
         .exec_output(ex_inst0_exec_output_out),

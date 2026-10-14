@@ -4,6 +4,8 @@ module csr_file (
     input wire rst,
     input wire [11:0] csr_addr,
     input wire [31:0] write_data,
+    // Set/clear operand bits, or all ones for a full CSR write.
+    input wire [31:0] write_mask,
     input wire write_enable,
     input wire read_enable,
     output reg [31:0] read_data,
@@ -379,17 +381,20 @@ module csr_file (
                     CSR_STVAL:    stval <= write_data;
                     CSR_SATP:     satp <= write_data;
                     CSR_SIP: begin
-                        ssip_software_pending <= write_data[1];
-                        stip_software_pending <= write_data[5];
-                        seip_software_pending <= write_data[9];
+                        if (write_mask[1]) ssip_software_pending <= write_data[1];
+                        if (write_mask[5]) stip_software_pending <= write_data[5];
+                        if (write_mask[9]) seip_software_pending <= write_data[9];
                     end
                     // Keep hardware pending bits driven by the platform, but
                     // allow software to synthesize/clear supervisor-visible
                     // pending bits for focused trap tests and SBI flows.
                     CSR_MIP: begin
-                        ssip_software_pending <= write_data[1];
-                        stip_software_pending <= write_data[5];
-                        seip_software_pending <= write_data[9];
+                        // RMW must preserve the software latch for bits absent
+                        // from the operand. In particular, reading hardware
+                        // SEIP=1 while clearing STIP must not latch SEIP forever.
+                        if (write_mask[1]) ssip_software_pending <= write_data[1];
+                        if (write_mask[5]) stip_software_pending <= write_data[5];
+                        if (write_mask[9]) seip_software_pending <= write_data[9];
                     end
                     // Only 4 triggers, so tselect is 2 bits wide.
                     CSR_TSELECT:  tselect <= write_data[1:0];
