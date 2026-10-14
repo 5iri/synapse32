@@ -184,3 +184,55 @@ bitstream; `synapse32_linux_before_irqfix.bit` preserves the previous image.
 ```text
 1ba296a2ad4f893b03c21aada5bdbb00f6226e369e04d1b48046419ecfc9c584  12 Hz fw_payload.bin
 ```
+
+### Upstream synchronization and physical triangulator (2026-10-15)
+
+The work branch merges upstream `45433c3`, including the sequential walker/TLB,
+SFENCE fetch ordering, and deferred instruction-fault fixes. Local and origin
+`main` are fast-forwarded to that upstream commit. The Arty target still uses
+its separate uncached `sv32_bus_port`; the upstream TLB is not connected to the
+board's DDR interface.
+
+The rebuilt `build/board/synapse32_linux_synced.bit` passes setup/hold timing
+(WNS +1.316 ns, WHS +0.050 ns), DRC, CDC and AXI bus-skew checks. The standard
+`synapse32_linux.bit` is a copy of this image. The physical board accepted the
+new payload, booted Linux, and ran `/bin/triangulator` from its initramfs.
+
+```text
+1baa1a5fe18ce84d147543ede224b956f345dd17e59d769af55527c5728aa1eb  synapse32_linux_synced.bit
+dad84f99613944dcc7ebc05e80a33156053251a5061fdf291d619f8ef67f44a2  fw_payload.bin
+1516c10212200a5eabb5775708f98dc66107c67448001121578cb3cc17b93434  triangulator (7092 bytes)
+```
+
+All six core runners pass: TLB, walker flush, SFENCE ordering, instruction-fault
+deferral, store/load across page walks, and pending-CSR read-modify-write.
+The seven geometry/viewer/protocol unit tests also pass. The live UART capture
+contains more than 1,000 complete meshes across 16, 32 and 64 points; independent
+geometry checks pass for every complete captured frame. Representative elapsed
+triangulation times, excluding JSON formatting and UART transmission:
+
+| Points | Median calculation | Observed range |
+| --- | --- | --- |
+| 16 | 216 ms | 128–351 ms |
+| 32 | 1,146 ms | 940–1,236 ms |
+| 64 | 7,091 ms | 6,228–8,434 ms |
+
+These times include interrupts and clock-read overhead. The browser receives
+about 2.7 frames/second at 16 points. Its FPS calculation now handles intervals
+longer than five seconds, and its protocol parser handles kernel console
+messages appended to mesh records. Neither measurement is CPU utilization.
+Start/stop and point-count changes were exercised on the board, and the final
+visible demo runs with 16 points.
+
+The UART reader and viewer are detached processes so an interrupted host tool
+session does not close the UART and reset the board. Current evidence:
+`build/triangulator-synced-board-test.log`, `build/triangulator-synced-uart.log`,
+`build/triangulator-synced-viewer.log`, `build/synced-core-regression.log` and
+`build/board/synced-build.log`. The acknowledged software uploader has not been
+validated on hardware; this acceptance used the executable embedded in initramfs.
+
+The kernel remains pinned to 6.6.32 with the 12 Hz timer workaround. Cache/TLB
+integration and a newer kernel require separate implementation and hardware
+validation. The earlier BLAKE2s warning and unresolved historical LED3 fault
+limitations above remain applicable. Compilation currently uses the laptop's
+cross toolchain; a native compiler is not installed in the FPGA Linux image.

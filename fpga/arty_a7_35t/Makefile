@@ -14,6 +14,8 @@ visualizer:
 	$(PYTHON_RUN) triangulator/viewer.py --port $(PORT) --log $(UART_LOG) --start
 test-triangulator:
 	$(PYTHON_RUN) triangulator/test_geometry.py
+	$(PYTHON_RUN) triangulator/test_viewer.py
+	$(PYTHON_RUN) triangulator/test_protocol.py
 bitstream:
 	$(VIVADO) -mode batch -source build_bitstream.tcl
 linux:

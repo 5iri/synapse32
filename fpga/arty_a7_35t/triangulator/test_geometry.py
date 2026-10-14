@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from protocol import mesh_record
 
 
 def orient(a, b, c):
@@ -110,9 +111,12 @@ class GeometryTests(unittest.TestCase):
 
 def check_log(path):
     frames = []
-    for line in Path(path).read_text(errors="replace").splitlines():
+    # A live UART log can end midway through the next frame.
+    for line in Path(path).read_text(errors="replace").split("\n")[:-1]:
         if line.startswith("S32MESH "):
-            frame = json.loads(line[8:])
+            frame = mesh_record(line)
+            if frame is None:
+                continue
             validate_mesh(frame["points"], frame["triangles"])
             frames.append(frame)
     if not frames:

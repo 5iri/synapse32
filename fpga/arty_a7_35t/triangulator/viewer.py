@@ -10,6 +10,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from uart_link import LogLines, UartWriter
+from protocol import mesh_record
 
 
 class Viewer:
@@ -40,7 +41,9 @@ class Viewer:
                 if not line.startswith("S32MESH "):
                     continue
                 try:
-                    frame = json.loads(line[8:])
+                    frame = mesh_record(line)
+                    if frame is None:
+                        continue
                     points, triangles = frame["points"], frame["triangles"]
                     assert 3 <= len(points) <= 64 and len(triangles) <= 136
                     assert isinstance(frame["frame"], int) and frame["frame"] >= 0
@@ -69,11 +72,16 @@ class Viewer:
             if self.starting and time.monotonic() > self.start_deadline:
                 self.starting = False
                 self.error = "The FPGA has not returned a mesh. Try a smaller workload."
-            recent = [t for t in self.receipts if time.monotonic() - t < 5]
-            fps = ((len(recent) - 1) / (recent[-1] - recent[0])
-                   if self.running and len(recent) > 1 else 0)
+            fps = 0
+            age = time.monotonic() - self.receipts[-1] if self.receipts else None
+            if self.running and len(self.receipts) > 1:
+                interval = (self.receipts[-1] - self.receipts[0]) / (len(self.receipts) - 1)
+                # A fixed five-second window incorrectly reports zero for
+                # valid large meshes arriving every eight seconds or more.
+                if interval > 0 and age <= max(5, 2 * interval):
+                    fps = 1 / interval
             return {"mesh": self.frame, "fps": fps, "history": list(self.history),
-                    "age": time.monotonic() - self.receipts[-1] if self.receipts else None,
+                    "age": age,
                     "running": self.running, "starting": self.starting, "error": self.error,
                     "revision": self.revision}
 

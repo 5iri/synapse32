@@ -1,6 +1,7 @@
 """Write through a companion FD while the existing UART reader retains the port."""
 import os
 import threading
+import termios
 import time
 from pathlib import Path
 
@@ -13,6 +14,9 @@ class UartWriter:
         if not any(len(row) > 5 and row[1] == "FLOCK" and row[5] == identity for row in fields):
             raise RuntimeError("Start test_board.py --keep-open before using this UART")
         self.fd = os.open(port, os.O_WRONLY | os.O_NOCTTY | os.O_NONBLOCK)
+        if termios.tcgetattr(self.fd)[4] != termios.B115200:
+            os.close(self.fd)
+            raise RuntimeError("Wait for FPGA Linux at 115200 baud before starting the demo")
         self.lock = threading.Lock()
 
     def send(self, data, delay=0.1):

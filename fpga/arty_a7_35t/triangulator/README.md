@@ -67,7 +67,7 @@ finite run completes. `--frames 0`, the default, runs until interrupted.
 ## Interpret and verify the measurements
 
 **Triangulation time** is elapsed monotonic time around the mesh calculation,
-including interrupts while it runs. Point movement, JSON formatting, and UART
+including interrupts and clock-read overhead. Point movement, JSON formatting, and UART
 transmission are outside that interval. **Received frame rate** measures meshes
 arriving at the laptop and therefore includes those additional costs. Neither
 number is a CPU-utilization percentage or a browser rendering benchmark.
