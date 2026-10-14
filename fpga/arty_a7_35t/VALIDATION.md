@@ -16,7 +16,7 @@ Target: Arty A7-35T, CPU 50 MHz, DDR3 325 MHz / AXI UI 81.25 MHz.
 | Linux 6.6.32 + OpenSBI 1.4 + static RV32 BusyBox 1.36.1 build | Pass |
 | Linux boot through FPGA CPU/AXI/Sv32/peripherals, decoded 16550 TX | BusyBox shell reached |
 | UART command through Linux/PLIC | `echo FPGA_BOOT_OK` returns `FPGA_BOOT_OK`; pass at 1,141,575,782 model cycles |
-| Physical board | Tested 2026-10-14: OpenSBI/Linux start; userspace blocked by soft lockups (details below) |
+| Physical board | Pass 2026-10-14 with 12 Hz kernel: BusyBox shell executes UART commands (details below) |
 
 The Linux test preloads RAM and uses a functional AXI RAM model. The UART loader
 and MIG/PHY/clock converter are tested separately. The component-model run
@@ -76,10 +76,10 @@ image transferred in 216.5 seconds and returned `K`. The exact cause of the
 initial failed transfer is not established. The uploader now waits one second
 after opening the port and switches to 115200 after the loader acknowledgement.
 
-Captured output includes OpenSBI v1.4 and Linux 6.6.32 startup, DDR-backed memory
+The initial 100 Hz output includes OpenSBI v1.4 and Linux 6.6.32 startup, DDR-backed memory
 initialization, PLIC setup, devtmpfs initialization, and clocksource selection.
-Linux then reports repeated soft/workqueue lockups; no userspace shell has been
-verified. One `hrtimer` interrupt took 42,444,580 ns, exceeding the configured
+Linux then reports repeated soft/workqueue lockups without reaching userspace.
+One `hrtimer` interrupt took 42,444,580 ns, exceeding the configured
 100 Hz tick interval (10 ms). Early lockups interrupt `finish_task_switch` just
 after re-enabling supervisor interrupts. Timer overhead on the uncached DDR
 CPU is a working hypothesis, not a confirmed root cause.
@@ -95,12 +95,42 @@ checks: WNS +1.233 ns, WHS +0.054 ns, zero failing endpoints. Current bitstream:
 0fb0c8b33d7100c7ba72dc996b36a356d458f5c9f1bec36774b2255a63d4a3ef  build/board/synapse32_linux.bit
 ```
 
-The subsequent 12 Hz kernel-tick experiment built successfully with the same
-50 MHz hardware timebase. Its upload stopped at 77% with a serial write I/O
-error, so the lower tick rate is not yet a validated boot fix. Reproduce its
-build with `KERNEL_HZ=12 LLVM=1 make -C fpga/arty_a7_35t linux`, then program and
-run `test-board`. The 100 Hz failure logs were preserved locally under
-`build/baseline-100hz/`.
+The subsequent 12 Hz kernel uses the same 50 MHz hardware timebase. Its first
+upload stopped at 77% with a serial write I/O error. After reconnection, full
+transfers returned `K` in approximately 215.5 seconds. Linux reached userspace
+and a BusyBox prompt at approximately 131 seconds after CPU release, then
+executed the following command over the physical UART:
+
+```text
+Synapse32 Linux userspace is up.
+uname: Linux synapse32
+Launching /sbin/init...
+~ # echo FPGA_BOOT_OK; uname -a
+FPGA_BOOT_OK
+Linux (none) 6.6.32-dirty #2 Sat May 25 14:22:56 UTC 2024 riscv32 GNU/Linux
+~ #
+```
+
+The original test harness incorrectly expected a `synapse32` hostname in
+BusyBox's uname output and reported a timeout despite this successful command.
+The corrected harness accepts the actual RV32 uname line. Slow console input
+(100 ms between bytes) was verified. Arty JP2 can connect DTR to RESET, and
+reopening a port was observed to return
+the board to its loader. `--keep-open` retains the UART handle after success.
+
+One boot-time soft-lockup warning remains in the BLAKE2s self-test; it completes
+and Linux proceeds to userspace. This is functional boot acceptance, not a
+performance or sustained-load validation. The board build now defaults to
+12 Hz; the shared simulator build remains at 100 Hz. Reproduce the board build
+with `LLVM=1 make -C fpga/arty_a7_35t linux`, then program and run `test-board`.
+The 100 Hz failure logs remain under `build/baseline-100hz/`; successful UART
+evidence is in `build/hardware-12hz-repeat-uart.log` and the live capture files.
+
+The corrected final run returned `K` in 215.5 seconds, reached userspace at
+131.2 seconds and printed `PASS: physical FPGA reached Linux shell and executed
+UART command`. Its `--keep-open` UART reader remains connected so the board
+retains the loaded image. Logs: `build/hardware-live-test.log` and
+`build/hardware-live-uart.log`.
 
 ```text
 1ba296a2ad4f893b03c21aada5bdbb00f6226e369e04d1b48046419ecfc9c584  12 Hz fw_payload.bin

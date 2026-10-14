@@ -7,6 +7,8 @@ export OPENSBI_DIR="${OPENSBI_DIR:-$here/build/opensbi}"
 export BUSYBOX_DIR="${BUSYBOX_DIR:-$here/build/busybox}"
 export PLATFORM_RISCV_ISA=rv32ima_zicsr_zifencei
 export KERNEL_MARCH=rv32ima_zicsr_zifencei
+# 100 Hz starves startup on the uncached DDR CPU; 12 Hz boots on hardware.
+export KERNEL_HZ="${KERNEL_HZ:-12}"
 # RV32 Linux requires a 4 MiB aligned kernel entry (Documentation/riscv/boot.rst).
 export FW_PAYLOAD_ALIGN=0x400000
 if [ "${LLVM:-}" = 1 ]; then

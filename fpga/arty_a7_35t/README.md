@@ -91,6 +91,18 @@ This saves `build/hardware-uart.log`, waits up to ten minutes after uploading,
 and requires a Linux shell to execute `echo FPGA_BOOT_OK; uname -a`. Only one
 program can read the UART port at a time.
 
+Arty jumper JP2 connects DTR to the processor RESET input. Opening or closing
+the UART can reset the loaded image on this board. To retain the same
+connection after a successful test:
+
+```sh
+python3 fpga/arty_a7_35t/test_board.py /dev/ttyUSB1 --keep-open
+```
+
+`--console-only` skips uploading and tests an already running Linux console.
+If reopening the port resets your board, remove the processor-reset jumper JP2
+or keep the existing connection open. See [Digilent's reference manual](https://media.digikey.com/pdf/Data%20Sheets/Digilent%20PDFs/Arty_A7_RM_Web.pdf).
+
 The protocol is `S32!`, little-endian 32-bit padded payload length, payload, and
 little-endian IEEE/zlib CRC32 over the padded payload. Length must be a multiple
 of four. DDR writes must complete before the next UART byte; the loader rejects
@@ -101,20 +113,24 @@ LED0 means clocks locked, LED1 DDR calibrated, LED2 image accepted / CPU running
 and LED3 a loader or fabric fault. On success, expect OpenSBI, Linux messages,
 `Synapse32 Linux userspace is up.`, and a BusyBox `~ #` prompt.
 
-## Experimental lower timer tick
+## Kernel timer tick
 
-The physical 100 Hz kernel starts but reports soft lockups before userspace.
-Timer overhead is under investigation. To build the experimental **12 Hz**
-kernel tick while retaining the correct 50 MHz hardware timebase:
+The physical 100 Hz kernel starts but reports repeated soft lockups before
+userspace. The board build defaults to **12 Hz**, which reached a BusyBox shell
+and executed UART commands on hardware, while retaining the correct 50 MHz
+hardware timebase. Build it with:
 
 ```sh
-KERNEL_HZ=12 LLVM=1 make -C fpga/arty_a7_35t linux
+LLVM=1 make -C fpga/arty_a7_35t linux
 ```
 
 The build applies `sim/linux-low-tick.patch` to the pinned Linux source and
-verifies the resulting configuration. The default remains 100 Hz. The 12 Hz
-image built successfully, but its first physical upload lost the USB serial
-connection at 77%; boot at this rate has not been verified.
+verifies the resulting configuration. The shared simulator build retains its
+100 Hz default; `KERNEL_HZ=100` overrides the board default for comparisons.
+The uncached core is slow: Linux reaches the prompt about 131 seconds after
+image acceptance. The boot-time BLAKE2s self-test can emit a soft-lockup warning,
+but startup completes. The UART test spaces input bytes by 100 ms to avoid
+overrunning this CPU; adjust `--input-delay` when investigating throughput.
 
 Use `make ... program` before retrying a failed upload. A fresh machine needs
 Vivado, the toolchain and build dependencies described above; generated
@@ -163,9 +179,9 @@ Sv32 ports. This test does not model the DDR PHY or host image upload; those are
 verified separately. It waits for a root shell, sends `echo FPGA_BOOT_OK` over
 the RX waveform, and requires the command's output. See [validation results](VALIDATION.md).
 The physical-board test on 2026-10-14 confirmed DDR calibration, a CRC-accepted
-1 Mbaud image upload, OpenSBI and Linux kernel startup. Linux then reported soft
-lockups before reaching the BusyBox shell; interactive hardware boot remains
-unverified. See [validation results](VALIDATION.md) for the captured evidence.
+1 Mbaud image upload, OpenSBI, Linux startup and a BusyBox shell executing
+`echo FPGA_BOOT_OK; uname -a` over UART with the 12 Hz kernel. See
+[validation results](VALIDATION.md) for the captured evidence.
 
 The CPU and walker intentionally issue one outstanding access at a time. This
 keeps the A7-35T implementation small but makes Linux substantially slower than
