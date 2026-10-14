@@ -71,21 +71,54 @@ the Arty UART device (often `/dev/ttyUSB1`), then:
 make -C fpga/arty_a7_35t upload PORT=/dev/ttyUSB1
 ```
 
+The loader uses **1,000,000 baud**; after its acknowledgement, the uploader switches
+to the **115200 baud** Linux console. For bitstreams built before this change,
+pass `--baud 115200` to `upload.py`.
+
 The loader writes the raw binary into DDR starting at 0x80000000, verifies CRC32,
 replies `K`, and releases the CPU. The uploader then opens a 115200 8N1 console;
 Ctrl+] exits. A rejected transfer replies `E` and requires a reset before retrying.
 There is no boot ROM size limit on the kernel: the entire payload is streamed to
 DDR while the CPU remains in reset. A transfer must finish within 64 MiB.
 
+For an automated UART capture and shell check, reset the board and run:
+
+```sh
+make -C fpga/arty_a7_35t test-board PORT=/dev/ttyUSB1
+```
+
+This saves `build/hardware-uart.log`, waits up to ten minutes after uploading,
+and requires a Linux shell to execute `echo FPGA_BOOT_OK; uname -a`. Only one
+program can read the UART port at a time.
+
 The protocol is `S32!`, little-endian 32-bit padded payload length, payload, and
 little-endian IEEE/zlib CRC32 over the padded payload. Length must be a multiple
 of four. DDR writes must complete before the next UART byte; the loader rejects
-an overrun. At 115200 baud the transfer rate is about 11 KiB/s; a 21 MiB payload
-takes roughly 32 minutes. Keep the board powered throughout the transfer.
+an overrun. At 1 Mbaud the transfer rate is about 98 KiB/s; a 21 MiB payload
+takes roughly 3.6 minutes. Keep the board powered throughout the transfer.
 
 LED0 means clocks locked, LED1 DDR calibrated, LED2 image accepted / CPU running,
 and LED3 a loader or fabric fault. On success, expect OpenSBI, Linux messages,
 `Synapse32 Linux userspace is up.`, and a BusyBox `~ #` prompt.
+
+## Experimental lower timer tick
+
+The physical 100 Hz kernel starts but reports soft lockups before userspace.
+Timer overhead is under investigation. To build the experimental **12 Hz**
+kernel tick while retaining the correct 50 MHz hardware timebase:
+
+```sh
+KERNEL_HZ=12 LLVM=1 make -C fpga/arty_a7_35t linux
+```
+
+The build applies `sim/linux-low-tick.patch` to the pinned Linux source and
+verifies the resulting configuration. The default remains 100 Hz. The 12 Hz
+image built successfully, but its first physical upload lost the USB serial
+connection at 77%; boot at this rate has not been verified.
+
+Use `make ... program` before retrying a failed upload. A fresh machine needs
+Vivado, the toolchain and build dependencies described above; generated
+bitstreams, Linux images and full UART logs live in ignored `build/` directories.
 
 ## Memory and interrupts
 
@@ -129,8 +162,10 @@ the actual 16550 TX waveform. It uses the FPGA CPU, peripherals and sequential
 Sv32 ports. This test does not model the DDR PHY or host image upload; those are
 verified separately. It waits for a root shell, sends `echo FPGA_BOOT_OK` over
 the RX waveform, and requires the command's output. See [validation results](VALIDATION.md).
-Physical-board calibration and interactive boot remain
-hardware acceptance checks until a board is connected.
+The physical-board test on 2026-10-14 confirmed DDR calibration, a CRC-accepted
+1 Mbaud image upload, OpenSBI and Linux kernel startup. Linux then reported soft
+lockups before reaching the BusyBox shell; interactive hardware boot remains
+unverified. See [validation results](VALIDATION.md) for the captured evidence.
 
 The CPU and walker intentionally issue one outstanding access at a time. This
 keeps the A7-35T implementation small but makes Linux substantially slower than

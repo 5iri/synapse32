@@ -16,7 +16,7 @@ Target: Arty A7-35T, CPU 50 MHz, DDR3 325 MHz / AXI UI 81.25 MHz.
 | Linux 6.6.32 + OpenSBI 1.4 + static RV32 BusyBox 1.36.1 build | Pass |
 | Linux boot through FPGA CPU/AXI/Sv32/peripherals, decoded 16550 TX | BusyBox shell reached |
 | UART command through Linux/PLIC | `echo FPGA_BOOT_OK` returns `FPGA_BOOT_OK`; pass at 1,141,575,782 model cycles |
-| Physical board | Unverified: no Arty USB UART/JTAG device available |
+| Physical board | Tested 2026-10-14: OpenSBI/Linux start; userspace blocked by soft lockups (details below) |
 
 The Linux test preloads RAM and uses a functional AXI RAM model. The UART loader
 and MIG/PHY/clock converter are tested separately. The component-model run
@@ -55,4 +55,53 @@ SHA-256 for the locally generated artifacts:
 ```text
 51b96fccbf60a44c8c6ca4f24eefcef25610656a82f49e87213543103b59ff27  build/board/synapse32_linux.bit
 f7cc18095a312c0ae511a3b012c44e98429b3c054717989b02d5080212b7c474  build/linux-image/fw_payload.bin
+```
+
+## Physical board — 2026-10-14
+
+Connected Arty A7-35T, Digilent serial `210319A43D3E`, UART `/dev/ttyUSB1`.
+JTAG programming succeeded. LED0 and LED1 were lit, confirming clock lock and
+DDR calibration. A temporary ILA capture also confirmed reset deassertion,
+calibration synchronized into the loader, and correct decoding of UART bytes
+at 1 Mbaud (50 CPU cycles per bit).
+
+The physical top now selects a 1,000,000 baud loader; the CPU console remains at
+115200. Loader waveform tests pass at both the original 115200 setting and the
+board's 50 MHz / 1 Mbaud setting, including CRC, invalid-length, DDR overrun and
+DDR response-error cases. A 64-byte physical transfer returned `K`.
+
+An initial full transfer received no valid acknowledgement. After a controlled
+reset and a one-second USB UART settling interval, the 21,550,312-byte Linux
+image transferred in 216.5 seconds and returned `K`. The exact cause of the
+initial failed transfer is not established. The uploader now waits one second
+after opening the port and switches to 115200 after the loader acknowledgement.
+
+Captured output includes OpenSBI v1.4 and Linux 6.6.32 startup, DDR-backed memory
+initialization, PLIC setup, devtmpfs initialization, and clocksource selection.
+Linux then reports repeated soft/workqueue lockups; no userspace shell has been
+verified. One `hrtimer` interrupt took 42,444,580 ns, exceeding the configured
+100 Hz tick interval (10 ms). Early lockups interrupt `finish_task_switch` just
+after re-enabling supervisor interrupts. Timer overhead on the uncached DDR
+CPU is a working hypothesis, not a confirmed root cause.
+
+Local UART evidence: `build/hardware-uart.log` and `build/hardware-test.log`.
+Temporary debug captures: `build/board/loader-idle.csv`, `loader-rx.csv`, and
+`loader-after.csv`. The normal bitstream was restored after debug capture.
+
+The faster-loader build passes setup/hold timing, critical CDC and bus-skew
+checks: WNS +1.233 ns, WHS +0.054 ns, zero failing endpoints. Current bitstream:
+
+```text
+0fb0c8b33d7100c7ba72dc996b36a356d458f5c9f1bec36774b2255a63d4a3ef  build/board/synapse32_linux.bit
+```
+
+The subsequent 12 Hz kernel-tick experiment built successfully with the same
+50 MHz hardware timebase. Its upload stopped at 77% with a serial write I/O
+error, so the lower tick rate is not yet a validated boot fix. Reproduce its
+build with `KERNEL_HZ=12 LLVM=1 make -C fpga/arty_a7_35t linux`, then program and
+run `test-board`. The 100 Hz failure logs were preserved locally under
+`build/baseline-100hz/`.
+
+```text
+1ba296a2ad4f893b03c21aada5bdbb00f6226e369e04d1b48046419ecfc9c584  12 Hz fw_payload.bin
 ```

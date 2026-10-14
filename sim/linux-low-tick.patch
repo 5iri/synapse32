@@ -1,0 +1,23 @@
+diff --git a/kernel/Kconfig.hz b/kernel/Kconfig.hz
+--- a/kernel/Kconfig.hz
++++ b/kernel/Kconfig.hz
+@@ -18,6 +18,11 @@ choice
+ 
+ 
++	config HZ_12
++		bool "12 HZ (uncached FPGA bring-up)"
++	help
++	  Reduce timer overhead on the uncached Synapse32 FPGA CPU.
++
+ 	config HZ_100
+ 		bool "100 HZ"
+ 	help
+ 	  100 Hz is a typical choice for servers, SMP and NUMA systems
+@@ -50,6 +55,7 @@ endchoice
+ 
+ config HZ
+ 	int
++	default 12 if HZ_12
+ 	default 100 if HZ_100
+ 	default 250 if HZ_250
+ 	default 300 if HZ_300

@@ -2,7 +2,8 @@
 // DDR3 fabric shared by the board wrapper and component-model simulation.
 module arty_ddr3_top #(
     parameter SERIAL_BOOT=0, BOOT_WORDS=256, BOOT_FILE="boot.hex",
-    parameter ITERATIVE_MULDIV=1, CLOCK_HZ=81250000, SEPARATE_CPU_CLOCK=0
+    parameter ITERATIVE_MULDIV=1, CLOCK_HZ=81250000, SEPARATE_CPU_CLOCK=0,
+    parameter BOOT_BAUD=115200
 ) (
     input wire clk100, clk_ref200, reset_n, uart_rx, cpu_clk50,
     output wire uart_tx, calibrated, boot_done, fault,
@@ -47,7 +48,7 @@ module arty_ddr3_top #(
     (* ASYNC_REG="TRUE" *) reg [1:0] uart_sync=2'b11;
     always @(posedge fabric_clk) uart_sync<={uart_sync[0],uart_rx};
     generate if(SERIAL_BOOT) begin: serial_loader
-        uart_boot_loader #(.CLOCK_HZ(CLOCK_HZ)) loader (
+        uart_boot_loader #(.CLOCK_HZ(CLOCK_HZ),.BAUD(BOOT_BAUD)) loader (
             .clk(fabric_clk),.rst(rst),.enabled(cal_sync[1]&&!boot_done),.rx(uart_rx),
             .tx(loader_tx),.req(load_req),.addr(load_addr),.data(load_data),
             .ready(load_ready),.done(load_done),.bus_fault(system_fault),.finish(load_finish),.error(loader_error)

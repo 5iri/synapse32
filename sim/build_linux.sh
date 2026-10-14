@@ -39,6 +39,11 @@ PLATFORM_RISCV_ISA="${PLATFORM_RISCV_ISA:-rv32ima_zicsr_zifencei_zihintpause}"
 PLATFORM_RISCV_ABI="${PLATFORM_RISCV_ABI:-ilp32}"
 KERNEL_MARCH="${KERNEL_MARCH:-rv32ima_zicsr_zifencei_zihintpause}"
 KERNEL_MABI="${KERNEL_MABI:-ilp32}"
+KERNEL_HZ="${KERNEL_HZ:-100}"
+case "$KERNEL_HZ" in
+    12|100|250|300|1000) ;;
+    *) echo "Unsupported KERNEL_HZ=$KERNEL_HZ (choose 12, 100, 250, 300 or 1000)" >&2; exit 1 ;;
+esac
 
 num_jobs() {
     if command -v nproc >/dev/null 2>&1; then
@@ -212,6 +217,10 @@ patch_linux_source() {
 
     if [ -f "$vdso_processor" ]; then
         perl -0pi -e 's/__asm__ __volatile__ \("pause"\);/__asm__ __volatile__ \(".4byte 0x100000F"\);/' "$vdso_processor"
+    fi
+    if [ "$KERNEL_HZ" = 12 ] && ! grep -q 'config HZ_12' "$LINUX_DIR/kernel/Kconfig.hz"; then
+        require_tool patch
+        patch -d "$LINUX_DIR" -p1 < "$script_dir/linux-low-tick.patch"
     fi
 }
 
@@ -830,7 +839,8 @@ CONFIG_RISCV_SBI=y
 CONFIG_RISCV_TIMER=y
 CONFIG_CMDLINE="console=ttyS0,115200 earlycon=uart8250,mmio32,0x20000000 loglevel=8 rdinit=/init cpuidle.off=1"
 CONFIG_CMDLINE_FORCE=y
-CONFIG_HZ_100=y
+CONFIG_HZ_${KERNEL_HZ}=y
+CONFIG_HZ=${KERNEL_HZ}
 CONFIG_LSM="capability"
 CONFIG_INITRAMFS_SOURCE="$INITRAMFS_CPIO"
 CONFIG_INITRAMFS_COMPRESSION_NONE=y

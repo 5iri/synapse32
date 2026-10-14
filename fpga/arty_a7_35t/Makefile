@@ -4,7 +4,7 @@ PYTHON_RUN := $(if $(findstring /,$(PYTHON)),$(abspath $(PYTHON)),$(PYTHON))
 PORT ?= /dev/ttyUSB1
 IMAGE ?= build/linux-image/fw_payload.bin
 
-.PHONY: bitstream linux llvm-toolchain program upload test test-phy test-linux test-core
+.PHONY: bitstream linux llvm-toolchain program upload test-board test test-phy test-linux test-core
 bitstream:
 	$(VIVADO) -mode batch -source build_bitstream.tcl
 linux:
@@ -15,6 +15,8 @@ program:
 	$(VIVADO) -mode batch -source program.tcl
 upload:
 	$(PYTHON_RUN) upload.py $(PORT) $(IMAGE) --console
+test-board:
+	$(PYTHON_RUN) test_board.py $(PORT) $(IMAGE)
 test:
 	bash test_axi.sh
 	verilator --binary --timing -Wno-fatal -j 4 -I../../rtl/include --top-module tb_muldiv --Mdir build/obj_muldiv tests/tb_muldiv.sv ../../rtl/core_modules/iterative_muldiv.v > build/muldiv-compile.log 2>&1
