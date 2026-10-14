@@ -3,8 +3,17 @@ PYTHON ?= python3
 PYTHON_RUN := $(if $(findstring /,$(PYTHON)),$(abspath $(PYTHON)),$(PYTHON))
 PORT ?= /dev/ttyUSB1
 IMAGE ?= build/linux-image/fw_payload.bin
+UART_LOG ?= build/hardware-uart.log
 
-.PHONY: bitstream linux llvm-toolchain program upload test-board test test-phy test-linux test-core
+.PHONY: bitstream linux llvm-toolchain program upload test-board test test-phy test-linux test-core triangulator deploy-triangulator visualizer test-triangulator
+triangulator:
+	bash triangulator/build.sh
+deploy-triangulator: triangulator
+	$(PYTHON_RUN) triangulator/deploy.py $(PORT) --log $(UART_LOG)
+visualizer:
+	$(PYTHON_RUN) triangulator/viewer.py --port $(PORT) --log $(UART_LOG) --start
+test-triangulator:
+	$(PYTHON_RUN) triangulator/test_geometry.py
 bitstream:
 	$(VIVADO) -mode batch -source build_bitstream.tcl
 linux:

@@ -527,6 +527,10 @@ dir /tmp 1777 0 0
 file /init $INIT_BIN 0755 0 0
 EOF
 
+if [ -n "${INITRAMFS_EXTRA_LIST:-}" ]; then
+    cat "$INITRAMFS_EXTRA_LIST" >> "$INITRAMFS_LIST"
+fi
+
 common_disable_symbols=(
     CONFIG_EFI
     CONFIG_EFI_STUB

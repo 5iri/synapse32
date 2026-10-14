@@ -16,4 +16,9 @@ if [ "${LLVM:-}" = 1 ]; then
     export OPENSBI_CROSS_COMPILE="$KERNEL_CROSS_COMPILE"
     test -x "${KERNEL_CROSS_COMPILE}gcc" || { echo 'Run prepare_llvm.sh first.' >&2; exit 1; }
 fi
+if [ "${BUILD_TRIANGULATOR:-1}" = 1 ]; then
+    TRIANGULATOR_CC="${KERNEL_CROSS_COMPILE:-riscv32-unknown-linux-gnu-}gcc" \
+        bash "$here/triangulator/build.sh"
+    export INITRAMFS_EXTRA_LIST="$here/build/triangulator/initramfs.list"
+fi
 exec bash "$here/../../sim/build_linux.sh"

@@ -5,6 +5,11 @@ an AXI clock converter, iterative RV32M, and a UART loader to upstream Synapse32
 The board is the **Digilent Arty A7-35T, xc7a35ticsg324-1L**, with its 256 MiB DDR3.
 Other boards require a new MIG configuration, clocking and pin constraints.
 
+The [triangulation visualizer](triangulator/README.md) runs a moving 2D mesh
+workload under FPGA Linux and displays its results and timing in a laptop
+browser. The Linux image includes `/bin/triangulator`; an uploader can also
+install the small executable into a Linux session already running.
+
 The CPU sees 64 MiB of unified main RAM. A separate 1 MiB scratch region occupies
 the next MiB of physical DDR. UART, CLINT and PLIC accesses complete in the CPU
 clock domain. The DDR controller uses a 325 MHz memory clock / 81.25 MHz UI clock;
