@@ -25,6 +25,8 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
     input wire module_data_rvalid_in,
     // The MMU treats a whole AMO as a write, its read transaction included.
     output wire module_data_write_intent_out,
+    // SFENCE.VMA or a write to satp: the TLB may hold stale translations.
+    output wire module_tlb_flush_out,
     output wire module_data_mmu_enable_out,
     output wire [1:0] module_data_privilege_out,
     output wire [31:0] module_satp_out,
@@ -878,6 +880,10 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
                                       (ex_mem_std_store_direct_req ? ex_mem_store_be : store_buf_be);
     assign module_load_type = ex_mem_read_type;
     assign module_data_write_intent_out = module_mem_wr_en || is_amo_w;
+    assign module_tlb_flush_out =
+        ex_stage_active && id_ex_inst0_instr_valid_out &&
+        ((id_ex_inst0_instr_id_out == INSTR_SFENCE_VMA) ||
+         (csr_write_enable && (csr_addr == 12'h180)));
     assign mem_stage_load_page_fault = module_load_page_fault_in && ex_mem_read_req;
     // An AMO's read half takes its store/AMO page fault, or MEM would wait on a blocked write.
     assign mem_stage_store_page_fault = module_store_page_fault_in && module_data_write_intent_out;
@@ -889,8 +895,10 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
     assign mem_stage_jump_addr = mem_stage_trap_to_supervisor ? stvec_base : mtvec_base;
 
     // An execute trigger is higher priority than the fetch page fault of the same instruction.
+    // Like every EX exception, it waits while an older access is outstanding in MEM.
     assign instr_stage_page_fault_taken = id_ex_inst0_instr_page_fault_out &&
                                           id_ex_inst0_instr_valid_out &&
+                                          ex_stage_active &&
                                           !execute_trigger_hit;
     assign instr_stage_trap_to_supervisor =
         (csr_file_inst.privilege_mode != PRIV_M) && csr_file_inst.medeleg[12];
