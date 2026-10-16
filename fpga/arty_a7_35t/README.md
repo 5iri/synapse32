@@ -160,7 +160,7 @@ The default CPU divider is 20: a 1 GHz MMCM VCO produces 50 MHz. `CPU_DIVIDE=18`
 produces about 55.56 MHz and `CPU_DIVIDE=16` produces 62.5 MHz. The DDR memory
 and reference clocks stay unchanged. The bitstream builder checks setup/hold,
 DRC, critical CDC and AXI bus skew before producing an image. The 55.56 and
-62.5 MHz builds pass these checks; the latter has only +0.010 ns setup slack.
+62.5 MHz legacy bridge-cache builds pass these checks; the latter has only +0.010 ns setup slack.
 Physical benchmark acceptance is recorded in the results, rather than inferred
 from timing closure.
 
@@ -196,6 +196,7 @@ bitstreams, Linux images and full UART logs live in ignored `build/` directories
 | 0x0200bff8 / 0x0200bffc | mtime low/high, increments at 50 MHz |
 | 0x0c000000–0x0c3fffff | PLIC, UART source 1, M/S contexts |
 | 0x20000000–0x20000fff | 16550 UART, register shift 2, 32-bit MMIO |
+| 0x20001000–0x20001fff | FPGA performance counters |
 
 Sv32 walks fetch PTEs through the same DDR arbiter as normal memory accesses.
 Both 4 KiB pages and 4 MiB superpages are supported, with U/S, SUM/MXR and
@@ -213,6 +214,27 @@ Unexpected physical addresses or failed AXI responses latch a fabric fault and
 hold the CPU in reset.
 
 ### Instruction and data caches
+
+`FAST_L1=1` moves the physically tagged I/D caches onto independent synchronous
+ports ahead of the shared bus arbiter. A hit returns in one cycle, including
+while the other port waits for DDR. Each 4 KiB bank uses two RAMB36 blocks.
+Translation and permission checks still precede access to cached data.
+
+With this path, `STORE_BUFFER_DEPTH=4` posts ordinary translated RAM stores
+into an ordered queue. A store updates matching resident I/D lines when it
+enters the queue; the queued write remains pending until its AXI response.
+Misses, page walks, MMIO, fences and atomic operations wait for older stores.
+A failed write latches the fabric fault and halts the CPU. There is no dirty
+write-back cache state.
+
+`FAST_MULTIPLY=1` uses four DSPs for two-cycle RV32 multiplication; division
+remains iterative. The board build checks timing for each configuration.
+The uncached BRAM baseline, matched AXI simulations, physical measurements
+and profiling workflow are documented in
+[memory-path measurements](coremark/MEMORY_PERFORMANCE.md).
+
+`FAST_L1=0 STORE_BUFFER_DEPTH=0` selects the legacy serialized bridge path
+described below for comparison.
 
 `axi_word_bridge` implements a physically addressed, direct-mapped D-cache:
 256 lines of 16 bytes, matching one DDR AXI beat per refill. Data-port RAM
@@ -279,7 +301,7 @@ preserves pending bits absent from the CSR operand; repeated physical-board
 commands now succeed, including after a one-minute idle period. See the
 validation notes for the interrupt capture and remaining runtime limitations.
 
-The CPU and walker issue one outstanding access at a time. This
-keeps the A7-35T implementation small but makes Linux substantially slower than
-a cached core. This target has no persistent storage or network peripheral;
+The lower DDR bus accepts one outstanding transaction at a time. Local cache
+hits can proceed independently, and the optional store queue overlaps CPU
+execution with write responses. This target has no persistent storage or network peripheral;
 the root filesystem is the embedded initramfs.

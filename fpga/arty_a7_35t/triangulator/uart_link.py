@@ -57,6 +57,8 @@ class LogLines:
         # so exact acknowledgement checks also work in that terminal mode.
         result = []
         for line in lines:
+            # Linux's tty may emit software-flow-control bytes between records.
+            line = line.replace(b'\x11', b'').replace(b'\x13', b'')
             decoded = re.sub(r"^(?:(?:~|/[^\r\n ]*) # |> )+", "",
                              line.decode("utf-8", errors="replace").strip("\r"))
             kernel = re.search(r"\[\s*\d+\.\d+\]", decoded)

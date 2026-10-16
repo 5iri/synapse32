@@ -22,6 +22,8 @@ def main():
     parser.add_argument('--cpu-mhz', type=float, default=50)
     parser.add_argument('--optimizations', nargs='+', choices=['o3', 'o2'], default=['o3', 'o2'])
     parser.add_argument('--profiler', help='Absolute path to the FPGA Linux counter wrapper')
+    parser.add_argument('--binary-prefix', default='/tmp/coremark',
+                        help='Binary path before -o3/-o2 (default: /tmp/coremark)')
     args = parser.parse_args()
     if not 1 <= args.repeats <= 10:
         parser.error('repeats must be 1..10')
@@ -31,6 +33,8 @@ def main():
         parser.error('cpu-mhz must be the actual positive hardware clock')
     if args.profiler and not re.fullmatch(r'/[A-Za-z0-9_./-]+', args.profiler):
         parser.error('profiler must be an absolute path without shell characters')
+    if not re.fullmatch(r'/[A-Za-z0-9_./-]+', args.binary_prefix):
+        parser.error('binary prefix must be an absolute path without shell characters')
     writer, lines = UartWriter(args.port), LogLines(args.log)
     results = []
     try:
@@ -44,7 +48,8 @@ def main():
             marker = f'S32_COREMARK_DONE_{index}'
             # Both seed sets use all algorithms and the standard 2000-byte data.
             prefix = f'{args.profiler} ' if args.profiler else ''
-            command = f'{prefix}/tmp/coremark-{opt} {seeds} {args.iterations} 7 1; echo {marker}:$?\n'
+            binary = f'{args.binary_prefix}-{opt}'
+            command = f'{prefix}{binary} {seeds} {args.iterations} 7 1; echo {marker}:$?\n'
             writer.send(command.encode(), 0.01)
             captured = []
             deadline = time.monotonic() + 600
@@ -74,7 +79,7 @@ def main():
             expected_crc = '0xe9f5' if mode == 'performance' else '0x18f2'
             if not re.search(r'^seedcrc\s*:\s*' + expected_crc, output, re.M):
                 raise RuntimeError('Unexpected CoreMark data size or seeds')
-            result = {'optimization': opt, 'mode': mode, 'repeat': repeat,
+            result = {'optimization': opt, 'mode': mode, 'repeat': repeat, 'binary': binary,
                       'seconds': seconds, 'iterations_per_second': score,
                       'iterations': int(field('Iterations')),
                       'cpu_mhz': args.cpu_mhz,

@@ -14,7 +14,7 @@ class ConsoleLinesTest(unittest.TestCase):
                              b'/tmp # > > S32_UPLOAD_ACK_0[  682.186221] random: crng init done\r\n'
                              b'~ # ~ # S32_EXTRACT:0\r\n'
                              b'~ # echo S32_UPLOAD_READY\r\n'
-                             b'S32_UPLOAD_READY\r\n'
+                             b'\x13> > \x11S32_UPLOAD_READY\r\n'
                              b'S32MESH {"frame":0}\r\n')
             lines = LogLines(path, from_start=True)
             try:
