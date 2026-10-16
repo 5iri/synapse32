@@ -1,0 +1,54 @@
+{
+  "purpose": "Diagnostic only, not an accepted CoreMark score: one iteration below 10 seconds",
+  "scope": "Whole CoreMark process including initialization and reporting, plus intervening shell/devmem commands",
+  "cpu_hz": 62500000,
+  "kernel_hz": 25,
+  "linux_binary_sha256": "06605377a08cade9cfc809610e4733bdb981fc4a4f43805e5a4f102f5f0729d8",
+  "static_memblk_va": "0x26cd5",
+  "diagnostic_firmware": "build/linux-image-25hz-cpu62-trap-profile/fw_payload.bin",
+  "diagnostic_firmware_sha256": "d0125c9b0c18cb7082f911c3db005808aa57dedaef3dc49eb7e1d190ab7228fb",
+  "bitstream": "build/performance/fastmul-bram-l1-62/synapse32_fastmul-bram-l1-62.bit",
+  "bitstream_sha256": "04b8c97903f6d787bc5d8e69d76800d7dedc311749139de917fde8fb3e36753e",
+  "before": {
+    "magic": 1395872848,
+    "load_misaligned_lo": 4032,
+    "load_misaligned_hi": 0,
+    "store_misaligned_lo": 4032,
+    "store_misaligned_hi": 0,
+    "illegal_instruction_lo": 0,
+    "supervisor_ecall_lo": 506,
+    "machine_timer_irq_lo": 0,
+    "last_load_pc": 3221232096,
+    "last_load_va": 3242524543,
+    "last_store_pc": 3221232128,
+    "last_store_va": 3242516349
+  },
+  "after": {
+    "magic": 1395872848,
+    "load_misaligned_lo": 28047,
+    "load_misaligned_hi": 0,
+    "store_misaligned_lo": 11036,
+    "store_misaligned_hi": 0,
+    "illegal_instruction_lo": 0,
+    "supervisor_ecall_lo": 577,
+    "machine_timer_irq_lo": 0,
+    "last_load_pc": 80544,
+    "last_load_va": 158941,
+    "last_store_pc": 80272,
+    "last_store_va": 158941
+  },
+  "deltas": {
+    "load_misaligned_lo": 24015,
+    "store_misaligned_lo": 7004,
+    "illegal_instruction_lo": 0,
+    "supervisor_ecall_lo": 71,
+    "machine_timer_irq_lo": 0
+  },
+  "last_faults": {
+    "last_load_pc": "0x13aa0",
+    "last_load_va": "0x26cdd",
+    "last_store_pc": "0x13990",
+    "last_store_va": "0x26cdd"
+  },
+  "output": "\necho S32_TRAP_BEFORE; for a in 0x803ff000 0x803ff060 0x803ff064 0x803ff070 0\nx803ff074 0x803ff050 0x803ff088 0x803ff178 0x803ff020 0x803ff024 0x803ff028 0x80\n3ff02c; do /bin/busybox devmem \"$a\" 32; done; echo S32_TRAP_BENCH; /tmp/coremark\n-o3 0 0 0x66 1 7 1; echo S32_TRAP_AFTER; for a in 0x803ff000 0x803ff060 0x803ff0\n64 0x803ff070 0x803ff074 0x803ff050 0x803ff088 0x803ff178 0x803ff020 0x803ff024 \n0x803ff028 0x803ff02c; do /bin/busybox devmem \"$a\" 32; done; echo S32_TRAP_DONE\nS32_TRAP_BEFORE\n0x53335450\n0x00000FC0\n0x00000000\n0x00000FC0\n0x00000000\n0x00000000\n0x000001FA\n0x00000000\n0xC00019E0\n0xC144FF7F\n0xC0001A00\n0xC144DF7D\nS32_TRAP_BENCH\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 1337\nTotal time (secs): 1.337000\nIterations/Sec   : 0.747943\nERROR! Must execute for at least 10 secs for a valid result!\nIterations       : 1\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xe714\nErrors detected\nS32_TRAP_AFTER\n0x53335450\n0x00006D8F\n0x00000000\n0x00002B1C\n0x00000000\n0x00000000\n0x00000241\n0x00000000\n0x00013AA0\n0x00026CDD\n0x00013990\n0x00026CDD\nS32_TRAP_DONE\n"
+}

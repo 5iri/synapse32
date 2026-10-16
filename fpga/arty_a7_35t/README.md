@@ -215,6 +215,7 @@ hold the CPU in reset.
 
 ### Instruction and data caches
 
+The board defaults to `FAST_L1=1 STORE_BUFFER_DEPTH=4 FAST_MULTIPLY=1` at 50 MHz.
 `FAST_L1=1` moves the physically tagged I/D caches onto independent synchronous
 ports ahead of the shared bus arbiter. A hit returns in one cycle, including
 while the other port waits for DDR. Each 4 KiB bank uses two RAMB36 blocks.
@@ -259,8 +260,8 @@ external DMA master or multi-hart cache-coherence protocol on this board.
 for an uncached comparison, or another power of two to change capacity:
 
 ```sh
-DCACHE_LINES=0 ICACHE_LINES=0 make -C fpga/arty_a7_35t bitstream
-DCACHE_LINES=0 ICACHE_LINES=0 LINUX_SIM_BUILD=build/obj_linux_nocache bash fpga/arty_a7_35t/test_linux.sh /absolute/path/to/fw_payload.bin
+FAST_L1=0 STORE_BUFFER_DEPTH=0 FAST_MULTIPLY=0 DCACHE_LINES=0 ICACHE_LINES=0 make -C fpga/arty_a7_35t bitstream
+FAST_L1=0 STORE_BUFFER_DEPTH=0 FAST_MULTIPLY=0 DCACHE_LINES=0 ICACHE_LINES=0 LINUX_SIM_BUILD=build/obj_linux_nocache bash fpga/arty_a7_35t/test_linux.sh /absolute/path/to/fw_payload.bin
 bash fpga/arty_a7_35t/test_dcache.sh
 ```
 

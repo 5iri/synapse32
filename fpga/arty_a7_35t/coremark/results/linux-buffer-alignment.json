@@ -1,0 +1,298 @@
+{
+  "sha256": "7192d2ad734c4db1e31545e9d73ac12ce2c46af2d177dee050afd7ab015a1c20",
+  "static_memblk_address": "0x26cb0",
+  "change": "Linker-only 16-byte-aligned NOLOAD .coremark_buffer section before .bss; all EEMBC source and compile options unchanged. Reported flag string retains baseline flags for a layout-only comparison; additional linker script recorded here.",
+  "linker_script_sha256": "8e25c79cc67f954efdac28b9405e5fc806ba9335398e1ee227789bf9edadb8ba",
+  "compiler_flags_reported": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s",
+  "timed_function_code_checks": {
+    "core_bench_list": {
+      "address": "0x134fc",
+      "size": 1524,
+      "sha256": "e8de197a3f8587697c94170827c91bafaf1aa8bb7b0d81e8b812065535cc27a7",
+      "identical_to_baseline": true
+    },
+    "core_bench_matrix": {
+      "address": "0x146fc",
+      "size": 72,
+      "sha256": "f583c42c74af0afd83e85f9a473835a9e571738f36da8061e395026b65177ff4",
+      "identical_to_baseline": true
+    },
+    "core_bench_state": {
+      "address": "0x14cf0",
+      "size": 728,
+      "sha256": "7721c860d81e8b3af29ddac60336c3dc04ae77f11aa8f30032de689ddc884737",
+      "identical_to_baseline": true
+    },
+    "core_list_init": {
+      "address": "0x13af0",
+      "size": 596,
+      "sha256": "5a7c09a05e57de0fdc3e03d4726618f3572c430a76a9754f2e50dd33695879da",
+      "identical_to_baseline": true
+    },
+    "core_state_transition": {
+      "address": "0x14fc8",
+      "size": 780,
+      "sha256": "f539d1b693abef49ec0bb9d765f4a06e3476bc9287b8338c11f36d5e14492e1b",
+      "identical_to_baseline": true
+    },
+    "crc16": {
+      "address": "0x15590",
+      "size": 68,
+      "sha256": "c5278f19d203b43f89e9ac8dbce078630adc6b326b9842daf3612fe2452af91d",
+      "identical_to_baseline": true
+    },
+    "crcu16": {
+      "address": "0x154d0",
+      "size": 64,
+      "sha256": "61336a12e2f7d06dd318607eed4cbe3182240847a256b52f5c48373499878a8b",
+      "identical_to_baseline": true
+    },
+    "crcu32": {
+      "address": "0x15510",
+      "size": 128,
+      "sha256": "8921456bad2ed6283f8afc7ebac09d7d04090b2bd2c8b049e4adc82591668454",
+      "identical_to_baseline": true
+    },
+    "iterate": {
+      "address": "0x13d44",
+      "size": 172,
+      "sha256": "7054d4b0acf17cc46487f22b140c2c80096f51ec6a0f5ba164bc5cfd6393cc23",
+      "identical_to_baseline": true
+    },
+    "matrix_test": {
+      "address": "0x14744",
+      "size": 1160,
+      "sha256": "dc7406acc9941259d12a79c07818e298a6efedbbcd4da01cf84b098ff5a3223c",
+      "identical_to_baseline": true
+    }
+  },
+  "sections": {
+    ".text": {
+      "type": 1,
+      "flags": 6,
+      "addr": 78776,
+      "offset": 9144,
+      "size": 71696,
+      "alignment": 4
+    },
+    ".rodata": {
+      "type": 1,
+      "flags": 50,
+      "addr": 65888,
+      "offset": 352,
+      "size": 5098,
+      "alignment": 16
+    },
+    ".data": {
+      "type": 1,
+      "flags": 3,
+      "addr": 158736,
+      "offset": 80912,
+      "size": 160,
+      "alignment": 8
+    },
+    ".coremark_buffer": {
+      "type": 8,
+      "flags": 3,
+      "addr": 158896,
+      "offset": 81072,
+      "size": 2000,
+      "alignment": 1
+    },
+    ".bss": {
+      "type": 8,
+      "flags": 3,
+      "addr": 160896,
+      "offset": 81072,
+      "size": 1404,
+      "alignment": 8
+    }
+  },
+  "original_static_memblk_address": "0x26cd5",
+  "original_allocated_sections_reproduced": true,
+  "baseline_sha256": "06605377a08cade9cfc809610e4733bdb981fc4a4f43805e5a4f102f5f0729d8",
+  "baseline_static_memblk_address": "0x26cd5",
+  "permanent_builders": {
+    "coremark-linux-aligned-builder": {
+      "binary_sha256": "7192d2ad734c4db1e31545e9d73ac12ce2c46af2d177dee050afd7ab015a1c20",
+      "alignment": {
+        "symbol": "static_memblk",
+        "address": "0x00026cb0",
+        "size_bytes": 2000,
+        "required_alignment_bytes": 4,
+        "elf_sha256": "1f57893808450d165da9ba71984cda21c1746aa8eff70e9e9397112463c2982e"
+      }
+    },
+    "coremark-linux-aligned-generic": {
+      "binary_sha256": "31ff020e899df612193dc593708c3a134141f76534130ec5592d70be978cd775",
+      "alignment": {
+        "symbol": "static_memblk",
+        "address": "0x00026cb0",
+        "size_bytes": 2000,
+        "required_alignment_bytes": 4,
+        "elf_sha256": "8d4305b6316396118291743520e3d8ebbecb2e5763f3b510679cd14cbc90ab4e"
+      }
+    }
+  },
+  "qemu_diagnostic": {
+    "qemu_version": "11.1.2 static user mode",
+    "binary": "fpga/arty_a7_35t/build/coremark/coremark",
+    "binary_sha256": "d86110daf0c28d2f9ca1f0b7740823a29216b621dedc4de1588bd1e0f827b065",
+    "args": [
+      "0",
+      "0",
+      "0x66",
+      "1",
+      "7",
+      "1"
+    ],
+    "purpose": "diagnostic only; below10seconds; no score claim",
+    "measurement_window": "iterate entry0x13d44 through return to main0x14024/0x13fc8",
+    "timed_dynamic_instructions": 253736,
+    "timed_basic_block_executions": 57317,
+    "timed_distinct_instruction_pcs": 1103,
+    "timed_instruction_pages": {
+      "0x13": 79534,
+      "0x14": 120260,
+      "0x15": 53942
+    },
+    "timed_mnemonics": {
+      "addi": 49135,
+      "lw": 26686,
+      "mv": 22642,
+      "bnez": 20331,
+      "add": 18414,
+      "beq": 13672,
+      "sw": 12367,
+      "slli": 10569,
+      "lbu": 9833,
+      "lhu": 9542,
+      "mul": 9468,
+      "beqz": 8256,
+      "lh": 8079,
+      "srli": 6952,
+      "andi": 5565,
+      "bgtu": 3589,
+      "bne": 3306,
+      "slt": 1928,
+      "j": 1665,
+      "srai": 1504,
+      "bgt": 1488,
+      "and": 1317,
+      "ret": 1259,
+      "jal": 1258,
+      "xor": 968,
+      "sh": 709,
+      "bleu": 545,
+      "bgtz": 542,
+      "sb": 510,
+      "ble": 413,
+      "sub": 328,
+      "lui": 240,
+      "bltz": 206,
+      "not": 204,
+      "blez": 171,
+      "or": 60,
+      "neg": 15
+    },
+    "hottest_pcs": [
+      [
+        "0x135e4",
+        6120
+      ],
+      [
+        "0x135e8",
+        6120
+      ],
+      [
+        "0x135ec",
+        6120
+      ],
+      [
+        "0x135f0",
+        6120
+      ],
+      [
+        "0x135f4",
+        6120
+      ],
+      [
+        "0x14980",
+        2916
+      ],
+      [
+        "0x14984",
+        2916
+      ],
+      [
+        "0x14988",
+        2916
+      ],
+      [
+        "0x1498c",
+        2916
+      ],
+      [
+        "0x14990",
+        2916
+      ],
+      [
+        "0x14994",
+        2916
+      ],
+      [
+        "0x14998",
+        2916
+      ],
+      [
+        "0x1499c",
+        2916
+      ],
+      [
+        "0x14a6c",
+        2916
+      ],
+      [
+        "0x14a70",
+        2916
+      ],
+      [
+        "0x14a74",
+        2916
+      ],
+      [
+        "0x14a78",
+        2916
+      ],
+      [
+        "0x14a7c",
+        2916
+      ],
+      [
+        "0x14a80",
+        2916
+      ],
+      [
+        "0x14a84",
+        2916
+      ]
+    ],
+    "whole_process_dynamic_instructions": 331526,
+    "trace_bytes": 5569427,
+    "crc_verified": true,
+    "baseline_binary_sha256": "06605377a08cade9cfc809610e4733bdb981fc4a4f43805e5a4f102f5f0729d8",
+    "identical_PT_LOAD_to_original_baseline": false,
+    "identical_ALLOC_sections_to_original_baseline": true,
+    "binary_identity_note": "The traced ELF differs only in nonallocated metadata after objcopy dumped a section. All allocated sections match the exact original; the original file was restored from the immutable initramfs."
+  },
+  "accepted_physical_comparison": {
+    "cpu_hz": 62500000,
+    "original_coremark": 0.76858,
+    "aligned_coremark": 80.847279,
+    "baremetal_coremark": 82.0,
+    "performance_repeats": 3,
+    "validation_runs": 1,
+    "minimum_timed_seconds": 10,
+    "raw_reports": "memory-performance.json"
+  }
+}

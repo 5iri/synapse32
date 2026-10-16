@@ -1,7 +1,7 @@
 `default_nettype none
 // Physical Arty A7-35T top. DDR3 pin locations are supplied by the MIG project.
 module arty_linux_top #(parameter BOOT_BAUD=1000000, CPU_DIVIDE=20, DCACHE_LINES=256, ICACHE_LINES=256,
-                       FAST_L1=0, STORE_BUFFER_DEPTH=0, FAST_MULTIPLY=0) (
+                       FAST_L1=1, STORE_BUFFER_DEPTH=4, FAST_MULTIPLY=1) (
     input wire clk100, reset_n, uart_rx,
     output wire uart_tx,
     output wire [3:0] led,

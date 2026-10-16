@@ -12,16 +12,22 @@ also passes. `FAST_MULTIPLY=0` means iterative multiplication and division.
 | ---: | --- | ---: | ---: | ---: |
 | 62.5 | Bare metal, DDR3, no caches | 3.695765 | 0.059132 | 66.320722 |
 | 62.5 | Bare metal, DDR3, 4 KiB I + 4 KiB D caches in serialized bridge | 24.710270 | 0.395364 | 9.919053 |
-| 62.5 | Linux, DDR3, no caches, 25 Hz tick | 0.058275 | 0.000932 | — |
-| 62.5 | Linux, DDR3, bridge I/D caches, 25 Hz tick | 0.365751 | 0.005852 | — |
+| 62.5 | Linux, DDR3, no caches, unaligned buffer, 25 Hz tick | 0.058275 | 0.000932 | — |
+| 62.5 | Linux, DDR3, bridge I/D caches, unaligned buffer, 25 Hz tick | 0.365751 | 0.005852 | — |
 | 50 | Bare metal, 128 KiB synchronous BRAM, no caches | 52.172175 | 1.0434435 | 3.758463 |
 | 50 | Profiled bare metal, DDR3, local I/D L1, no store queue, iterative M | 40.117286 | 0.802346 | 4.887824 |
+| 50 | Bare metal, BRAM L1, four-entry store queue, iterative M | 48.408576 | 0.968172 | 4.050582 |
+| 50 | Linux, BRAM L1, store queue, iterative M, unaligned buffer | 0.655841 | 0.013117 | — |
+| 50 | Bare metal, BRAM L1, store queue, fast multiplication | 66.768841 | 1.335377 | 2.936864 |
+| 62.5 | Bare metal, BRAM L1, store queue, fast multiplication | 82.000000 | 1.312000 | 2.989189 |
+| 62.5 | Linux, same hardware, original unaligned buffer | 0.768580 | 0.012297 | — |
+| 62.5 | Linux, same hardware, aligned buffer | **80.847279** | **1.293556** | — |
 
 The first local-L1 measurement used **LUTRAM**, with zero inferred cache BRAMs.
 It is a valid physical score for that implementation, not a measurement of the
 subsequent BRAM-inference fix. Current source uses canonical registered RAM reads
 and a separate fill/snoop write port; standalone synthesis infers two RAMB36s per
-4 KiB bank. Physical acceptance of that revision is a separate stage.
+4 KiB bank. The subsequent buffered physical builds use four RAMB36 blocks total.
 
 The BRAM baseline holds **all code, constants, data, BSS and stack** in
 `0x80000000–0x8001ffff`. Its CPU uses iterative M, no I-cache or D-cache, and
@@ -32,8 +38,22 @@ long runs use 783 iterations. Physical implementation uses 32 RAMB36s and meets
 
 Compare clock-matched rows or CoreMark/MHz; 50 MHz and 62.5 MHz totals are not
 direct speedups. At 62.5 MHz, bridge caches improve bare-metal throughput 6.69×
-and Linux throughput 6.28×. Their remaining Linux/bare-metal gap is measured;
-its cause has not yet been established by a stall breakdown.
+and the original Linux port's throughput 6.28×. Those Linux results include
+misaligned-access emulation and must not be treated as a pure OS-overhead cost.
+
+The original Linux `static_memblk` was at **0x26cd5**, an odd address. The list
+initializer uses it directly as pointers and halfwords. One diagnostic process
+produced **24,015 misaligned-load and 7,004 misaligned-store traps**; the last
+faults were user instructions accessing odd address `0x26cdd`. These counts
+include setup/reporting and are diagnostic, not a valid one-iteration score.
+See [trap evidence](results/misalignment-trap-diagnostic.json).
+
+The platform linker script places the buffer at 16-aligned **0x26cb0** without
+changing EEMBC source. Ten linked timed functions remain byte-identical. Both
+binaries were tested in the same normal-firmware Linux image on the same
+62.5 MHz bitstream: alignment alone improves throughput **105.19×**. Aligned
+Linux achieves **98.59%** of bare-metal throughput. Platform code and linker
+relaxation still differ, so the remaining 1.41% is not a pure OS-cost measurement.
 
 Permanent evidence, including outputs, hashes and configuration, is in
 [memory-performance.json](results/memory-performance.json), with the earlier
@@ -134,8 +154,15 @@ This wrapper measures the **whole CPU during the command**, including kernel,
 background tasks, process startup and reporting. Its counters are not restricted
 to CoreMark's internally timed loop. Do not label them userspace-only CPI.
 
-## Pending stages
+## Current verified profile
 
-BRAM-backed local L1, store posting, accelerated multiplication and Linux counter
-measurements require separate physical results before scores are attributed to
-them. Preserve the bitstream/source hashes and accepted JSON for each stage.
+Board defaults are BRAM L1, a four-entry store queue and fast multiplication at
+50 MHz. The optional 62.5 MHz profile passed all CRC/duration checks and timing
+(setup +0.023 ns, hold +0.051 ns); its setup margin is narrow. Tested artifacts:
+`build/performance/fastmul-bram-l1-62/synapse32_fastmul-bram-l1-62.bit` and
+`build/linux-image-25hz-cpu62-aligned-profile/fw_payload.bin` (2 Mbaud loader,
+115200 console, 25 Hz kernel). The image retains the original comparison binary;
+run `/tmp/coremark-aligned-o3 0 0 0x66 1000 7 1` for the corrected benchmark.
+`build_trap_profile.sh` produces separate diagnostic firmware; do not use its
+instrumented timing as an accepted score. Hashes and full reports are preserved
+in the permanent result JSON files.

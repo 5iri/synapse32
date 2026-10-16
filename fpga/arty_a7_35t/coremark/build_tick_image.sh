@@ -12,10 +12,15 @@ source_kernel="${LINUX_SOURCE_BUILD:-$board/build/linux}"
 kernel="${TICK_KERNEL_DIR:-$board/build/linux-${hz}hz}"
 image_dir="${TICK_IMAGE_DIR:-$board/build/linux-image-${hz}hz}"
 base_image="${BASE_LINUX_IMAGE:-$board/build/linux-image}"
+extra_list="${INITRAMFS_EXTRA_LIST:-}"
+coremark_o3="${COREMARK_O3_BINARY:-$board/build/coremark/coremark}"
 compiler_prefix="$board/build/llvm-toolchain/riscv32-linux-gnu-"
+if [ -n "$extra_list" ] && { [ ! -f "$extra_list" ] || [ ! -r "$extra_list" ]; }; then
+    echo "INITRAMFS_EXTRA_LIST must name a readable regular file: $extra_list" >&2; exit 1
+fi
 test -f "$source_kernel/.config" || { echo 'Build the baseline Linux image first.' >&2; exit 1; }
 test "$(realpath -m "$kernel")" != "$(realpath "$source_kernel")" || { echo 'Experiment must use a separate kernel directory.' >&2; exit 1; }
-test -f "$board/build/coremark/coremark" && test -f "$board/build/coremark-o2/coremark" || {
+test -f "$coremark_o3" && test -f "$board/build/coremark-o2/coremark" || {
     echo 'Build both CoreMark optimization variants first.' >&2; exit 1;
 }
 export LLVM=1
@@ -31,7 +36,8 @@ fi
 sed "s/<50000000>/<${cpu_clock}>/g" "$board/../../sim/synapse32.dts" > "$image_dir/synapse32.dts"
 dtc -O dtb -o "$image_dir/synapse32.dtb" "$image_dir/synapse32.dts"
 cp "$base_image/initramfs.list" "$image_dir/initramfs.list"
-printf 'file /tmp/coremark-o3 %s/build/coremark/coremark 0755 0 0\nfile /tmp/coremark-o2 %s/build/coremark-o2/coremark 0755 0 0\n' "$board" "$board" >> "$image_dir/initramfs.list"
+printf 'file /tmp/coremark-o3 %s 0755 0 0\nfile /tmp/coremark-o2 %s/build/coremark-o2/coremark 0755 0 0\n' "$coremark_o3" "$board" >> "$image_dir/initramfs.list"
+if [ -n "$extra_list" ]; then cat "$extra_list" >> "$image_dir/initramfs.list"; fi
 "$base_image/gen_init_cpio" "$image_dir/initramfs.list" > "$image_dir/initramfs.cpio"
 for tick in 12 25 50 100 250 300 1000; do
     "$kernel/scripts/config" --file "$kernel/.config" --disable "HZ_$tick"
