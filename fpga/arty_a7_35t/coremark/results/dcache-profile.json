@@ -1,0 +1,48 @@
+{
+  "source_commit": "d2996776219e8c41904f9aa9ab047b2d7d09adef",
+  "cpu_mhz": 62.5,
+  "kernel_hz": 25,
+  "dcache_bytes": 4096,
+  "line_bytes": 16,
+  "policy": "write-through, read-allocate, no-write-allocate",
+  "loader_baud": 2000000,
+  "bitstream": "build/board/synapse32_linux_dcache_cpu62.bit",
+  "bitstream_sha256": "b5f0ae2f22835f296b8ddcffca4cdfa2b4659e235513cd9abb8f6578936753d3",
+  "payload": "build/linux-image-25hz-cpu62/fw_payload.bin",
+  "payload_sha256": "f1568fca0526fde02f7e1fde51a5387ee2d3912de5196ca68e9a74fd138ab093",
+  "setup_wns_ns": 0.138,
+  "hold_whs_ns": 0.051,
+  "physical_acceptance": "passed",
+  "geometry_frames_validated": 60,
+  "coremark_before": 0.058275,
+  "coremark_after": 0.065954,
+  "coremark_speedup": 1.1317717717717717,
+  "mesh": [
+    {
+      "points": 16,
+      "frames": 30,
+      "before_median_ms": 81.619,
+      "after_median_ms": 71.7585,
+      "speedup": 1.1374122926203865,
+      "received_fps": 6.384903808833185
+    },
+    {
+      "points": 32,
+      "frames": 20,
+      "before_median_ms": 419.4525,
+      "after_median_ms": 386.079,
+      "speedup": 1.0864421530308563,
+      "received_fps": 1.7565829530553334
+    },
+    {
+      "points": 64,
+      "frames": 10,
+      "before_median_ms": 2945.3675,
+      "after_median_ms": 2708.7439999999997,
+      "speedup": 1.087355431151855,
+      "received_fps": 0.3268147584713392
+    }
+  ],
+  "linux_init_seconds": 67.849288,
+  "loader_transfer_seconds": 107.8
+}

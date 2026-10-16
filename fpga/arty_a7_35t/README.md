@@ -240,9 +240,11 @@ DCACHE_LINES=0 LINUX_SIM_BUILD=build/obj_linux_nocache bash fpga/arty_a7_35t/tes
 bash fpga/arty_a7_35t/test_dcache.sh
 ```
 
-The cache requires rebuilding and programming the FPGA; existing bitstreams
-and the historical CoreMark results remain uncached. The Linux image and
-device tree do not need cache-specific changes.
+The cache requires rebuilding and programming the FPGA. Bitstreams built
+before this change remain uncached. The Linux image and device tree do not
+need cache-specific changes. The 62.5 MHz cached bitstream has been tested on
+the board: CoreMark improves from 0.058275 to 0.065954 (13.2%), with all 60
+mesh frames validated. See [the measured comparison](coremark/RESULTS.md#data-cache-at-625-mhz).
 
 ## Verification
 

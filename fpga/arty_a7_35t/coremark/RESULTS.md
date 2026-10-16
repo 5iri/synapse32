@@ -131,3 +131,39 @@ build now defaults to 25 Hz. The fast profile is explicitly selected with
 Compact mesh records, full CoreMark output and the profile summary are in
 [results](results/). The original logs are `build/{25hz,50hz,100hz,cpu62}-hardware-uart.log`;
 62.5 MHz implementation reports are `build/board/cpu62-*.rpt`.
+
+## Data cache at 62.5 MHz
+
+Adding the 4 KiB, 16-byte-line, physical write-through D-cache improves
+CoreMark by **13.2%**, from **0.058275 to 0.065954** (0.001055 CoreMark/MHz).
+The board, 62.5 MHz CPU clock, 25 Hz tick, Linux payload and exact `-O3`
+CoreMark executable are unchanged. Instruction fetches remain uncached.
+
+The cached median uses three two-iteration performance runs, plus a separate
+two-iteration validation-seed run. Every run exceeds ten seconds and validates
+its CRCs. The earlier baseline uses three one-iteration runs and has a
+ten-iteration cross-check recorded above.
+
+| Workload | Without D-cache | With 4 KiB D-cache | Speedup |
+| --- | --- | --- | --- |
+| CoreMark, iterations/s | 0.058275 | 0.065954 | 1.132× |
+| 16-point mesh, median ms | 81.619 | 71.7585 | 1.137× |
+| 32-point mesh, median ms | 419.4525 | 386.079 | 1.086× |
+| 64-point mesh, median ms | 2945.3675 | 2708.744 | 1.087× |
+
+All 60 cached mesh frames pass independent exact geometry checks and match
+the earlier frame IDs, point coordinates and triangle indices. Received FPS
+is 6.38, 1.76 and 0.327 for 16/32/64 points. The Linux `/init` timestamp moves
+from 74.67 to 67.85 seconds; this is a single boot comparison. These results
+show a modest data-cache benefit and do not establish a memory-stall or
+instruction-fetch cycle breakdown.
+
+The physical bitstream is `build/board/synapse32_linux_dcache_cpu62.bit`,
+SHA256 `b5f0ae2f22835f296b8ddcffca4cdfa2b4659e235513cd9abb8f6578936753d3`,
+from source commit `d299677`. Full-board setup/hold slack is +0.138/+0.051 ns;
+DRC, critical CDC and bus-skew checks pass. The unchanged payload SHA256 is
+`f1568fca0526fde02f7e1fde51a5387ee2d3912de5196ca68e9a74fd138ab093`.
+
+Raw evidence: [CoreMark](results/dcache-coremark.json),
+[meshes](results/dcache-mesh.json),
+[paired images and comparison](results/dcache-profile.json).

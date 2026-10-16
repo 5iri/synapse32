@@ -345,3 +345,24 @@ The real 62.5 MHz / 25 Hz Linux image boots in the full cached SoC simulation
 and executes `echo FPGA_BOOT_OK` through its UART in 750,497,246 cycles.
 Evidence: `build/dcache-regressions.log`, `build/dcache-core-regressions.log`,
 `build/dcache-utilization.rpt`, and `build/dcache-linux.log`.
+
+The full-board 62.5 MHz bitstream `synapse32_linux_dcache_cpu62.bit` also
+passes setup/hold (+0.138/+0.051 ns), DRC, critical CDC and bus skew. Its SHA256
+is `b5f0ae2f22835f296b8ddcffca4cdfa2b4659e235513cd9abb8f6578936753d3`.
+Total routed usage is 13,558 LUTs, 10,321 registers and two block-RAM tiles.
+It was programmed onto the same Arty, with the unchanged 25 Hz / 62.5 MHz
+Linux image (SHA256 `f1568fca0526fde02f7e1fde51a5387ee2d3912de5196ca68e9a74fd138ab093`).
+The loader accepted CRC after 107.8 seconds, Linux reached `/init` at
+67.849 seconds, and the physical UART shell command passed.
+
+Three two-iteration CoreMark performance runs and one two-iteration
+validation run all pass upstream CRC checks and the ten-second minimum.
+Median performance is 0.065954 versus the prior uncached 0.058275, a 13.2%
+gain at the same CPU clock and tick. All 60 physical mesh frames pass
+independent exact geometry checks and match the previous points, frame IDs
+and triangles. Their median compute times are 71.7585, 386.079 and 2708.744 ms
+for 16/32/64 points respectively. See [results](coremark/RESULTS.md#data-cache-at-625-mhz)
+and the tracked `coremark/results/dcache-*.json` reports. Local UART evidence
+is in `build/dcache-hardware-uart.log`; timing/CDC/DRC reports have the
+`build/board/dcache-cpu62-` prefix. This acceptance does not measure cache
+hit rates or a detailed cycle breakdown, and instruction fetches remain uncached.
