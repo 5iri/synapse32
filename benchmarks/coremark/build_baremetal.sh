@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 here="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+platform_dir="${COREMARK_PLATFORM_DIR:-$here/baremetal}"
 source_dir="${COREMARK_DIR:-$here/build/source}"
 output="${COREMARK_BAREMETAL_OUT:-$here/build/baremetal}"
 compiler="${COREMARK_CC:-riscv32-unknown-elf-gcc}"
 cpu_clock="${CPU_CLOCK_HZ:-50000000}"
 case "$cpu_clock" in ''|*[!0-9]*) echo 'CPU_CLOCK_HZ must be an integer' >&2; exit 1;; esac
-test "$cpu_clock" -ge 1000 && test "$((cpu_clock%1000))" -eq 0
+test "$cpu_clock" -ge 1000
 mkdir -p "$output/port" "$output/linux-reference/port"
 revision=b56889a7bd9d5624fbeff2a73ba69878e6a9c146
 if [ ! -d "$source_dir/.git" ]; then
@@ -22,7 +23,7 @@ case "$uart_scale" in 1|16) ;; *) echo 'UART_DIVISOR_SCALE must be 1 or 16' >&2;
 objcopy="${COREMARK_OBJCOPY:-riscv32-unknown-elf-objcopy}"
 objdump="${COREMARK_OBJDUMP:-riscv32-unknown-elf-objdump}"
 runtime="${COREMARK_RUNTIME_ARCHIVE:--lgcc}"
-cp "$here/baremetal/core_portme.h" "$output/port/"
+cp "$platform_dir/core_portme.h" "$output/port/"
 python3 - "$source_dir/barebones/ee_printf.c" "$output/port/ee_printf.c" <<'PY'
 from pathlib import Path
 import sys
@@ -42,14 +43,14 @@ for name in core_list_join core_main core_matrix core_state core_util; do
         -I"$output/port" -I"$source_dir" -c "$source_dir/$name.c" -o "$output/$name.o"
     objects+=("$output/$name.o")
 done
-for file in "$here/baremetal/port.c" "$output/port/ee_printf.c" "$source_dir/barebones/cvt.c"; do
+for file in "$platform_dir/port.c" "$output/port/ee_printf.c" "$source_dir/barebones/cvt.c"; do
     name="$(basename "$file" .c)"
     "$compiler" "${flags[@]}" -fno-builtin "-DCPU_CLOCK_HZ=$cpu_clock" "-DUART_DIVISOR_SCALE=$uart_scale" "-DFLAGS_STR=\"$flags_str\"" \
         -I"$output/port" -I"$source_dir" -c "$file" -o "$output/$name.o"
     objects+=("$output/$name.o")
 done
-"$compiler" "${flags[@]}" -c "$here/baremetal/start.S" -o "$output/start.o"
-"$compiler" "${flags[@]}" -nostdlib -Wl,-T,"$here/baremetal/link.ld" -Wl,--no-relax \
+"$compiler" "${flags[@]}" -c "$platform_dir/start.S" -o "$output/start.o"
+"$compiler" "${flags[@]}" -nostdlib -Wl,-T,"${COREMARK_LINKER_SCRIPT:-$platform_dir/link.ld}" -Wl,--no-relax \
     -Wl,--gc-sections -Wl,--build-id=none "$output/start.o" "${objects[@]}" \
     -Wl,--start-group -lm -lc "$runtime" -Wl,--end-group \
     -o "$output/coremark.elf"
