@@ -27,7 +27,14 @@ or proposed by this benchmark package.
 | Environment | Median CoreMark | CoreMark/MHz |
 | --- | --- | --- |
 | Bare metal, M-mode, interrupts off | 3.332667 | 0.066653 |
-| Linux, 25 Hz | 0.052436 | 0.001049 |
+| Original Linux port, unaligned buffer, 25 Hz | 0.052436 | 0.001049 |
+
+Subsequent investigation found that the original Linux binary placed
+`static_memblk` at odd address `0x26cd5`. The list algorithm accesses this byte
+array as pointers and halfwords, causing expensive machine-mode misaligned
+access emulation. This package now aligns that buffer in its platform linker
+script and checks the address. The historical raw numbers remain unchanged;
+the old Linux score does **not** describe the corrected port or isolate OS cost.
 
 Bare-metal throughput is **63.56×** the Linux baseline; Linux achieves **1.57%**
 of bare-metal throughput on this configuration. Each environment has three
