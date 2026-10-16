@@ -199,14 +199,63 @@ fetch path and requires boot plus execution of a UART shell command.
 ```bash
 FAST_MULTIPLY=1 FETCH_QUEUE=1 bash fpga/arty_a7_35t/test_coremark_axi.sh \
   build/coremark-profile-1000000/coremark.bin
-PERF_TAG=fetch-queue-50 CPU_DIVIDE=20 BOOT_BAUD=2000000 \
+PERF_TAG=fetch-queue-div17 CPU_DIVIDE=17 BOOT_BAUD=2000000 \
   FAST_L1=1 STORE_BUFFER_DEPTH=4 FAST_MULTIPLY=1 FETCH_QUEUE=1 \
   vivado -mode batch -nojournal -source fpga/arty_a7_35t/build_performance.tcl
+# The normal route fails setup; this required refinement produces the tested bit:
+PERF_TAG=fetch-queue-div17 \
+  vivado -mode batch -nojournal -source fpga/arty_a7_35t/refine_performance.tcl
 ```
 
 The simulation uses the fixed profiling binary, not a benchmark recompiled to
 exploit the fetch change. Queue-enabled I-cache events include speculative work;
 they are not instruction retirement counts or a per-retired-instruction hit rate.
+
+### Final 58.823529 MHz FPGA measurements
+
+| Environment | Median CoreMark | CoreMark/MHz | CPI |
+| --- | ---: | ---: | ---: |
+| Bare metal | 102.796272 | 1.747537 | 2.244174 |
+| Linux, aligned buffer, 25 Hz tick | 97.646714 | 1.659994 | 2.376202¹ |
+
+¹ Linux CPI covers the whole command and background kernel work. Each environment
+passes three performance runs and one validation run, all longer than 14.9 seconds.
+Linux reaches **94.99%** of bare-metal throughput; the ports and linker relaxation
+differ, so this ratio is not a pure OS-overhead measurement. Bare metal improves
+**25.36%** over the previous 82.0 at 62.5 MHz, or **33.20%** after clock normalization.
+The physical comparison also changes the CPU/DDR clock ratio and bare-metal binary
+layout; the matched simulation above isolates the fetch change.
+
+The final RTL snapshot is `2f056e0`; fractional-clock firmware support is
+`1339ee8`. Firmware and DTB use **58,823,529 Hz**, with a two-second timer test
+measuring 1.999712 host seconds and 117,647,098 CPU cycles. All nine benchmark tests pass;
+the existing 1 MHz profiling binary remains byte-identical.
+
+| Final RTL implementation | Setup WNS | Setup TNS | Accepted |
+| --- | ---: | ---: | --- |
+| Normal route, 62.5 MHz | −0.687 ns | −298.590 ns | No |
+| Normal route, 58.823529 MHz | −0.428 ns | −48.928 ns | No |
+| Postroute refinement, 58.823529 MHz | +0.014 ns | 0 ns | Yes |
+
+The accepted build also has hold +0.051 ns and pulse-width +0.206 ns, four RAMB36s
+and four DSPs, with no critical CDC or bus-skew violations. Its setup margin is
+narrow. Reports retain inherited critical clock-methodology warnings TIMING-4/27
+for `system/mig/sys_clk_i` redefinition beneath `board_clk`, and TIMING-6 for
+`ref200_raw`/`clk_pll_i` lacking a common primary clock. The same warnings occur in
+the initial 50 MHz and previous fastmul62 reports; they remain unresolved. Positive
+slack describes the constraints currently reported, not a clean methodology audit.
+
+Tested bitstream:
+`build/performance/fetch-queue-div17/postopt/synapse32_fetch-queue-div17.bit`
+(SHA256 `8d9141c052adf2e62cd5596d2bc71f5d285ca79301a752d2d09ae1190f403001`).
+Matching Linux image: `build/linux-image-25hz-cpu59-aligned-profile/fw_payload.bin`.
+Full firmware/source/report hashes and frozen UART evidence are preserved in
+[fetch-performance.json](results/fetch-performance.json).
+
+The 16/32/64-point mesh medians are **5.3595/28.0055/208.8485 ms**. All 60 frames
+pass geometry validation and exactly match the previous 62.5 MHz run's points and
+triangles. UART transport also limits visible frame rate; the live 32-point viewer
+receives about 11.3 frames/s.
 
 ### Initial 50 MHz FPGA measurements
 

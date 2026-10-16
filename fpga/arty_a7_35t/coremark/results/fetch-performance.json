@@ -1,6 +1,6 @@
 {
   "description": "Pipelined instruction fetch: matched AXI simulation and physical FPGA measurements. Simulation and physical scores are separate.",
-  "recorded_at": "2026-10-16T21:30:05.058368+00:00",
+  "recorded_at": "2026-10-16T22:13:10.148944+00:00",
   "configuration": {
     "hardware_measured": false,
     "nominal_cpu_clock_hz": 1000000,
@@ -20,7 +20,8 @@
     "ram_bytes": 68157440,
     "cycle_limit": 2000000000,
     "fast_multiply": 1,
-    "fetch_queue": 1
+    "fetch_queue": 1,
+    "scope": "Matched 1 MHz simulation; accepted physical profiles are recorded separately."
   },
   "firmware": {
     "binary": "fpga/arty_a7_35t/build/coremark-profile-1000000/coremark.bin",
@@ -1252,6 +1253,482 @@
           "profiling_scope": "whole CPU during command, including kernel/background activity"
         }
       ]
+    },
+    {
+      "cpu_hz": 58823529,
+      "cpu_divide": 17,
+      "cpu_hz_exact": "1000000000/17",
+      "fetch_queue": 1,
+      "fast_l1": 1,
+      "store_buffer_depth": 4,
+      "fast_multiply": 1,
+      "bitstream": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/synapse32_fetch-queue-div17.bit",
+      "bitstream_sha256": "8d9141c052adf2e62cd5596d2bc71f5d285ca79301a752d2d09ae1190f403001",
+      "implementation": "fetch-queue-div17-postopt",
+      "source_commit": "2f056e0",
+      "source_sha256": {
+        "rtl/seven_seg.v": "2af130c79dcf43e930cfc3d0afc1f88c2bfe359c43aeb459dc6624480fc6ecf9",
+        "rtl/memory_unit.v": "ceeb74519d13b7e5e6739e98181d3f5a38a903f2457ef534aa604da58a3bba3e",
+        "rtl/writeback.v": "6c7e1a1f45ddeefac39328ad80619019b4f947aa82073bf496acd4da794a4c8a",
+        "rtl/execution_unit.v": "5ccbe6368b9693b036b2ec792979ff228d8ef909f9f56d405dc47e2bc0ceff54",
+        "rtl/mem_adapter.v": "9d2b5abf237cb9f688479301b773e7e35e431ce25111447d647137b7101a97d6",
+        "rtl/riscv_cpu.v": "2c9287ede308f8bbdbfc48e5ba0ab9a1a2ca6437faeaf74fe0614adc1335804f",
+        "rtl/top.v": "339d7c3060388d433de59a0924e8ac3d689d182875a5eeb67a9de82893dccc34",
+        "rtl/core_modules/timer.v": "f8ba198dcdbaee3c24ebcc4b3480329bee5babaebe50ff37cc15d5b04f22f71a",
+        "rtl/core_modules/registerfile.v": "ed76f869be32e4d27e71522583cf6a90ad7c3d3da13b7bc31cbef11f7fdc0b94",
+        "rtl/core_modules/alu.v": "b6685fa6bb1bf46d30eaf3c19b0514a149d25d4a71e4cd874efb84a2913b164d",
+        "rtl/core_modules/atomic_lsu.v": "cf79d622f61a4e48f2914763dfce206dadb484e5d7ccb437f2b910c3e7c358bb",
+        "rtl/core_modules/csr_exec.v": "78b288467317352d2b3ac3b692ad67bf7183c3f9bc2d8a484c9641d8b61fb673",
+        "rtl/core_modules/csr_file.v": "24818f93e128ee8b76e0d5cf4053a15ba54b031d7864793d3528d3ac9c5dc43d",
+        "rtl/core_modules/decoder.v": "a3cc835029710ed96edb1b4c6b22f89318990611c5cdd4f9c21d3f8ae93a36a3",
+        "rtl/core_modules/interrupt_controller.v": "5b515eae2ec589d4fe648288596024765f6bc42b8ae794fa842d00e8dc73226d",
+        "rtl/core_modules/pc.v": "cc6960788b8819280b0ea4571374ac188cea4043103dacf7d000ba9e42e97885",
+        "rtl/core_modules/plic.v": "6a2ab46ef2f99dd8657eec5ab4a0e8b0210b4ddd83223802cf095a21dbf2a861",
+        "rtl/core_modules/uart.v": "a0541dc1c79ba34faa3c884207636a2cd1bb8e6add6fdb8ffc340bc701469ded",
+        "rtl/core_modules/iterative_muldiv.v": "1e95a7caa32267078f6522ccbe6bf49f2c57be8576ac6597cbd731e4f061ed39",
+        "rtl/pipeline_stages/EX_MEM.v": "3f68554c3cae1992405b7fab16153e32c55b09c83664965862b2566a32679672",
+        "rtl/pipeline_stages/ID_EX.v": "4cd40546f3aff3cbfd08654c84c9e6fcf2db58d622f2090d376efd425f21236a",
+        "rtl/pipeline_stages/IF_ID.v": "fc4780214fc9a0940fb8baffbdadc9d98e9e7b77328d0880b4971e49867e9fc7",
+        "rtl/pipeline_stages/MEM_WB.v": "85f3792bda16ed8ae1b8d8b7034949f95854b9b7da0a273cfbe3c0ddf438492f",
+        "rtl/pipeline_stages/forwarding_unit.v": "694179272194872d67334939cca69cbf334d4fdccb97c2ecdaf8cd729643e914",
+        "rtl/pipeline_stages/load_use_detector.v": "4702dfb0f7b67d09043504d7dead4673a0c8bd4719275d5a5a92db78528407ba",
+        "rtl/pipeline_stages/store_load_detector.v": "d94b590da965aa3fc2d0b1e3db1c02a09f658bf9e8ba30d43a5d8ef78dd1884a",
+        "rtl/mmu/sv32_data_check.v": "1777ddec4e13f424f9258e0c0cf8409127305408f33325de0b3cef7b3ecdc369",
+        "rtl/mmu/sv32_instr_check.v": "78d0c89551a35c3311fb227151cba24e47c73d5afbb15f8b34047d9d4078a0c1",
+        "rtl/mmu/sv32_page_walker.v": "4cbae8fea9ce5fde0f7c253ffa9bd645f39f0349a4a40295f553e6baa3a15fe3",
+        "rtl/mmu/unified_mem.v": "ea53a281d7ffa40e899556c4d2d54bd3d69fb45cda287e59af264150a434f1e6",
+        "rtl/mmu/sv32_mmu.v": "a606e2db875b5d8937abd762724a342bec7c729542896df0d1c7eb877789a88f",
+        "rtl/mmu/sv32_tlb.v": "486cf78917b414d3feefe17d26b2e79c40dbd4140d233f678f8b29f3bca4fac5",
+        "fabric/axi_word_bridge.sv": "83e7a7a4265455a0c1d41a295919aa5190a1a4336263ac393471751396e0f964",
+        "fabric/physical_l1_cache.sv": "e11f18254e79b3ecfb792e3db1a324426dd869eda0003a0dbc80cfb6d39fa767",
+        "fabric/ordered_write_buffer.sv": "d17cfe7e82f1e62a96fd562563d28d838a07e6b57b1c6fb0e7955c1afe65ca2a",
+        "fabric/fpga_perf_counters.sv": "a12d24c1717eef21a56aec743ee88052495b9022574aa8e9f8aaebd22c1e00f3",
+        "fabric/sv32_bus_port.sv": "f88278e9b9a0fdd8183de888418a5d62e1ee29e2377106977bb950ab89b0dbe1",
+        "fabric/instruction_fetch_queue.sv": "910f13f24d0280f9fdd914e510b9c5349663e8b0e474b7ff84d767b64e1787c7",
+        "fabric/uart_boot_loader.sv": "b1b72c034fac5b4949b1a4ca0790adf6005fb204670dded70d480ceaf8e29662",
+        "fabric/synapse_ddr3_system.sv": "046d0df68fec77855a9fdc7be64f5eeb5f822f0ffe9ef209ab30b5b6a575e01c",
+        "fabric/arty_ddr3_top.sv": "34f8bc088c4189f4f3e883c9d50d611f15235995189d23b4b839fb0b141a69a5",
+        "fabric/arty_linux_top.sv": "c181fdf37bf894369d545a823d897991458542ac1cd69121fe7d7c3a2ff31635",
+        "rtl/include/instr_defines.vh": "8a3c7cf00fcb454fcaa7963896b29ae2a05d251f6a0bf2685aff5339270856ae",
+        "rtl/include/memory_map.vh": "7d79f7bdf25f2b02f1a2e736c71002e510e7abd5e02af449dee2f4dc251cf0cf"
+      },
+      "name": "fetch-queue-div17-bare-final",
+      "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+      "coremark": 102.796272,
+      "coremark_per_mhz": 1.7475366362327565,
+      "median_cpi": 2.2441744363800753,
+      "measurement": {
+        "metadata": {
+          "cpu_mhz": 58.823529,
+          "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+          "payload_sha256": "8c5d0e98a60306f357eb833aab36db1cb9d9d7732d11e22f1131a771eb1c7a0c",
+          "timer_selftest_host_seconds": 1.9997121550841257,
+          "timer_selftest_cycles": 117647098
+        },
+        "pilots": [
+          {
+            "mode": "performance",
+            "seconds": 0.486,
+            "iterations": 50,
+            "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 486\nTotal time (secs): 0.486000\nIterations/Sec   : 102.880658\nERROR! Must execute for at least 10 secs for a valid result!\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nErrors detected\nS32_PERF clock: 0x0000000001b4e886\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x00000000004476d2\nS32_PERF data_wait: 0x0000000000681296\nS32_PERF muldiv_wait: 0x000000000015aba8\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000001190283\nS32_PERF icache_miss: 0x0000000000010d4e\nS32_PERF dcache_hit: 0x0000000000293af7\nS32_PERF dcache_miss: 0x00000000000012c0\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x000000000012ce1d\nS32_PERF axi_write_wait: 0x0000000000b0f7f2\nS32_PERF store_queue_stall: 0x00000000001bc683\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001b4e0be\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0"
+          }
+        ],
+        "results": [
+          {
+            "mode": "performance",
+            "repeat": 0,
+            "iterations": 1544,
+            "seconds": 15.02,
+            "iterations_per_second": 102.796272,
+            "cpu_mhz": 58.823529,
+            "cycles": 883561864,
+            "retired_instructions": 393711862,
+            "cpi": 2.2441840068308636,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 1544\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15020\nTotal time (secs): 15.020000\nIterations/Sec   : 102.796272\nIterations       : 1544\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xc044\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 102.796272 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000034aa1d57\nS32_PERF retired: 0x000000001777917d\nS32_PERF fetch_wait: 0x00000000083a97d3\nS32_PERF data_wait: 0x000000000c8ab41b\nS32_PERF muldiv_wait: 0x00000000029d2fa0\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000021e62cce\nS32_PERF icache_miss: 0x0000000000202aff\nS32_PERF dcache_hit: 0x0000000004f92bf7\nS32_PERF dcache_miss: 0x000000000002371e\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000023cb94b\nS32_PERF axi_write_wait: 0x0000000015585133\nS32_PERF store_queue_stall: 0x000000000359f338\nS32_PERF store_enqueued: 0x00000000013fd91a\nTimed CPU cycles: 0x0000000034aa1588\nTimed retired instructions: 0x00000000177790f6\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 883563863,
+              "retired": 393711997,
+              "fetch_wait": 138057683,
+              "data_wait": 210416667,
+              "muldiv_wait": 43855776,
+              "fence_wait": 0,
+              "icache_hit": 568732878,
+              "icache_miss": 2108159,
+              "dcache_hit": 83438583,
+              "dcache_miss": 145182,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 37534027,
+              "axi_write_wait": 358109491,
+              "store_queue_stall": 56226616,
+              "store_enqueued": 20961562
+            }
+          },
+          {
+            "mode": "performance",
+            "repeat": 1,
+            "iterations": 1544,
+            "seconds": 15.02,
+            "iterations_per_second": 102.796272,
+            "cpu_mhz": 58.823529,
+            "cycles": 883558096,
+            "retired_instructions": 393711862,
+            "cpi": 2.2441744363800753,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 1544\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15020\nTotal time (secs): 15.020000\nIterations/Sec   : 102.796272\nIterations       : 1544\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xc044\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 102.796272 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000034aa0ea6\nS32_PERF retired: 0x000000001777917d\nS32_PERF fetch_wait: 0x00000000083a978d\nS32_PERF data_wait: 0x000000000c8aa72d\nS32_PERF muldiv_wait: 0x00000000029d2fa0\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000021e62cce\nS32_PERF icache_miss: 0x0000000000202aff\nS32_PERF dcache_hit: 0x0000000004f92bf7\nS32_PERF dcache_miss: 0x000000000002371e\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000023cb837\nS32_PERF axi_write_wait: 0x000000001558396e\nS32_PERF store_queue_stall: 0x000000000359e6ab\nS32_PERF store_enqueued: 0x00000000013fd91a\nTimed CPU cycles: 0x0000000034aa06d0\nTimed retired instructions: 0x00000000177790f6\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 883560102,
+              "retired": 393711997,
+              "fetch_wait": 138057613,
+              "data_wait": 210413357,
+              "muldiv_wait": 43855776,
+              "fence_wait": 0,
+              "icache_hit": 568732878,
+              "icache_miss": 2108159,
+              "dcache_hit": 83438583,
+              "dcache_miss": 145182,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 37533751,
+              "axi_write_wait": 358103406,
+              "store_queue_stall": 56223403,
+              "store_enqueued": 20961562
+            }
+          },
+          {
+            "mode": "performance",
+            "repeat": 2,
+            "iterations": 1544,
+            "seconds": 15.02,
+            "iterations_per_second": 102.796272,
+            "cpu_mhz": 58.823529,
+            "cycles": 883555687,
+            "retired_instructions": 393711862,
+            "cpi": 2.244168317692191,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 1544\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15020\nTotal time (secs): 15.020000\nIterations/Sec   : 102.796272\nIterations       : 1544\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xc044\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 102.796272 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000034aa0539\nS32_PERF retired: 0x000000001777917d\nS32_PERF fetch_wait: 0x00000000083a8f14\nS32_PERF data_wait: 0x000000000c8aa5fe\nS32_PERF muldiv_wait: 0x00000000029d2fa0\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000021e62cce\nS32_PERF icache_miss: 0x0000000000202aff\nS32_PERF dcache_hit: 0x0000000004f92bf7\nS32_PERF dcache_miss: 0x000000000002371e\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000023cb14f\nS32_PERF axi_write_wait: 0x0000000015583ff8\nS32_PERF store_queue_stall: 0x000000000359e533\nS32_PERF store_enqueued: 0x00000000013fd91a\nTimed CPU cycles: 0x0000000034a9fd67\nTimed retired instructions: 0x00000000177790f6\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 883557689,
+              "retired": 393711997,
+              "fetch_wait": 138055444,
+              "data_wait": 210413054,
+              "muldiv_wait": 43855776,
+              "fence_wait": 0,
+              "icache_hit": 568732878,
+              "icache_miss": 2108159,
+              "dcache_hit": 83438583,
+              "dcache_miss": 145182,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 37531983,
+              "axi_write_wait": 358105080,
+              "store_queue_stall": 56223027,
+              "store_enqueued": 20961562
+            }
+          },
+          {
+            "mode": "validation",
+            "repeat": 3,
+            "iterations": 1544,
+            "seconds": 14.922,
+            "iterations_per_second": 103.471385,
+            "cpu_mhz": 58.823529,
+            "cycles": 877782178,
+            "retired_instructions": 392876027,
+            "cpi": 2.2342472374879723,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: v 1544\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 14922\nTotal time (secs): 14.922000\nIterations/Sec   : 103.471385\nIterations       : 1544\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x0483\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x000000003451ec72\nS32_PERF retired: 0x00000000176ad082\nS32_PERF fetch_wait: 0x0000000007e7f095\nS32_PERF data_wait: 0x000000000c883c43\nS32_PERF muldiv_wait: 0x00000000029d2fa0\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000021e32ae8\nS32_PERF icache_miss: 0x00000000001d32ca\nS32_PERF dcache_hit: 0x0000000005037a2e\nS32_PERF dcache_miss: 0x000000000002371b\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x0000000001e6f31f\nS32_PERF axi_write_wait: 0x00000000152bcc64\nS32_PERF store_queue_stall: 0x000000000354db93\nS32_PERF store_enqueued: 0x00000000013d3e4a\nTimed CPU cycles: 0x000000003451e4a2\nTimed retired instructions: 0x00000000176acffb\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 877784178,
+              "retired": 392876162,
+              "fetch_wait": 132640917,
+              "data_wait": 210254915,
+              "muldiv_wait": 43855776,
+              "fence_wait": 0,
+              "icache_hit": 568535784,
+              "icache_miss": 1913546,
+              "dcache_hit": 84113966,
+              "dcache_miss": 145179,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 31912735,
+              "axi_write_wait": 355191908,
+              "store_queue_stall": 55892883,
+              "store_enqueued": 20790858
+            }
+          }
+        ]
+      },
+      "measurement_file": {
+        "path": "fpga/arty_a7_35t/build/fetch-div17-bare.json",
+        "sha256": "f7ccdb2dd46488f4a331a126d3385c38445169e772a78c4169c03b28344391be"
+      },
+      "uart_log": {
+        "path": "fpga/arty_a7_35t/build/fetch-div17-bare.uart.log",
+        "sha256": "213cd4d13fb496b9061ac5cc98e66fd091c186838e4288e8b975896ef7a1b8e0"
+      },
+      "firmware": {
+        "coremark.bin": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-58823529/coremark.bin",
+          "sha256": "8c5d0e98a60306f357eb833aab36db1cb9d9d7732d11e22f1131a771eb1c7a0c"
+        },
+        "coremark.elf": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-58823529/coremark.elf",
+          "sha256": "d97c4f99f4e54b3f0725d396379f970a72054d03e3b298a47e754b855a4dd6bc"
+        },
+        "object-code-check.txt": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-58823529/object-code-check.txt",
+          "sha256": "94f730f594094d2043c7d5ecf19bdfb4a12832a6b11c2c00b7f660861bc5dfa3"
+        },
+        "compiler-version.txt": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-58823529/compiler-version.txt",
+          "sha256": "f7e84af1d58bb2e5047e298599c2646ad4ce4e62376486963a99a12f765dd70e"
+        },
+        "compiler-flags.txt": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-58823529/compiler-flags.txt",
+          "sha256": "3ead4856d98f2f87a3ef906e5c32960787adca31e53f28e09828444c1b6c524c"
+        },
+        "cpu-clock-hz.txt": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-58823529/cpu-clock-hz.txt",
+          "sha256": "8659bd2a6ef6af429dda74bc3ec10f85aa19989a6e276bb46cb777657739c363"
+        }
+      },
+      "short_pilot_excluded": true
+    },
+    {
+      "cpu_hz": 58823529,
+      "cpu_divide": 17,
+      "cpu_hz_exact": "1000000000/17",
+      "fetch_queue": 1,
+      "fast_l1": 1,
+      "store_buffer_depth": 4,
+      "fast_multiply": 1,
+      "bitstream": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/synapse32_fetch-queue-div17.bit",
+      "bitstream_sha256": "8d9141c052adf2e62cd5596d2bc71f5d285ca79301a752d2d09ae1190f403001",
+      "implementation": "fetch-queue-div17-postopt",
+      "source_commit": "2f056e0",
+      "source_sha256": {
+        "rtl/seven_seg.v": "2af130c79dcf43e930cfc3d0afc1f88c2bfe359c43aeb459dc6624480fc6ecf9",
+        "rtl/memory_unit.v": "ceeb74519d13b7e5e6739e98181d3f5a38a903f2457ef534aa604da58a3bba3e",
+        "rtl/writeback.v": "6c7e1a1f45ddeefac39328ad80619019b4f947aa82073bf496acd4da794a4c8a",
+        "rtl/execution_unit.v": "5ccbe6368b9693b036b2ec792979ff228d8ef909f9f56d405dc47e2bc0ceff54",
+        "rtl/mem_adapter.v": "9d2b5abf237cb9f688479301b773e7e35e431ce25111447d647137b7101a97d6",
+        "rtl/riscv_cpu.v": "2c9287ede308f8bbdbfc48e5ba0ab9a1a2ca6437faeaf74fe0614adc1335804f",
+        "rtl/top.v": "339d7c3060388d433de59a0924e8ac3d689d182875a5eeb67a9de82893dccc34",
+        "rtl/core_modules/timer.v": "f8ba198dcdbaee3c24ebcc4b3480329bee5babaebe50ff37cc15d5b04f22f71a",
+        "rtl/core_modules/registerfile.v": "ed76f869be32e4d27e71522583cf6a90ad7c3d3da13b7bc31cbef11f7fdc0b94",
+        "rtl/core_modules/alu.v": "b6685fa6bb1bf46d30eaf3c19b0514a149d25d4a71e4cd874efb84a2913b164d",
+        "rtl/core_modules/atomic_lsu.v": "cf79d622f61a4e48f2914763dfce206dadb484e5d7ccb437f2b910c3e7c358bb",
+        "rtl/core_modules/csr_exec.v": "78b288467317352d2b3ac3b692ad67bf7183c3f9bc2d8a484c9641d8b61fb673",
+        "rtl/core_modules/csr_file.v": "24818f93e128ee8b76e0d5cf4053a15ba54b031d7864793d3528d3ac9c5dc43d",
+        "rtl/core_modules/decoder.v": "a3cc835029710ed96edb1b4c6b22f89318990611c5cdd4f9c21d3f8ae93a36a3",
+        "rtl/core_modules/interrupt_controller.v": "5b515eae2ec589d4fe648288596024765f6bc42b8ae794fa842d00e8dc73226d",
+        "rtl/core_modules/pc.v": "cc6960788b8819280b0ea4571374ac188cea4043103dacf7d000ba9e42e97885",
+        "rtl/core_modules/plic.v": "6a2ab46ef2f99dd8657eec5ab4a0e8b0210b4ddd83223802cf095a21dbf2a861",
+        "rtl/core_modules/uart.v": "a0541dc1c79ba34faa3c884207636a2cd1bb8e6add6fdb8ffc340bc701469ded",
+        "rtl/core_modules/iterative_muldiv.v": "1e95a7caa32267078f6522ccbe6bf49f2c57be8576ac6597cbd731e4f061ed39",
+        "rtl/pipeline_stages/EX_MEM.v": "3f68554c3cae1992405b7fab16153e32c55b09c83664965862b2566a32679672",
+        "rtl/pipeline_stages/ID_EX.v": "4cd40546f3aff3cbfd08654c84c9e6fcf2db58d622f2090d376efd425f21236a",
+        "rtl/pipeline_stages/IF_ID.v": "fc4780214fc9a0940fb8baffbdadc9d98e9e7b77328d0880b4971e49867e9fc7",
+        "rtl/pipeline_stages/MEM_WB.v": "85f3792bda16ed8ae1b8d8b7034949f95854b9b7da0a273cfbe3c0ddf438492f",
+        "rtl/pipeline_stages/forwarding_unit.v": "694179272194872d67334939cca69cbf334d4fdccb97c2ecdaf8cd729643e914",
+        "rtl/pipeline_stages/load_use_detector.v": "4702dfb0f7b67d09043504d7dead4673a0c8bd4719275d5a5a92db78528407ba",
+        "rtl/pipeline_stages/store_load_detector.v": "d94b590da965aa3fc2d0b1e3db1c02a09f658bf9e8ba30d43a5d8ef78dd1884a",
+        "rtl/mmu/sv32_data_check.v": "1777ddec4e13f424f9258e0c0cf8409127305408f33325de0b3cef7b3ecdc369",
+        "rtl/mmu/sv32_instr_check.v": "78d0c89551a35c3311fb227151cba24e47c73d5afbb15f8b34047d9d4078a0c1",
+        "rtl/mmu/sv32_page_walker.v": "4cbae8fea9ce5fde0f7c253ffa9bd645f39f0349a4a40295f553e6baa3a15fe3",
+        "rtl/mmu/unified_mem.v": "ea53a281d7ffa40e899556c4d2d54bd3d69fb45cda287e59af264150a434f1e6",
+        "rtl/mmu/sv32_mmu.v": "a606e2db875b5d8937abd762724a342bec7c729542896df0d1c7eb877789a88f",
+        "rtl/mmu/sv32_tlb.v": "486cf78917b414d3feefe17d26b2e79c40dbd4140d233f678f8b29f3bca4fac5",
+        "fabric/axi_word_bridge.sv": "83e7a7a4265455a0c1d41a295919aa5190a1a4336263ac393471751396e0f964",
+        "fabric/physical_l1_cache.sv": "e11f18254e79b3ecfb792e3db1a324426dd869eda0003a0dbc80cfb6d39fa767",
+        "fabric/ordered_write_buffer.sv": "d17cfe7e82f1e62a96fd562563d28d838a07e6b57b1c6fb0e7955c1afe65ca2a",
+        "fabric/fpga_perf_counters.sv": "a12d24c1717eef21a56aec743ee88052495b9022574aa8e9f8aaebd22c1e00f3",
+        "fabric/sv32_bus_port.sv": "f88278e9b9a0fdd8183de888418a5d62e1ee29e2377106977bb950ab89b0dbe1",
+        "fabric/instruction_fetch_queue.sv": "910f13f24d0280f9fdd914e510b9c5349663e8b0e474b7ff84d767b64e1787c7",
+        "fabric/uart_boot_loader.sv": "b1b72c034fac5b4949b1a4ca0790adf6005fb204670dded70d480ceaf8e29662",
+        "fabric/synapse_ddr3_system.sv": "046d0df68fec77855a9fdc7be64f5eeb5f822f0ffe9ef209ab30b5b6a575e01c",
+        "fabric/arty_ddr3_top.sv": "34f8bc088c4189f4f3e883c9d50d611f15235995189d23b4b839fb0b141a69a5",
+        "fabric/arty_linux_top.sv": "c181fdf37bf894369d545a823d897991458542ac1cd69121fe7d7c3a2ff31635",
+        "rtl/include/instr_defines.vh": "8a3c7cf00fcb454fcaa7963896b29ae2a05d251f6a0bf2685aff5339270856ae",
+        "rtl/include/memory_map.vh": "7d79f7bdf25f2b02f1a2e736c71002e510e7abd5e02af449dee2f4dc251cf0cf"
+      },
+      "name": "fetch-queue-div17-linux-final",
+      "environment": "Linux 6.6.32, 25 Hz tick, aligned static CoreMark buffer",
+      "coremark": 97.646714,
+      "coremark_per_mhz": 1.659994149619959,
+      "median_whole_command_cpi": 2.3762023301437445,
+      "profiling_scope": "whole CPU during command, including kernel/background activity",
+      "linux_binary_sha256": "7192d2ad734c4db1e31545e9d73ac12ce2c46af2d177dee050afd7ab015a1c20",
+      "firmware": {
+        "fw_payload.bin": {
+          "path": "fpga/arty_a7_35t/build/linux-image-25hz-cpu59-aligned-profile/fw_payload.bin",
+          "sha256": "0c669b8c6fc82aff7e2d98ab8d96f6464c034bfb29d1a07ece226fda8e826351"
+        },
+        "Image": {
+          "path": "fpga/arty_a7_35t/build/linux-image-25hz-cpu59-aligned-profile/Image",
+          "sha256": "a4497eac54acd242845356ec0bcad5cd4d97f26c0380fb63eeb97248e039da8b"
+        },
+        "initramfs.cpio": {
+          "path": "fpga/arty_a7_35t/build/linux-image-25hz-cpu59-aligned-profile/initramfs.cpio",
+          "sha256": "4cbc744f04f0bc83a393e080e22540344167340ccafa6ad654bb92cef43a84a2"
+        },
+        "synapse32.dtb": {
+          "path": "fpga/arty_a7_35t/build/linux-image-25hz-cpu59-aligned-profile/synapse32.dtb",
+          "sha256": "f325dc4a49defd0179c94153dc0f62382d3cca67060333717134d894255cae01"
+        },
+        "synapse32.dts": {
+          "path": "fpga/arty_a7_35t/build/linux-image-25hz-cpu59-aligned-profile/synapse32.dts",
+          "sha256": "6501fb8d5d8d61fc9e2a91f92c858cae0a72aca66c1bace7b73fd6b5ec436c91"
+        },
+        "kernel.config": {
+          "path": "fpga/arty_a7_35t/build/linux-image-25hz-cpu59-aligned-profile/kernel.config",
+          "sha256": "38c271ec0ce1a5055931a0e18766636160342228bb28b47c61185e3fe29bff57"
+        }
+      },
+      "measurement": [
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 0,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 20.481,
+          "iterations_per_second": 97.651482,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.6600752056205264,
+          "validated": true,
+          "output": "/bin/profile /tmp/coremark-aligned-o3 0 0 0x66 2000 7 1; echo S32_COREMARK_D\nONE_0:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 20481\nTotal time (secs): 20.481000\nIterations/Sec   : 97.651482\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x4983\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 97.651482 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x00000000485142fe\nS32_PERF retired: 0x000000001e6e3dc3\nS32_PERF fetch_wait: 0x000000000e4f9229\nS32_PERF data_wait: 0x000000001115536d\nS32_PERF muldiv_wait: 0x000000000363b842\nS32_PERF fence_wait: 0x0000000000001062\nS32_PERF icache_hit: 0x000000002bb4b9db\nS32_PERF icache_miss: 0x0000000000492c3a\nS32_PERF dcache_hit: 0x000000000679e30b\nS32_PERF dcache_miss: 0x0000000000056f52\nS32_PERF itlb_miss: 0x00000000000000ea\nS32_PERF dtlb_miss: 0x000000000000030d\nS32_PERF axi_read_wait: 0x000000000608c3de\nS32_PERF axi_write_wait: 0x000000001c3393b1\nS32_PERF store_queue_stall: 0x000000000450cd5d\nS32_PERF store_enqueued: 0x0000000001a68fc9\nS32_COREMARK_DONE_0:0",
+          "profiling": {
+            "clock": 1213285118,
+            "retired": 510541251,
+            "fetch_wait": 240095785,
+            "data_wait": 286610285,
+            "muldiv_wait": 56866882,
+            "fence_wait": 4194,
+            "icache_hit": 733264347,
+            "icache_miss": 4795450,
+            "dcache_hit": 108651275,
+            "dcache_miss": 356178,
+            "itlb_miss": 234,
+            "dtlb_miss": 781,
+            "axi_read_wait": 101237726,
+            "axi_write_wait": 473142193,
+            "store_queue_stall": 72404317,
+            "store_enqueued": 27693001
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity"
+        },
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 1,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 20.483,
+          "iterations_per_second": 97.641947,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.6599131106193918,
+          "validated": true,
+          "output": "/bin/profile /tmp/coremark-aligned-o3 0 0 0x66 2000 7 1; echo S32_COREMARK_D\nONE_1:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 20483\nTotal time (secs): 20.483000\nIterations/Sec   : 97.641947\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x4983\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 97.641947 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x00000000484e7345\nS32_PERF retired: 0x000000001e6dee21\nS32_PERF fetch_wait: 0x000000000e4cf89b\nS32_PERF data_wait: 0x000000001115570f\nS32_PERF muldiv_wait: 0x000000000363bb54\nS32_PERF fence_wait: 0x0000000000001081\nS32_PERF icache_hit: 0x000000002bb48a11\nS32_PERF icache_miss: 0x00000000004915da\nS32_PERF dcache_hit: 0x000000000679d688\nS32_PERF dcache_miss: 0x000000000005708f\nS32_PERF itlb_miss: 0x00000000000000e9\nS32_PERF dtlb_miss: 0x0000000000000312\nS32_PERF axi_read_wait: 0x000000000606fdf1\nS32_PERF axi_write_wait: 0x000000001c332773\nS32_PERF store_queue_stall: 0x000000000450d17b\nS32_PERF store_enqueued: 0x0000000001a68988\nS32_COREMARK_DONE_1:0",
+          "profiling": {
+            "clock": 1213100869,
+            "retired": 510520865,
+            "fetch_wait": 239925403,
+            "data_wait": 286611215,
+            "muldiv_wait": 56867668,
+            "fence_wait": 4225,
+            "icache_hit": 733252113,
+            "icache_miss": 4789722,
+            "dcache_hit": 108648072,
+            "dcache_miss": 356495,
+            "itlb_miss": 233,
+            "dtlb_miss": 786,
+            "axi_read_wait": 101121521,
+            "axi_write_wait": 473114483,
+            "store_queue_stall": 72405371,
+            "store_enqueued": 27691400
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity"
+        },
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 2,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 20.482,
+          "iterations_per_second": 97.646714,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.659994149619959,
+          "validated": true,
+          "output": "/bin/profile /tmp/coremark-aligned-o3 0 0 0x66 2000 7 1; echo S32_COREMARK_D\nONE_2:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 20482\nTotal time (secs): 20.482000\nIterations/Sec   : 97.646714\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x4983\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 97.646714 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x00000000484b210f\nS32_PERF retired: 0x000000001e6de6ca\nS32_PERF fetch_wait: 0x000000000e4a3924\nS32_PERF data_wait: 0x0000000011146baa\nS32_PERF muldiv_wait: 0x000000000363b75d\nS32_PERF fence_wait: 0x0000000000000ff6\nS32_PERF icache_hit: 0x000000002bb47e3f\nS32_PERF icache_miss: 0x0000000000490cf4\nS32_PERF dcache_hit: 0x000000000679ca8b\nS32_PERF dcache_miss: 0x0000000000056ed0\nS32_PERF itlb_miss: 0x00000000000000e9\nS32_PERF dtlb_miss: 0x0000000000000308\nS32_PERF axi_read_wait: 0x00000000060494f6\nS32_PERF axi_write_wait: 0x000000001c327133\nS32_PERF store_queue_stall: 0x000000000450a874\nS32_PERF store_enqueued: 0x0000000001a680d7\nS32_COREMARK_DONE_2:0",
+          "profiling": {
+            "clock": 1212883215,
+            "retired": 510518986,
+            "fetch_wait": 239745316,
+            "data_wait": 286550954,
+            "muldiv_wait": 56866653,
+            "fence_wait": 4086,
+            "icache_hit": 733249087,
+            "icache_miss": 4787444,
+            "dcache_hit": 108645003,
+            "dcache_miss": 356048,
+            "itlb_miss": 233,
+            "dtlb_miss": 776,
+            "axi_read_wait": 100963574,
+            "axi_write_wait": 473067827,
+            "store_queue_stall": 72394868,
+            "store_enqueued": 27689175
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity"
+        },
+        {
+          "optimization": "o3",
+          "mode": "validation",
+          "repeat": 0,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 22.872,
+          "iterations_per_second": 87.443162,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.4865337644057364,
+          "validated": true,
+          "output": "/bin/profile /tmp/coremark-aligned-o3 0x3415 0x3415 0x66 2000 7 1; echo S32_\nCOREMARK_DONE_3:$?\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 22872\nTotal time (secs): 22.872000\nIterations/Sec   : 87.443162\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x0cac\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x00000000509fab9e\nS32_PERF retired: 0x000000001e613860\nS32_PERF fetch_wait: 0x0000000016a00b39\nS32_PERF data_wait: 0x00000000111bdfca\nS32_PERF muldiv_wait: 0x000000000363c942\nS32_PERF fence_wait: 0x0000000000000ed4\nS32_PERF icache_hit: 0x000000002ab3c40b\nS32_PERF icache_miss: 0x00000000009d54ec\nS32_PERF dcache_hit: 0x000000000687e4df\nS32_PERF dcache_miss: 0x00000000000577b9\nS32_PERF itlb_miss: 0x00000000000000bb\nS32_PERF dtlb_miss: 0x00000000000002c0\nS32_PERF axi_read_wait: 0x000000000f8cf4b3\nS32_PERF axi_write_wait: 0x000000001c028fe9\nS32_PERF store_queue_stall: 0x00000000044cd719\nS32_PERF store_enqueued: 0x0000000001a3b384\nS32_COREMARK_DONE_3:0",
+          "profiling": {
+            "clock": 1352641438,
+            "retired": 509687904,
+            "fetch_wait": 379587385,
+            "data_wait": 287039434,
+            "muldiv_wait": 56871234,
+            "fence_wait": 3796,
+            "icache_hit": 716424203,
+            "icache_miss": 10310892,
+            "dcache_hit": 109569247,
+            "dcache_miss": 358329,
+            "itlb_miss": 187,
+            "dtlb_miss": 704,
+            "axi_read_wait": 260895923,
+            "axi_write_wait": 469929961,
+            "store_queue_stall": 72144665,
+            "store_enqueued": 27505540
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity"
+        }
+      ],
+      "measurement_file": {
+        "path": "fpga/arty_a7_35t/build/fetch-div17-linux.json",
+        "sha256": "82b0b30ca66536398e04ceac135e17d8244da44f2549c7c950b158cb99701ead"
+      },
+      "uart_log": {
+        "path": "fpga/arty_a7_35t/build/fetch-div17-linux-benchmark.uart.log",
+        "sha256": "5e8e8a7d9c7cff9e807fb27daf8dab31e71c1f29ac310664bc32010a816ad86f"
+      },
+      "console_log": {
+        "path": "fpga/arty_a7_35t/build/fetch-div17-linux-coremark.log",
+        "sha256": "c5e43e45696cda838095cf70467e498ffe292aa7332ef85f59d2aeceb0acc6df"
+      }
     }
   ],
   "verification": {
@@ -1293,7 +1770,10 @@
     "Wait events overlap and are not an additive CPI decomposition.",
     "Cache events include speculative requests, not just executed instructions.",
     "Linux profiling counts the whole command and background kernel work.",
-    "The 50 MHz initial candidate preserves the pre-existing instruction-page-fault instret accounting; benchmark loops have no fetch faults."
+    "The 50 MHz initial candidate preserves the pre-existing instruction-page-fault instret accounting; benchmark loops have no fetch faults.",
+    "The accepted 58.823529 MHz implementation requires postroute refinement; normal routes at both 62.5 MHz and 58.823529 MHz fail setup.",
+    "Positive final setup/hold slack is subject to inherited MIG clock-definition methodology warnings TIMING-4/6/27, also present in the interim 50 MHz and previous fastmul62 reports; these warnings remain unresolved.",
+    "Final physical results use a different CPU/DDR clock ratio and bare-metal binary layout from the prior 62.5 MHz baseline; use the matched simulation for architectural isolation."
   ],
   "triangulator": [
     {
@@ -1397,6 +1877,449 @@
       ],
       "geometry_validation": "Validated 60 FPGA frames; compute range 4.353\u2013234.234 ms\n",
       "raw_measurement_sha256": "4916c3682d78eeb95c73bb5c89413ee31b1e28a12d9aa4a7243cc30a7a746598"
+    },
+    {
+      "name": "fetch-queue-div17-final",
+      "cpu_hz": 58823529,
+      "kernel_hz": 25,
+      "bitstream_sha256": "8d9141c052adf2e62cd5596d2bc71f5d285ca79301a752d2d09ae1190f403001",
+      "linux_payload_sha256": "0c669b8c6fc82aff7e2d98ab8d96f6464c034bfb29d1a07ece226fda8e826351",
+      "results": [
+        {
+          "points": 16,
+          "frames": 30,
+          "median_ms": 5.359500000000001,
+          "min_ms": 3.542,
+          "max_ms": 8.182,
+          "received_fps": 23.19864464221961,
+          "geometry_sha256": [
+            "4bbebe922d1734a00ec2492058ac2e311fd2c16e7f23231616f35dca58a62eff",
+            "0e8a7b0415ca03d0e79ab95501b4be43616a8bead1260d58ae8560536b9a0a82",
+            "61aa0482eb26ed299acd9557e39a0628c6c503939c2194da10b8b70a3e6b5622",
+            "72cf1aa70108c228b1286d06708818ed191a910598a462976647dd50b6167ffe",
+            "19e758f4bb59399f5b06989592f56df35b4cfe3dc2691acd0685662243c559fa",
+            "51f1068752fec97b0a33783e643a93c91a0bb3dbadb4d8fd31758612ed88fb40",
+            "68c0af168dcf26ee3721201181d38304a1d32799667bd90afb81a04646b273ec",
+            "415ad263610942c4e88b10661ac8c8b94f16e814fe32182a4c11c69a34910724",
+            "e6f79a094e0b7e1dc865abec72c16f206fa1fccb20adc84d3473749ef3387763",
+            "1db515ff80d1344655a7d475da0d28446018af3006c847ce75de1f238a75c6a0",
+            "5161897ae1328121294e6f3816ac3cba9854526d87adeeb43681beee6bbcd422",
+            "f3f61ebb838a6058a11fe6cba9384bc21c5a84027e6fd43e161b14e9a4d22278",
+            "0948ded1ff77286a3e1d09f3ae2560d24c628e1b367e4b960dc993f9009b959a",
+            "b4f6c6f3b8ddb90926016fed920ab53388c1f17c8eda540a748ef7d09d4dc7b2",
+            "a4fa9130ac1745b11964f62ce0a50b088a8f619b25249603a2dd1951b07b40d3",
+            "ab8ce61318594cbaa23947da1a321762df4df8a80a32efe7f7cc97d576662664",
+            "8e87a79ceb1ecbc2118b4db94e47a44c0d9ed8abc46f5a6484ec8021f1a12b65",
+            "e110b26f572c8bbbb20b802de4b25ee8cdaadaf7cdcf6c8da19c9d6c3d999a31",
+            "49bcef30b23ef8989606c6f0fb5acc24bcf3bbea55a9ab158415fe6b00ea4e59",
+            "054b51b7c179408a399fad38b20489a98cd2be9f801e435ac3305284bbb0199a",
+            "1f965875d3ef052eba2d92c487fc8beb700037cd14cbd8b14ce7e8e1a281bdea",
+            "ee423e1e2d6c3f11f6568916c9ed5581165ebfc3833cc462e7c579be46dd9fc8",
+            "02f31c0e9011c8fc011e854ee3f1a7b97110d1d9568a406215ef948fce27b044",
+            "105addc619b01a1bba135181167ba7a9234c449e2de3eb7b02ba1e921416ad95",
+            "068d1c3efb93dde914ff9e4ae749ad0275e30c9fe180880c898a966ccb946cea",
+            "fa9a3407dc9f19998dd51708659a9d8b0fc7fd37ad0bd596b664b498c88144ac",
+            "0a67232afe4fc5dc2bd922cfd70ed289801bda6f17231bafc618135a2de9b22e",
+            "4fdfe8f9848924928d207b4ddc0f15846b8489cd4b56e911780e1a02792ef0dd",
+            "7cb44aeebd66d374a5171752cea02f07f2768f577dbd9939013a638d7f4e2ca7",
+            "060b807b854b00e00e09a8b7f8d2e155b18d71a8b6c58c91d690c57e64c0e0be"
+          ],
+          "matches_previous_62500000hz_geometry": true
+        },
+        {
+          "points": 32,
+          "frames": 20,
+          "median_ms": 28.005499999999998,
+          "min_ms": 18.815,
+          "max_ms": 37.05,
+          "received_fps": 11.159738647329535,
+          "geometry_sha256": [
+            "8b0f60be3d2746b4d6c68430d41066e3e1e0cdc53461d92904ff7664a706b409",
+            "37fcf197875a36f9a1a9012c00beb650e1dff1a1dda9ba88f6fc4d6ee1edca75",
+            "58bbe499987739918f27051cb6a5202369172d40ef529ca7af4251575c5c454c",
+            "2495f77da31c1f30b7194fe8555a97a388659dcd5c513c3d9cf318b4a54c4844",
+            "94128f6a82deb4aafb3e2111c5a07c057bf323a9858658d9eb1b50ad81c27ace",
+            "c6389fec1fad69c7260693ad3e420bc81aa5e87a820989ebd536466b3285ce07",
+            "7584de7134397f41cb301aec7f6a526e487c167b3c83b29547b1760c824173ef",
+            "16bb09e3946aeee745a8b72938c30623e83e2414c5640b5507d092a9732fc3ea",
+            "284cd30b9c1e889bec0e600fd2d9b6a6a76191ecd3d63f9472c0cc3f7f4c6865",
+            "fbad6cfb3c6d7b213030055d6ce3592df5de2f35cffb83a1549e764520d48e9b",
+            "1d82d57b942aa54c82f1f2b2c51959a95a21e805b3fbf4bcfe41ac7b4e880e8c",
+            "7bea16a91bbff525d98cdabfbbf06a70d54740061ec42549341a2edd994311a7",
+            "73292b554fb6c2b1f84def8d16bc573812235d416e11a25e9fef675408ea7222",
+            "c4702646ce97c02ad5b7903b7ed4cfe57126805814e5d403d0ff5bce39d8d7bb",
+            "1d60b9f51ee80569033f676c4fa471184029a9d6377112b804ab3202a2d46733",
+            "92c0d26b0d2784c86f113980e5b6db3c9bbd14349e72f813f8d5eb64c22614e2",
+            "8a78f263a9360a902f4a6cdef5e2e2b4ebe9cc42c6562153c6ff63673eff5ba7",
+            "9f5e0bf349ce6cc4447057715859134180e331ba9457c6e9624ccca8da3410db",
+            "58cb7fc9316afa0fdb8badfc83850e4a1f26dd22bf6c7d0049a8612210fce2d0",
+            "89dd86824a03798c5c820adec38f525eb2e43e40e0f9b0671659e8a36bbea382"
+          ],
+          "matches_previous_62500000hz_geometry": true
+        },
+        {
+          "points": 64,
+          "frames": 10,
+          "median_ms": 208.8485,
+          "min_ms": 133.11,
+          "max_ms": 210.013,
+          "received_fps": 4.699375367825193,
+          "geometry_sha256": [
+            "b2d4071021ebfc099abb5868fbd1aeb1b7fe55c9f5996c81507568a6597b922c",
+            "ee31821376d5e7ad954c085f4870670fac0488d4877c600c359371f53abee433",
+            "6f910fd4faf8eee97d97e0fcf99808b0bf24e79e94e5a644385a2bafb843cc2e",
+            "64fe76a9b3ef1ecf404c8d19906c942dddbb81b452a220460a6f9863cf64a5fd",
+            "00720148aa4784a85b19e1f165959390d43a822ab02582057c3daa1d60ab4b0c",
+            "c44b19d92ef8011275715657aca4a82cbcc4aff4104ce4cbfa5fc6b7ed17f55c",
+            "e731870a97528e91cf7ffa30c94c3087be2feca844773362a49a78a123afee8e",
+            "d27c345893db1a1fead5d7e8d4536726d281ea93a58909275f6549de1f582207",
+            "97ff7cefa4fd5e4de9c92a29acf036f21956ee70a5b7384420ea4d759885dda4",
+            "e8ba388630ef5b700659400257cc90715455746fdb6791125724dae249d0e893"
+          ],
+          "matches_previous_62500000hz_geometry": true
+        }
+      ],
+      "geometry_validation": "Validated 60 FPGA frames; compute range 3.542\u2013210.013 ms\n",
+      "geometry_matches_previous_62500000hz_all_frames": true,
+      "measurement_file": {
+        "path": "fpga/arty_a7_35t/build/fetch-div17-mesh.json",
+        "sha256": "8edb33410947b6e883456eb9fb118829821840b32acf3dd714be8d1337c07491"
+      },
+      "uart_log": {
+        "path": "fpga/arty_a7_35t/build/fetch-div17-linux-benchmark.uart.log",
+        "sha256": "5e8e8a7d9c7cff9e807fb27daf8dab31e71c1f29ac310664bc32010a816ad86f"
+      }
     }
-  ]
+  ],
+  "implementation_attempts": [
+    {
+      "name": "fetch-queue-62-normal-route",
+      "cpu_divide": 16,
+      "cpu_hz_exact": "1000000000/16",
+      "firmware_cpu_hz": 62500000,
+      "accepted": false,
+      "stage": "build_performance.tcl normal implementation",
+      "setup_wns_ns": -0.687,
+      "setup_tns_ns": -298.59,
+      "hold_whs_ns": 0.05,
+      "pulse_width_slack_ns": 0.206,
+      "reports": {
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-62/timing.rpt",
+          "sha256": "c293ff48b49c82f7296ad9d992d9a562c2261f5cc3dadbc22ead4f79485e9807"
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-62/utilization.rpt",
+          "sha256": "36e373937bbffe73ca5a51f51af4f8e1c9d11dfac2f2aefc5ccaff5c697ab731"
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-62/drc.rpt",
+          "sha256": "767b3f5b2a584bdfac2833469f63ef5bc3ecf529135b7b25da490d219769bd34"
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-62/cdc.rpt",
+          "sha256": "0aa10f480fdd46418eaa9c3dfee37abd28b62071d355e5e920b2ddb9f20e44dc"
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-62/bus-skew.rpt",
+          "sha256": "6508590631ef49fcbb82c29fdc3e4f1fa1187545f80f2de56ea9a89dce2d616f"
+        }
+      },
+      "source_manifest": {
+        "path": "fpga/arty_a7_35t/build/performance/fetch-queue-62/source-manifest.txt",
+        "sha256": "4f7ba4ab0ab35a29b8aaae19c6774f6dbc2226a7cbe1f7f21e48dac628dde697"
+      },
+      "source_sha256": {
+        "rtl/seven_seg.v": "2af130c79dcf43e930cfc3d0afc1f88c2bfe359c43aeb459dc6624480fc6ecf9",
+        "rtl/memory_unit.v": "ceeb74519d13b7e5e6739e98181d3f5a38a903f2457ef534aa604da58a3bba3e",
+        "rtl/writeback.v": "6c7e1a1f45ddeefac39328ad80619019b4f947aa82073bf496acd4da794a4c8a",
+        "rtl/execution_unit.v": "5ccbe6368b9693b036b2ec792979ff228d8ef909f9f56d405dc47e2bc0ceff54",
+        "rtl/mem_adapter.v": "9d2b5abf237cb9f688479301b773e7e35e431ce25111447d647137b7101a97d6",
+        "rtl/riscv_cpu.v": "2c9287ede308f8bbdbfc48e5ba0ab9a1a2ca6437faeaf74fe0614adc1335804f",
+        "rtl/top.v": "339d7c3060388d433de59a0924e8ac3d689d182875a5eeb67a9de82893dccc34",
+        "rtl/core_modules/timer.v": "f8ba198dcdbaee3c24ebcc4b3480329bee5babaebe50ff37cc15d5b04f22f71a",
+        "rtl/core_modules/registerfile.v": "ed76f869be32e4d27e71522583cf6a90ad7c3d3da13b7bc31cbef11f7fdc0b94",
+        "rtl/core_modules/alu.v": "b6685fa6bb1bf46d30eaf3c19b0514a149d25d4a71e4cd874efb84a2913b164d",
+        "rtl/core_modules/atomic_lsu.v": "cf79d622f61a4e48f2914763dfce206dadb484e5d7ccb437f2b910c3e7c358bb",
+        "rtl/core_modules/csr_exec.v": "78b288467317352d2b3ac3b692ad67bf7183c3f9bc2d8a484c9641d8b61fb673",
+        "rtl/core_modules/csr_file.v": "24818f93e128ee8b76e0d5cf4053a15ba54b031d7864793d3528d3ac9c5dc43d",
+        "rtl/core_modules/decoder.v": "a3cc835029710ed96edb1b4c6b22f89318990611c5cdd4f9c21d3f8ae93a36a3",
+        "rtl/core_modules/interrupt_controller.v": "5b515eae2ec589d4fe648288596024765f6bc42b8ae794fa842d00e8dc73226d",
+        "rtl/core_modules/pc.v": "cc6960788b8819280b0ea4571374ac188cea4043103dacf7d000ba9e42e97885",
+        "rtl/core_modules/plic.v": "6a2ab46ef2f99dd8657eec5ab4a0e8b0210b4ddd83223802cf095a21dbf2a861",
+        "rtl/core_modules/uart.v": "a0541dc1c79ba34faa3c884207636a2cd1bb8e6add6fdb8ffc340bc701469ded",
+        "rtl/core_modules/iterative_muldiv.v": "1e95a7caa32267078f6522ccbe6bf49f2c57be8576ac6597cbd731e4f061ed39",
+        "rtl/pipeline_stages/EX_MEM.v": "3f68554c3cae1992405b7fab16153e32c55b09c83664965862b2566a32679672",
+        "rtl/pipeline_stages/ID_EX.v": "4cd40546f3aff3cbfd08654c84c9e6fcf2db58d622f2090d376efd425f21236a",
+        "rtl/pipeline_stages/IF_ID.v": "fc4780214fc9a0940fb8baffbdadc9d98e9e7b77328d0880b4971e49867e9fc7",
+        "rtl/pipeline_stages/MEM_WB.v": "85f3792bda16ed8ae1b8d8b7034949f95854b9b7da0a273cfbe3c0ddf438492f",
+        "rtl/pipeline_stages/forwarding_unit.v": "694179272194872d67334939cca69cbf334d4fdccb97c2ecdaf8cd729643e914",
+        "rtl/pipeline_stages/load_use_detector.v": "4702dfb0f7b67d09043504d7dead4673a0c8bd4719275d5a5a92db78528407ba",
+        "rtl/pipeline_stages/store_load_detector.v": "d94b590da965aa3fc2d0b1e3db1c02a09f658bf9e8ba30d43a5d8ef78dd1884a",
+        "rtl/mmu/sv32_data_check.v": "1777ddec4e13f424f9258e0c0cf8409127305408f33325de0b3cef7b3ecdc369",
+        "rtl/mmu/sv32_instr_check.v": "78d0c89551a35c3311fb227151cba24e47c73d5afbb15f8b34047d9d4078a0c1",
+        "rtl/mmu/sv32_page_walker.v": "4cbae8fea9ce5fde0f7c253ffa9bd645f39f0349a4a40295f553e6baa3a15fe3",
+        "rtl/mmu/unified_mem.v": "ea53a281d7ffa40e899556c4d2d54bd3d69fb45cda287e59af264150a434f1e6",
+        "rtl/mmu/sv32_mmu.v": "a606e2db875b5d8937abd762724a342bec7c729542896df0d1c7eb877789a88f",
+        "rtl/mmu/sv32_tlb.v": "486cf78917b414d3feefe17d26b2e79c40dbd4140d233f678f8b29f3bca4fac5",
+        "fabric/axi_word_bridge.sv": "83e7a7a4265455a0c1d41a295919aa5190a1a4336263ac393471751396e0f964",
+        "fabric/physical_l1_cache.sv": "e11f18254e79b3ecfb792e3db1a324426dd869eda0003a0dbc80cfb6d39fa767",
+        "fabric/ordered_write_buffer.sv": "d17cfe7e82f1e62a96fd562563d28d838a07e6b57b1c6fb0e7955c1afe65ca2a",
+        "fabric/fpga_perf_counters.sv": "a12d24c1717eef21a56aec743ee88052495b9022574aa8e9f8aaebd22c1e00f3",
+        "fabric/sv32_bus_port.sv": "f88278e9b9a0fdd8183de888418a5d62e1ee29e2377106977bb950ab89b0dbe1",
+        "fabric/instruction_fetch_queue.sv": "910f13f24d0280f9fdd914e510b9c5349663e8b0e474b7ff84d767b64e1787c7",
+        "fabric/uart_boot_loader.sv": "b1b72c034fac5b4949b1a4ca0790adf6005fb204670dded70d480ceaf8e29662",
+        "fabric/synapse_ddr3_system.sv": "046d0df68fec77855a9fdc7be64f5eeb5f822f0ffe9ef209ab30b5b6a575e01c",
+        "fabric/arty_ddr3_top.sv": "34f8bc088c4189f4f3e883c9d50d611f15235995189d23b4b839fb0b141a69a5",
+        "fabric/arty_linux_top.sv": "c181fdf37bf894369d545a823d897991458542ac1cd69121fe7d7c3a2ff31635",
+        "rtl/include/instr_defines.vh": "8a3c7cf00fcb454fcaa7963896b29ae2a05d251f6a0bf2685aff5339270856ae",
+        "rtl/include/memory_map.vh": "7d79f7bdf25f2b02f1a2e736c71002e510e7abd5e02af449dee2f4dc251cf0cf"
+      },
+      "methodology_critical_warnings": {
+        "TIMING-4": {
+          "count": 1,
+          "detail": "Primary clock system/mig/sys_clk_i is defined downstream of board_clk and overrides its insertion delay and/or waveform."
+        },
+        "TIMING-6": {
+          "count": 1,
+          "detail": "ref200_raw and clk_pll_i are timed together without a common primary clock."
+        },
+        "TIMING-27": {
+          "count": 1,
+          "detail": "Primary clock system/mig/sys_clk_i is created on an internal hierarchical pin."
+        }
+      },
+      "rejection_reason": "Negative setup slack; no accepted bitstream emitted by normal build."
+    },
+    {
+      "name": "fetch-queue-div17-normal-route",
+      "cpu_divide": 17,
+      "cpu_hz_exact": "1000000000/17",
+      "firmware_cpu_hz": 58823529,
+      "accepted": false,
+      "stage": "build_performance.tcl normal implementation",
+      "setup_wns_ns": -0.428,
+      "setup_tns_ns": -48.928,
+      "hold_whs_ns": 0.051,
+      "pulse_width_slack_ns": 0.206,
+      "reports": {
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/timing.rpt",
+          "sha256": "abb2e4ae2cec70d9207fab3209ba3e1381be506c925a9c494ec80d7fe226483e"
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/utilization.rpt",
+          "sha256": "5eed13c552e2808dbf185652157161c913529da18440aade6a2bf76b72de726a"
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/drc.rpt",
+          "sha256": "e8c30aabf7f6088ee706af65e41e5b9b1d788277eafdcfb10b882b3c86110cad"
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/cdc.rpt",
+          "sha256": "02e4633d55032a3e7a14bca92ac56bf0d427fa3cc0cc7c3b55eea2c29743e5ab"
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/bus-skew.rpt",
+          "sha256": "4df05bd6a70f6e925273f10a89f7090c86208189d5728cc8d917f80884d0d134"
+        }
+      },
+      "source_manifest": {
+        "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/source-manifest.txt",
+        "sha256": "4da22e9fa590b1d2a606434b15dbfbad33fdf1a24807a38f13351fd4780344ca"
+      },
+      "source_sha256": {
+        "rtl/seven_seg.v": "2af130c79dcf43e930cfc3d0afc1f88c2bfe359c43aeb459dc6624480fc6ecf9",
+        "rtl/memory_unit.v": "ceeb74519d13b7e5e6739e98181d3f5a38a903f2457ef534aa604da58a3bba3e",
+        "rtl/writeback.v": "6c7e1a1f45ddeefac39328ad80619019b4f947aa82073bf496acd4da794a4c8a",
+        "rtl/execution_unit.v": "5ccbe6368b9693b036b2ec792979ff228d8ef909f9f56d405dc47e2bc0ceff54",
+        "rtl/mem_adapter.v": "9d2b5abf237cb9f688479301b773e7e35e431ce25111447d647137b7101a97d6",
+        "rtl/riscv_cpu.v": "2c9287ede308f8bbdbfc48e5ba0ab9a1a2ca6437faeaf74fe0614adc1335804f",
+        "rtl/top.v": "339d7c3060388d433de59a0924e8ac3d689d182875a5eeb67a9de82893dccc34",
+        "rtl/core_modules/timer.v": "f8ba198dcdbaee3c24ebcc4b3480329bee5babaebe50ff37cc15d5b04f22f71a",
+        "rtl/core_modules/registerfile.v": "ed76f869be32e4d27e71522583cf6a90ad7c3d3da13b7bc31cbef11f7fdc0b94",
+        "rtl/core_modules/alu.v": "b6685fa6bb1bf46d30eaf3c19b0514a149d25d4a71e4cd874efb84a2913b164d",
+        "rtl/core_modules/atomic_lsu.v": "cf79d622f61a4e48f2914763dfce206dadb484e5d7ccb437f2b910c3e7c358bb",
+        "rtl/core_modules/csr_exec.v": "78b288467317352d2b3ac3b692ad67bf7183c3f9bc2d8a484c9641d8b61fb673",
+        "rtl/core_modules/csr_file.v": "24818f93e128ee8b76e0d5cf4053a15ba54b031d7864793d3528d3ac9c5dc43d",
+        "rtl/core_modules/decoder.v": "a3cc835029710ed96edb1b4c6b22f89318990611c5cdd4f9c21d3f8ae93a36a3",
+        "rtl/core_modules/interrupt_controller.v": "5b515eae2ec589d4fe648288596024765f6bc42b8ae794fa842d00e8dc73226d",
+        "rtl/core_modules/pc.v": "cc6960788b8819280b0ea4571374ac188cea4043103dacf7d000ba9e42e97885",
+        "rtl/core_modules/plic.v": "6a2ab46ef2f99dd8657eec5ab4a0e8b0210b4ddd83223802cf095a21dbf2a861",
+        "rtl/core_modules/uart.v": "a0541dc1c79ba34faa3c884207636a2cd1bb8e6add6fdb8ffc340bc701469ded",
+        "rtl/core_modules/iterative_muldiv.v": "1e95a7caa32267078f6522ccbe6bf49f2c57be8576ac6597cbd731e4f061ed39",
+        "rtl/pipeline_stages/EX_MEM.v": "3f68554c3cae1992405b7fab16153e32c55b09c83664965862b2566a32679672",
+        "rtl/pipeline_stages/ID_EX.v": "4cd40546f3aff3cbfd08654c84c9e6fcf2db58d622f2090d376efd425f21236a",
+        "rtl/pipeline_stages/IF_ID.v": "fc4780214fc9a0940fb8baffbdadc9d98e9e7b77328d0880b4971e49867e9fc7",
+        "rtl/pipeline_stages/MEM_WB.v": "85f3792bda16ed8ae1b8d8b7034949f95854b9b7da0a273cfbe3c0ddf438492f",
+        "rtl/pipeline_stages/forwarding_unit.v": "694179272194872d67334939cca69cbf334d4fdccb97c2ecdaf8cd729643e914",
+        "rtl/pipeline_stages/load_use_detector.v": "4702dfb0f7b67d09043504d7dead4673a0c8bd4719275d5a5a92db78528407ba",
+        "rtl/pipeline_stages/store_load_detector.v": "d94b590da965aa3fc2d0b1e3db1c02a09f658bf9e8ba30d43a5d8ef78dd1884a",
+        "rtl/mmu/sv32_data_check.v": "1777ddec4e13f424f9258e0c0cf8409127305408f33325de0b3cef7b3ecdc369",
+        "rtl/mmu/sv32_instr_check.v": "78d0c89551a35c3311fb227151cba24e47c73d5afbb15f8b34047d9d4078a0c1",
+        "rtl/mmu/sv32_page_walker.v": "4cbae8fea9ce5fde0f7c253ffa9bd645f39f0349a4a40295f553e6baa3a15fe3",
+        "rtl/mmu/unified_mem.v": "ea53a281d7ffa40e899556c4d2d54bd3d69fb45cda287e59af264150a434f1e6",
+        "rtl/mmu/sv32_mmu.v": "a606e2db875b5d8937abd762724a342bec7c729542896df0d1c7eb877789a88f",
+        "rtl/mmu/sv32_tlb.v": "486cf78917b414d3feefe17d26b2e79c40dbd4140d233f678f8b29f3bca4fac5",
+        "fabric/axi_word_bridge.sv": "83e7a7a4265455a0c1d41a295919aa5190a1a4336263ac393471751396e0f964",
+        "fabric/physical_l1_cache.sv": "e11f18254e79b3ecfb792e3db1a324426dd869eda0003a0dbc80cfb6d39fa767",
+        "fabric/ordered_write_buffer.sv": "d17cfe7e82f1e62a96fd562563d28d838a07e6b57b1c6fb0e7955c1afe65ca2a",
+        "fabric/fpga_perf_counters.sv": "a12d24c1717eef21a56aec743ee88052495b9022574aa8e9f8aaebd22c1e00f3",
+        "fabric/sv32_bus_port.sv": "f88278e9b9a0fdd8183de888418a5d62e1ee29e2377106977bb950ab89b0dbe1",
+        "fabric/instruction_fetch_queue.sv": "910f13f24d0280f9fdd914e510b9c5349663e8b0e474b7ff84d767b64e1787c7",
+        "fabric/uart_boot_loader.sv": "b1b72c034fac5b4949b1a4ca0790adf6005fb204670dded70d480ceaf8e29662",
+        "fabric/synapse_ddr3_system.sv": "046d0df68fec77855a9fdc7be64f5eeb5f822f0ffe9ef209ab30b5b6a575e01c",
+        "fabric/arty_ddr3_top.sv": "34f8bc088c4189f4f3e883c9d50d611f15235995189d23b4b839fb0b141a69a5",
+        "fabric/arty_linux_top.sv": "c181fdf37bf894369d545a823d897991458542ac1cd69121fe7d7c3a2ff31635",
+        "rtl/include/instr_defines.vh": "8a3c7cf00fcb454fcaa7963896b29ae2a05d251f6a0bf2685aff5339270856ae",
+        "rtl/include/memory_map.vh": "7d79f7bdf25f2b02f1a2e736c71002e510e7abd5e02af449dee2f4dc251cf0cf"
+      },
+      "methodology_critical_warnings": {
+        "TIMING-4": {
+          "count": 1,
+          "detail": "Primary clock system/mig/sys_clk_i is defined downstream of board_clk and overrides its insertion delay and/or waveform."
+        },
+        "TIMING-6": {
+          "count": 1,
+          "detail": "ref200_raw and clk_pll_i are timed together without a common primary clock."
+        },
+        "TIMING-27": {
+          "count": 1,
+          "detail": "Primary clock system/mig/sys_clk_i is created on an internal hierarchical pin."
+        }
+      },
+      "rejection_reason": "Negative setup slack; no accepted bitstream emitted by normal build."
+    },
+    {
+      "name": "fetch-queue-div17-postopt",
+      "cpu_divide": 17,
+      "cpu_hz_exact": "1000000000/17",
+      "firmware_cpu_hz": 58823529,
+      "accepted": true,
+      "stage": "postroute phys_opt_design -directive AggressiveExplore; route_design -directive Explore",
+      "setup_wns_ns": 0.014,
+      "setup_tns_ns": 0,
+      "hold_whs_ns": 0.051,
+      "pulse_width_slack_ns": 0.206,
+      "reports": {
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/timing.rpt",
+          "sha256": "13838f2220a01361c3af64ca885d62b65d78ee7af1a830460b0ef4fc21ecd089"
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/utilization.rpt",
+          "sha256": "4e8361260ae873f928929dc8d324385c73a03d805101b4f5e47d4ed9901f7970"
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/drc.rpt",
+          "sha256": "d067780ed3c03b797dd62b36ce84afbc9698e414ba3734528d7403c57193867e"
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/cdc.rpt",
+          "sha256": "f19ac2fde3373fb6de4e67d96d1bb81a7fba3f223bc921ccab3047b1278c05cf"
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/bus-skew.rpt",
+          "sha256": "e12d89b5e9817a3c1b4a1b860e1de727517d62127606bb488a68af314ba89f9c"
+        }
+      },
+      "source_manifest": {
+        "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/source-manifest.txt",
+        "sha256": "4da22e9fa590b1d2a606434b15dbfbad33fdf1a24807a38f13351fd4780344ca"
+      },
+      "source_sha256": {
+        "rtl/seven_seg.v": "2af130c79dcf43e930cfc3d0afc1f88c2bfe359c43aeb459dc6624480fc6ecf9",
+        "rtl/memory_unit.v": "ceeb74519d13b7e5e6739e98181d3f5a38a903f2457ef534aa604da58a3bba3e",
+        "rtl/writeback.v": "6c7e1a1f45ddeefac39328ad80619019b4f947aa82073bf496acd4da794a4c8a",
+        "rtl/execution_unit.v": "5ccbe6368b9693b036b2ec792979ff228d8ef909f9f56d405dc47e2bc0ceff54",
+        "rtl/mem_adapter.v": "9d2b5abf237cb9f688479301b773e7e35e431ce25111447d647137b7101a97d6",
+        "rtl/riscv_cpu.v": "2c9287ede308f8bbdbfc48e5ba0ab9a1a2ca6437faeaf74fe0614adc1335804f",
+        "rtl/top.v": "339d7c3060388d433de59a0924e8ac3d689d182875a5eeb67a9de82893dccc34",
+        "rtl/core_modules/timer.v": "f8ba198dcdbaee3c24ebcc4b3480329bee5babaebe50ff37cc15d5b04f22f71a",
+        "rtl/core_modules/registerfile.v": "ed76f869be32e4d27e71522583cf6a90ad7c3d3da13b7bc31cbef11f7fdc0b94",
+        "rtl/core_modules/alu.v": "b6685fa6bb1bf46d30eaf3c19b0514a149d25d4a71e4cd874efb84a2913b164d",
+        "rtl/core_modules/atomic_lsu.v": "cf79d622f61a4e48f2914763dfce206dadb484e5d7ccb437f2b910c3e7c358bb",
+        "rtl/core_modules/csr_exec.v": "78b288467317352d2b3ac3b692ad67bf7183c3f9bc2d8a484c9641d8b61fb673",
+        "rtl/core_modules/csr_file.v": "24818f93e128ee8b76e0d5cf4053a15ba54b031d7864793d3528d3ac9c5dc43d",
+        "rtl/core_modules/decoder.v": "a3cc835029710ed96edb1b4c6b22f89318990611c5cdd4f9c21d3f8ae93a36a3",
+        "rtl/core_modules/interrupt_controller.v": "5b515eae2ec589d4fe648288596024765f6bc42b8ae794fa842d00e8dc73226d",
+        "rtl/core_modules/pc.v": "cc6960788b8819280b0ea4571374ac188cea4043103dacf7d000ba9e42e97885",
+        "rtl/core_modules/plic.v": "6a2ab46ef2f99dd8657eec5ab4a0e8b0210b4ddd83223802cf095a21dbf2a861",
+        "rtl/core_modules/uart.v": "a0541dc1c79ba34faa3c884207636a2cd1bb8e6add6fdb8ffc340bc701469ded",
+        "rtl/core_modules/iterative_muldiv.v": "1e95a7caa32267078f6522ccbe6bf49f2c57be8576ac6597cbd731e4f061ed39",
+        "rtl/pipeline_stages/EX_MEM.v": "3f68554c3cae1992405b7fab16153e32c55b09c83664965862b2566a32679672",
+        "rtl/pipeline_stages/ID_EX.v": "4cd40546f3aff3cbfd08654c84c9e6fcf2db58d622f2090d376efd425f21236a",
+        "rtl/pipeline_stages/IF_ID.v": "fc4780214fc9a0940fb8baffbdadc9d98e9e7b77328d0880b4971e49867e9fc7",
+        "rtl/pipeline_stages/MEM_WB.v": "85f3792bda16ed8ae1b8d8b7034949f95854b9b7da0a273cfbe3c0ddf438492f",
+        "rtl/pipeline_stages/forwarding_unit.v": "694179272194872d67334939cca69cbf334d4fdccb97c2ecdaf8cd729643e914",
+        "rtl/pipeline_stages/load_use_detector.v": "4702dfb0f7b67d09043504d7dead4673a0c8bd4719275d5a5a92db78528407ba",
+        "rtl/pipeline_stages/store_load_detector.v": "d94b590da965aa3fc2d0b1e3db1c02a09f658bf9e8ba30d43a5d8ef78dd1884a",
+        "rtl/mmu/sv32_data_check.v": "1777ddec4e13f424f9258e0c0cf8409127305408f33325de0b3cef7b3ecdc369",
+        "rtl/mmu/sv32_instr_check.v": "78d0c89551a35c3311fb227151cba24e47c73d5afbb15f8b34047d9d4078a0c1",
+        "rtl/mmu/sv32_page_walker.v": "4cbae8fea9ce5fde0f7c253ffa9bd645f39f0349a4a40295f553e6baa3a15fe3",
+        "rtl/mmu/unified_mem.v": "ea53a281d7ffa40e899556c4d2d54bd3d69fb45cda287e59af264150a434f1e6",
+        "rtl/mmu/sv32_mmu.v": "a606e2db875b5d8937abd762724a342bec7c729542896df0d1c7eb877789a88f",
+        "rtl/mmu/sv32_tlb.v": "486cf78917b414d3feefe17d26b2e79c40dbd4140d233f678f8b29f3bca4fac5",
+        "fabric/axi_word_bridge.sv": "83e7a7a4265455a0c1d41a295919aa5190a1a4336263ac393471751396e0f964",
+        "fabric/physical_l1_cache.sv": "e11f18254e79b3ecfb792e3db1a324426dd869eda0003a0dbc80cfb6d39fa767",
+        "fabric/ordered_write_buffer.sv": "d17cfe7e82f1e62a96fd562563d28d838a07e6b57b1c6fb0e7955c1afe65ca2a",
+        "fabric/fpga_perf_counters.sv": "a12d24c1717eef21a56aec743ee88052495b9022574aa8e9f8aaebd22c1e00f3",
+        "fabric/sv32_bus_port.sv": "f88278e9b9a0fdd8183de888418a5d62e1ee29e2377106977bb950ab89b0dbe1",
+        "fabric/instruction_fetch_queue.sv": "910f13f24d0280f9fdd914e510b9c5349663e8b0e474b7ff84d767b64e1787c7",
+        "fabric/uart_boot_loader.sv": "b1b72c034fac5b4949b1a4ca0790adf6005fb204670dded70d480ceaf8e29662",
+        "fabric/synapse_ddr3_system.sv": "046d0df68fec77855a9fdc7be64f5eeb5f822f0ffe9ef209ab30b5b6a575e01c",
+        "fabric/arty_ddr3_top.sv": "34f8bc088c4189f4f3e883c9d50d611f15235995189d23b4b839fb0b141a69a5",
+        "fabric/arty_linux_top.sv": "c181fdf37bf894369d545a823d897991458542ac1cd69121fe7d7c3a2ff31635",
+        "rtl/include/instr_defines.vh": "8a3c7cf00fcb454fcaa7963896b29ae2a05d251f6a0bf2685aff5339270856ae",
+        "rtl/include/memory_map.vh": "7d79f7bdf25f2b02f1a2e736c71002e510e7abd5e02af449dee2f4dc251cf0cf"
+      },
+      "methodology_critical_warnings": {
+        "TIMING-4": {
+          "count": 1,
+          "detail": "Primary clock system/mig/sys_clk_i is defined downstream of board_clk and overrides its insertion delay and/or waveform."
+        },
+        "TIMING-6": {
+          "count": 1,
+          "detail": "ref200_raw and clk_pll_i are timed together without a common primary clock."
+        },
+        "TIMING-27": {
+          "count": 1,
+          "detail": "Primary clock system/mig/sys_clk_i is created on an internal hierarchical pin."
+        }
+      },
+      "bitstream": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/synapse32_fetch-queue-div17.bit",
+      "bitstream_sha256": "8d9141c052adf2e62cd5596d2bc71f5d285ca79301a752d2d09ae1190f403001",
+      "critical_cdc_violations": 0,
+      "bus_skew_violations": 0,
+      "bram36_tiles": 4,
+      "dsp_tiles": 4,
+      "source_commit": "2f056e0",
+      "refinement_script": "fpga/arty_a7_35t/refine_performance.tcl",
+      "refinement_log": {
+        "path": "fpga/arty_a7_35t/build/fetch-queue-div17-postopt.log",
+        "sha256": "3293badf297afbdff085e76f9a3d46dd74c9d7acfe69cc85f7fa7d82a24f5205"
+      }
+    }
+  ],
+  "final_profile": {
+    "implementation": "fetch-queue-div17-postopt",
+    "cpu_hz": 58823529,
+    "bare_coremark": 102.796272,
+    "linux_coremark": 97.646714,
+    "linux_fraction_of_bare": 0.9499052066790905,
+    "absolute_bare_gain_over_previous_62500000hz": 0.2536130731707318,
+    "normalized_bare_gain_over_previous_62500000hz": 0.3319638995676497,
+    "comparison_scope": "Physical gain includes changed CPU/DDR clock ratio and bare-metal binary layout; matched simulation isolates the fetch change. Linux and bare-metal ports/linker relaxation differ.",
+    "build_command": "PERF_TAG=fetch-queue-div17 CPU_DIVIDE=17 BOOT_BAUD=2000000 FAST_L1=1 STORE_BUFFER_DEPTH=4 FAST_MULTIPLY=1 FETCH_QUEUE=1 vivado -mode batch -nojournal -source fpga/arty_a7_35t/build_performance.tcl",
+    "required_refinement_command": "PERF_TAG=fetch-queue-div17 vivado -mode batch -nojournal -source fpga/arty_a7_35t/refine_performance.tcl",
+    "normal_build_rejects_setup": true,
+    "fractional_clock_firmware_commit": "1339ee8",
+    "timer_selftest_host_seconds": 1.9997121550841257,
+    "timer_selftest_cycles": 117647098,
+    "integer_clock_regression": {
+      "tests_passed": 9,
+      "unchanged_1mhz_binary_sha256": "c24f90706277b9c76dfea090d6cfd5fc852c068f045c920dacdd033401a7f7fe",
+      "object_code_check": "core_list_join.c: OK\ncore_main.c: OK\ncore_matrix.c: OK\ncore_state.c: OK\ncore_util.c: OK\ncoremark.h: OK\ncore_list_join: identical object instructions\ncore_matrix: identical object instructions\ncore_state: identical object instructions\niterate: identical object instruction bytes before link relocation\n1ecbffe08ed8b4f8c53caaf21f54a8ce4dcaac750cbbba4debba72687c02bc44  /home/lazybanana/github/synapse32/fpga/arty_a7_35t/build/coremark-profile-1000000-fraction-check/coremark.elf\nc24f90706277b9c76dfea090d6cfd5fc852c068f045c920dacdd033401a7f7fe  /home/lazybanana/github/synapse32/fpga/arty_a7_35t/build/coremark-profile-1000000-fraction-check/coremark.bin\n"
+    }
+  }
 }
