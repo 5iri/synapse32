@@ -1,15 +1,17 @@
 `timescale 1ns/1ps
 `default_nettype none
 // Independent byte-strobed RAM, with split/stalled AXI write channels.
-module tb_dcache #(parameter CACHE_LINES=256);
+module tb_dcache #(parameter CACHE_LINES=256, INSTRUCTION=0);
     reg clk=0, rst=1;
     always #5 clk=~clk;
-    reg req=0, we=0, cache_read=1;
+    reg req=0, we=0, cache_read=0, cache_instr=0;
     reg [27:0] addr=0;
     reg [31:0] data=0;
     reg [3:0] be=15;
     wire ready,done,error;
     wire [31:0] result;
+    wire [127:0] read_line;
+    wire read_wait,write_wait;
     wire [27:0] axi_addr;
     wire arvalid,rready,awvalid,wvalid,bready;
     wire [127:0] wdata;
@@ -18,7 +20,7 @@ module tb_dcache #(parameter CACHE_LINES=256);
     reg [127:0] rdata=0;
     reg [1:0] rresp=0,bresp=0;
     reg inject_read_error=0,inject_write_error=0,inject_short=0;
-    axi_word_bridge #(.CACHE_LINES(CACHE_LINES)) dut (.*);
+    axi_word_bridge #(.CACHE_LINES(CACHE_LINES),.ICACHE_LINES(CACHE_LINES)) dut (.*);
     reg [127:0] ram[0:8191];
     reg [27:0] read_addr,write_addr;
     reg [127:0] write_data;
@@ -55,15 +57,17 @@ module tb_dcache #(parameter CACHE_LINES=256);
     end
     task automatic access(input bit wr,input bit cached,input [27:0] address,
                           input [31:0] value,input [3:0] strobes,
-                          input [31:0] expected,input bit expected_error=0);
+                          input [31:0] expected,input bit expected_error=0,
+                          input bit instruction=INSTRUCTION);
         integer timeout;
         begin
             @(negedge clk);
             while(!ready) @(negedge clk);
-            req=1;we=wr;cache_read=cached;addr=address;data=value;be=strobes;
+            req=1;we=wr;cache_read=cached&&!instruction;cache_instr=cached&&instruction;
+            addr=address;data=value;be=strobes;
             @(negedge clk);req=0;
             // Poison live inputs: all cache and bus decisions must use the snapshot.
-            addr=28'h1fff0;data=32'hbadbad;be=0;cache_read=!cached;we=!wr;
+            addr=28'h1fff0;data=32'hbadbad;be=0;cache_read=!cached;cache_instr=!cached;we=!wr;
             timeout=0;
             while(!done&&timeout<200) begin @(negedge clk);timeout=timeout+1;end
             if(!done) $fatal(1,"transaction timeout at %h",address);
@@ -146,6 +150,29 @@ module tb_dcache #(parameter CACHE_LINES=256);
         before_reads=reads;
         access(0,1,48,0,15,32'h33221100);
         if(reads-before_reads!=1) $fatal(1,"reset retained valid line");
+        // Fill the same physical word in BOTH banks. Writes by any owner
+        // must update both, while replacements in one bank leave the other.
+        before_reads=reads;
+        access(0,1,64,0,15,32'h33221100,0,0);
+        access(0,1,64,0,15,32'h33221100,0,1);
+        if(reads-before_reads!=2) $fatal(1,"I/D banks did not allocate independently");
+        access(1,0,64,32'h00100093,15,0);
+        before_reads=reads;
+        access(0,1,64,0,15,32'h00100093,0,0);
+        access(0,1,64,0,15,32'h00100093,0,1);
+        if(reads-before_reads!=(CACHE_LINES>0 ? 0 : 2)) $fatal(1,"store did not snoop both banks");
+        access(0,1,64+CONFLICT,0,15,32'h33221100,0,1);
+        before_reads=reads;
+        access(0,1,64,0,15,32'h00100093,0,0);
+        if(reads-before_reads!=(CACHE_LINES>0 ? 0 : 1)) $fatal(1,"I replacement evicted D line");
+        access(0,1,64,0,15,32'h00100093,0,1);
+        inject_write_error=1;
+        access(1,0,64,32'hbadbad,15,0,1);
+        inject_write_error=0;
+        before_reads=reads;
+        access(0,1,64,0,15,32'h00100093,0,0);
+        access(0,1,64,0,15,32'h00100093,0,1);
+        if(reads-before_reads!=2) $fatal(1,"failed store did not invalidate both banks");
         // Independent byte scoreboard across hits, misses and index conflicts.
         // Use a fixed seed so failures reproduce exactly on every simulator.
         for(n=0;n<131072;n=n+1) reference_ram[n]=ram[n/16][(n%16)*8+:8];
@@ -166,7 +193,7 @@ module tb_dcache #(parameter CACHE_LINES=256);
             access(0,1,28'(random_addr),0,15,expected_word);
             access(0,1,28'(random_addr),0,15,expected_word);
         end
-        $display("PASS: D-cache lines=%0d reads=%0d writes=%0d",CACHE_LINES,reads,writes);
+        $display("PASS: cache instruction=%0d lines=%0d reads=%0d writes=%0d",INSTRUCTION,CACHE_LINES,reads,writes);
         $finish;
     end
     initial begin #1000000;$fatal(1,"global timeout");end

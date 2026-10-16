@@ -1,13 +1,13 @@
 `timescale 1ns/1ps
 `include "instr_defines.vh"
-module tb_muldiv;
+module tb_muldiv #(parameter FAST_MULTIPLY=0);
     reg clk=0,rst=1,start=0,consume=0,cancel=0;
     always #5 clk=~clk;
     reg [31:0] lhs,rhs;
     reg [6:0] instr_id;
     wire busy,done;
     wire [31:0] result;
-    iterative_muldiv dut(.*);
+    iterative_muldiv #(.FAST_MULTIPLY(FAST_MULTIPLY)) dut(.*);
     reg [6:0] ops[0:7];
     reg [31:0] a,b,expected;
     reg signed [63:0] product;
@@ -36,6 +36,9 @@ module tb_muldiv;
             @(negedge clk);start=0;cycles=0;
             while(!done&&cycles<40) begin @(negedge clk);cycles=cycles+1;end
             if(!done||result!==expected) $fatal(1,"op=%h a=%h b=%h expected=%h result=%h",op,a,b,expected,result);
+            if(FAST_MULTIPLY && (op==INSTR_MUL || op==INSTR_MULH ||
+                                 op==INSTR_MULHSU || op==INSTR_MULHU) && cycles!=2)
+                $fatal(1,"Fast multiply latency was %0d, expected 2",cycles);
             repeat(3) @(negedge clk);
             if(!done||result!==expected) $fatal(1,"Result lost before consumption");
             consume=1;@(negedge clk);consume=0;

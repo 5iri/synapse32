@@ -205,42 +205,44 @@ Instruction and data ports each reuse the unmodified upstream eight-entry
 SUM/MXR and A/D permissions. SFENCE.VMA and writes to satp flush both TLBs;
 any satp change, including an ASID-only change, also invalidates them. A flush
 during a walk prevents a stale refill, and pre-fence instruction responses are
-discarded even when the PC is unchanged. The FPGA path now has a 4 KiB data
-cache; instruction fetches remain uncached. FENCE.I observes stores in the
+discarded even when the PC is unchanged. The FPGA path now has separate 4 KiB
+instruction and data caches. FENCE.I observes stores in the
 shared RAM. Redirected fetches cannot return
 an old PC/context as a current instruction. Addresses above 4 GiB are rejected.
 Unexpected physical addresses or failed AXI responses latch a fabric fault and
 hold the CPU in reset.
 
-### Data cache
+### Instruction and data caches
 
 `axi_word_bridge` implements a physically addressed, direct-mapped D-cache:
 256 lines of 16 bytes, matching one DDR AXI beat per refill. Data-port RAM
-reads (including its page-table walks) allocate lines. Instruction-port reads,
-including instruction page-table walks, bypass the cache and do not allocate.
+reads (including its page-table walks) allocate D-cache lines. Actual
+instruction fetches allocate a separate I-cache of the same size and line
+geometry. Instruction page-table walks bypass both banks and do not allocate.
 UART, timer, MSIP and PLIC accesses bypass the DDR bridge entirely.
 
 Stores are write-through and do not allocate on a miss. Every RAM writer,
-including uncached owners and the boot loader, updates a matching cached line
+including uncached owners and the boot loader, updates matching lines in BOTH banks
 after a successful AXI write response, respecting byte strobes. Completion is
 reported only after that response, so there are no dirty lines or buffered
-cache writes for FENCE to drain. Shared physical tags handle virtual aliases;
+cache writes for FENCE to drain. FENCE.I still flushes the CPU's younger
+instructions and discards stale fetch responses. Physical tags handle virtual aliases;
 SFENCE.VMA flushes translations without needing to discard cached RAM data.
 The single-hart LR/SC and AMO paths use the same serialized read/write path.
 Failed refills never become valid; a failed write invalidates a matching line.
 Reset clears validity without clearing the block-RAM data array. There is no
 external DMA master or multi-hart cache-coherence protocol on this board.
 
-`DCACHE_LINES` defaults to 256 throughout the board hierarchy. Set it to zero
+`DCACHE_LINES` and `ICACHE_LINES` default to 256 throughout the board hierarchy. Set either to zero
 for an uncached comparison, or another power of two to change capacity:
 
 ```sh
-DCACHE_LINES=0 make -C fpga/arty_a7_35t bitstream
-DCACHE_LINES=0 LINUX_SIM_BUILD=build/obj_linux_nocache bash fpga/arty_a7_35t/test_linux.sh /absolute/path/to/fw_payload.bin
+DCACHE_LINES=0 ICACHE_LINES=0 make -C fpga/arty_a7_35t bitstream
+DCACHE_LINES=0 ICACHE_LINES=0 LINUX_SIM_BUILD=build/obj_linux_nocache bash fpga/arty_a7_35t/test_linux.sh /absolute/path/to/fw_payload.bin
 bash fpga/arty_a7_35t/test_dcache.sh
 ```
 
-The cache requires rebuilding and programming the FPGA. Bitstreams built
+The caches require rebuilding and programming the FPGA. Bitstreams built
 before this change remain uncached. The Linux image and device tree do not
 need cache-specific changes. The 62.5 MHz cached bitstream has been tested on
 the board: CoreMark improves from 0.058275 to 0.065954 (13.2%), with all 60

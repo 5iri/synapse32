@@ -2,7 +2,8 @@
 `default_nettype none
 // Independent, single-beat AXI RAM with independently stalled address/data
 // channels and delayed read/write responses. This is not a DDR3 PHY model.
-module tb_axi #(parameter ERROR_KIND=0, DCACHE_LINES=256);
+module tb_axi #(parameter ERROR_KIND=0, DCACHE_LINES=256, ICACHE_LINES=256,
+                FAST_L1=0, STORE_BUFFER_DEPTH=0, FAST_MULTIPLY=0);
     reg clk=0, rst=1, calibrated=0;
     always #5 clk=~clk;
     wire [27:0] addr;
@@ -14,7 +15,8 @@ module tb_axi #(parameter ERROR_KIND=0, DCACHE_LINES=256);
     wire uart_tx,boot_done,fault,core_enable;
     wire [31:0] pc;
     reg [27:0] saved_aw, saved_ar;
-    synapse_ddr3_system #(.ITERATIVE_MULDIV(1),.DCACHE_LINES(DCACHE_LINES)) dut (
+    synapse_ddr3_system #(.ITERATIVE_MULDIV(1),.DCACHE_LINES(DCACHE_LINES),.ICACHE_LINES(ICACHE_LINES),
+                         .FAST_L1(FAST_L1),.STORE_BUFFER_DEPTH(STORE_BUFFER_DEPTH),.FAST_MULTIPLY(FAST_MULTIPLY)) dut (
         .clk(clk),.rst(rst),.calibrated(calibrated),.uart_tx(uart_tx),.uart_rx(1'b1),
         .load_req(1'b0),.load_finish(1'b0),.load_addr(32'b0),.load_data(32'b0),.load_ready(),.load_done(),
         .boot_done(boot_done),.fault(fault),.core_enable(core_enable),.pc_debug(pc),
@@ -89,7 +91,7 @@ module tb_axi #(parameter ERROR_KIND=0, DCACHE_LINES=256);
                    ram[16'h8000][95:80]!==16'h8765 || ram[16'h8002][31:0]!==32'd28 ||
                    ram[17'h17fff][127:96]!==32'h55aa33cc || ram[17'h7fff][127:96]!==32'h55aa33cc)
                     $fatal(1,"DDR memory contents mismatch");
-                if(reads<5||waits<100||fetches<20) $fatal(1,"Insufficient coverage");
+                if(reads<5||waits<100||fetches<5) $fatal(1,"Insufficient coverage");
                 $display("PASS: DDR AXI CPU smoke: fetches=%0d reads=%0d writes=%0d advances=%0d waits=%0d",fetches,reads,writes,advances,waits);
                 $finish;
             end

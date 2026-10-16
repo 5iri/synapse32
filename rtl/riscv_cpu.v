@@ -1,7 +1,8 @@
 `default_nettype none
 `include "memory_map.vh"
 `include "instr_defines.vh"
-module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
+module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
+                  EXTERNAL_STORE_BUFFER = 0) (
     input wire clk,
     input wire rst,
     input wire [31:0] module_instr_in,
@@ -25,6 +26,12 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
     input wire module_data_rvalid_in,
     // The MMU treats a whole AMO as a write, its read transaction included.
     output wire module_data_write_intent_out,
+    // Optional fabric write queue: order atomics and drain architectural fences.
+    input wire module_store_pending_in,
+    output wire module_data_atomic_out,
+    output wire module_retire_event_out,
+    output wire module_fetch_wait_out, module_data_wait_out,
+    output wire module_muldiv_wait_out, module_fence_wait_out,
     // SFENCE.VMA or a write to satp: the TLB may hold stale translations.
     output wire module_tlb_flush_out,
     output wire module_data_mmu_enable_out,
@@ -408,15 +415,21 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
     wire [31:0] atomic_new_word;
     // FENCE must wait for any queued store to drain.
     wire store_buf_busy_stall = 1'b0;
-    wire fence_drain_stall = (id_ex_inst0_instr_id_out == INSTR_FENCE) && store_buf_valid;
+    wire fence_drain_stall = id_ex_inst0_instr_valid_out &&
+        ((id_ex_inst0_instr_id_out == INSTR_FENCE) ||
+         (id_ex_inst0_instr_id_out == INSTR_FENCE_I) ||
+         (id_ex_inst0_instr_id_out == INSTR_SFENCE_VMA)) &&
+        (store_buf_valid || (EXTERNAL_STORE_BUFFER && module_store_pending_in));
     // A page-faulting access never reaches memory, so it is not waited for.
     // A fetch accepted before a redirect answers for the old PC, so its response is dropped.
     assign fetch_response_valid = module_instr_rvalid_in && !fetch_discard;
     assign fetch_wait = !fetch_response_valid && !module_instr_page_fault_in;
     // Outstanding until rvalid; an AMO's read response still leaves its write to issue.
-    assign mem_wait = (module_mem_rd_en || module_mem_wr_en) &&
+    assign module_data_atomic_out = is_lr_w || is_sc_w || is_amo_w;
+    assign mem_wait = (EXTERNAL_STORE_BUFFER && module_store_pending_in && module_data_atomic_out) ||
+                     ((module_mem_rd_en || module_mem_wr_en) &&
                       !(module_data_rvalid_in && !amo_read_phase) &&
-                      !mem_stage_page_fault_taken;
+                      !mem_stage_page_fault_taken);
     wire is_multiply_divide = id_ex_inst0_instr_valid_out &&
         ((id_ex_inst0_instr_id_out == INSTR_MUL) || (id_ex_inst0_instr_id_out == INSTR_MULH) ||
          (id_ex_inst0_instr_id_out == INSTR_MULHSU) || (id_ex_inst0_instr_id_out == INSTR_MULHU) ||
@@ -426,7 +439,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
     wire [31:0] md_result;
     wire md_wait = ITERATIVE_MULDIV && is_multiply_divide && !md_done;
     generate if (ITERATIVE_MULDIV) begin: iterative_m
-        iterative_muldiv muldiv (
+        iterative_muldiv #(.FAST_MULTIPLY(FAST_MULTIPLY)) muldiv (
             .clk(clk), .rst(rst), .cancel(pipeline_flush),
             .start(is_multiply_divide && !mem_wait),
             .consume(md_done && !pipeline_hold),
@@ -439,7 +452,12 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0) (
         assign md_busy=1'b0;
         assign md_result=32'b0;
     end endgenerate
-    assign ex_stage_active = !mem_wait && !md_wait;
+    assign ex_stage_active = !mem_wait && !md_wait && !fence_drain_stall;
+    assign module_retire_event_out = instret_increment;
+    assign module_fetch_wait_out = fetch_wait;
+    assign module_data_wait_out = mem_wait;
+    assign module_muldiv_wait_out = md_wait;
+    assign module_fence_wait_out = fence_drain_stall;
     wire pipeline_hold = wfi_stall || store_buf_busy_stall || fence_drain_stall || mem_wait || md_wait;
     assign pipeline_stall = hazard_stall || pipeline_hold;
 

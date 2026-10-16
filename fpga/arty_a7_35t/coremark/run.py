@@ -21,6 +21,7 @@ def main():
     parser.add_argument('--iterations', type=int, default=1)
     parser.add_argument('--cpu-mhz', type=float, default=50)
     parser.add_argument('--optimizations', nargs='+', choices=['o3', 'o2'], default=['o3', 'o2'])
+    parser.add_argument('--profiler', help='Absolute path to the FPGA Linux counter wrapper')
     args = parser.parse_args()
     if not 1 <= args.repeats <= 10:
         parser.error('repeats must be 1..10')
@@ -28,6 +29,8 @@ def main():
         parser.error('iterations must be 0..1000000 (zero enables upstream calibration)')
     if not 0 < args.cpu_mhz <= 1000:
         parser.error('cpu-mhz must be the actual positive hardware clock')
+    if args.profiler and not re.fullmatch(r'/[A-Za-z0-9_./-]+', args.profiler):
+        parser.error('profiler must be an absolute path without shell characters')
     writer, lines = UartWriter(args.port), LogLines(args.log)
     results = []
     try:
@@ -40,7 +43,8 @@ def main():
             seeds = '0 0 0x66' if mode == 'performance' else '0x3415 0x3415 0x66'
             marker = f'S32_COREMARK_DONE_{index}'
             # Both seed sets use all algorithms and the standard 2000-byte data.
-            command = f'/tmp/coremark-{opt} {seeds} {args.iterations} 7 1; echo {marker}:$?\n'
+            prefix = f'{args.profiler} ' if args.profiler else ''
+            command = f'{prefix}/tmp/coremark-{opt} {seeds} {args.iterations} 7 1; echo {marker}:$?\n'
             writer.send(command.encode(), 0.01)
             captured = []
             deadline = time.monotonic() + 600
@@ -75,6 +79,12 @@ def main():
                       'iterations': int(field('Iterations')),
                       'cpu_mhz': args.cpu_mhz,
                       'coremark_per_mhz': score / args.cpu_mhz, 'validated': True, 'output': output}
+            if args.profiler:
+                result['profiling'] = {name: int(value, 16) for name, value in
+                                       re.findall(r'^S32_PERF (\w+): (0x[0-9a-fA-F]+)$', output, re.M)}
+                if len(result['profiling']) != 16:
+                    raise RuntimeError('Missing hardware profiling counters')
+                result['profiling_scope'] = 'whole CPU during command, including kernel/background activity'
             results.append(result)
             args.output.write_text(json.dumps(results, indent=2) + '\n')
             print('VALIDATED ' + json.dumps({k: v for k, v in result.items() if k != 'output'}), flush=True)

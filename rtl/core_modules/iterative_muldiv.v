@@ -1,8 +1,9 @@
 `default_nettype none
 `include "instr_defines.vh"
-// RV32M in 32 iterations: no combinational divider or multiplier. Result stays
-// valid until consumed, including when an older memory transaction stalls EX.
-module iterative_muldiv (
+// RV32M divider in 32 iterations. Optional registered DSP multiplication keeps
+// the divider iterative while shortening multiply to two busy cycles. Result
+// stays valid until consumed, including while an older memory access holds EX.
+module iterative_muldiv #(parameter FAST_MULTIPLY = 0) (
     input wire clk, rst, cancel, start, consume,
     input wire [6:0] instr_id,
     input wire [31:0] lhs, rhs,
@@ -14,6 +15,8 @@ module iterative_muldiv (
     reg [63:0] product, multiplicand;
     reg [31:0] multiplier, quotient, divisor;
     reg [32:0] remainder;
+    reg signed [32:0] fast_lhs, fast_rhs;
+    (* use_dsp = "yes" *) reg signed [65:0] fast_product;
     wire signed_lhs=(instr_id==INSTR_MULH)||(instr_id==INSTR_MULHSU)||
                     (instr_id==INSTR_DIV)||(instr_id==INSTR_REM);
     wire signed_rhs=(instr_id==INSTR_MULH)||(instr_id==INSTR_DIV)||(instr_id==INSTR_REM);
@@ -32,6 +35,7 @@ module iterative_muldiv (
             busy<=0; done<=0; result<=0; count<=0; division<=0;
             high_half<=0; remainder_result<=0; negative<=0; remainder_negative<=0;
             product<=0; multiplicand<=0; multiplier<=0; quotient<=0; divisor<=0; remainder<=0;
+            fast_lhs<=0; fast_rhs<=0; fast_product<=0;
         end else if(consume) done<=0;
         else if(start&&!busy&&!done) begin
             division<=(instr_id==INSTR_DIV)||(instr_id==INSTR_DIVU)||
@@ -42,11 +46,21 @@ module iterative_muldiv (
             remainder_negative<=signed_lhs&&lhs[31];
             product<=0; multiplicand<={32'b0,lhs_abs}; multiplier<=rhs_abs;
             quotient<=lhs_abs; divisor<=rhs_abs; remainder<=0; count<=0;
+            fast_lhs<=$signed({signed_lhs&&lhs[31],lhs});
+            fast_rhs<=$signed({signed_rhs&&rhs[31],rhs});
             if(rhs==0 && ((instr_id==INSTR_DIV)||(instr_id==INSTR_DIVU)||
                           (instr_id==INSTR_REM)||(instr_id==INSTR_REMU))) begin
                 result<=((instr_id==INSTR_REM)||(instr_id==INSTR_REMU)) ? lhs : 32'hffffffff;
                 done<=1;
             end else busy<=1;
+        end else if(busy && FAST_MULTIPLY && !division) begin
+            if(count==0) begin
+                fast_product<=fast_lhs*fast_rhs;
+                count<=1;
+            end else begin
+                result<=high_half ? fast_product[63:32] : fast_product[31:0];
+                busy<=0; done<=1;
+            end
         end else if(busy) begin
             count<=count+1'b1;
             if(division) begin quotient<=quotient_next; remainder<=remainder_next; end

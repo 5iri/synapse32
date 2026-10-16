@@ -79,6 +79,8 @@ _start:
     bne t1, t2, fail
     // Change an instruction in DDR3, then execute it after fence.i.
     la t4, patched_instruction
+    // Execute once to warm the instruction cache with the old code too.
+    jalr ra, t4, 0
     // Warm the D-cache with the old code before patching the same line.
     lw t2, 0(t4)
     li t1, 0x04d00393  // addi t2, zero, 77
@@ -87,9 +89,7 @@ _start:
     lw t2, 0(t4)
     bne t1, t2, fail
     fence.i
-    j patched_instruction
-patched_instruction:
-    addi t2, zero, 0
+    jalr ra, t4, 0
     li t3, 77
     bne t2, t3, fail
     // FPGA iterative RV32M and forwarding into following instructions.
@@ -156,3 +156,8 @@ fail:
     sw t1, 64(t0)
     li t6, 0xdead
     j fail
+
+.balign 16
+patched_instruction:
+    addi t2, zero, 0
+    ret

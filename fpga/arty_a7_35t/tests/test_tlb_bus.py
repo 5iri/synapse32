@@ -230,7 +230,7 @@ if __name__ == '__main__':
     here = Path(__file__).resolve().parent
     repo = here.parents[2]
     for fetch in [0, 1]:
-        run(verilog_sources=[str(here.parent / 'sv32_bus_port.sv'),
+        run(verilog_sources=[str(here.parent / 'sv32_bus_port.sv'),str(here.parent / 'physical_l1_cache.sv'),
                              str(repo / 'rtl/mmu/sv32_tlb.v')],
             includes=[str(repo / 'rtl/include')], toplevel='sv32_bus_port',
             module='test_tlb_bus', simulator='verilator', parameters={'FETCH': fetch},

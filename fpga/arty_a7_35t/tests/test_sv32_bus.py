@@ -151,7 +151,7 @@ async def execute_permissions_and_redirects(d):
 if __name__=='__main__':
     here=Path(__file__).resolve().parent;repo=here.parents[2]
     for fetch in [0,1]:
-        run(verilog_sources=[str(here.parent/'sv32_bus_port.sv'),str(repo/'rtl/mmu/sv32_tlb.v')],includes=[str(repo/'rtl/include')],
+        run(verilog_sources=[str(here.parent/'sv32_bus_port.sv'),str(here.parent/'physical_l1_cache.sv'),str(repo/'rtl/mmu/sv32_tlb.v')],includes=[str(repo/'rtl/include')],
             toplevel='sv32_bus_port',module='test_sv32_bus',simulator='verilator',parameters={'FETCH':fetch},
             extra_env={'FETCH':str(fetch)},sim_build=str(here.parent/f'build/test_sv32_bus_{fetch}'),
             extra_args=['-Wno-fatal'],python_search=[str(here)])

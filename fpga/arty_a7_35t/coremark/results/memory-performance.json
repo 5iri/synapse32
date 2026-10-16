@@ -1,0 +1,483 @@
+{
+  "note": "Physical staged memory-path measurements. Legacy 62.5 MHz bitstreams are existing validated artifacts; hashes identify them exactly. New architecture builds are recorded separately at 50 MHz. Stall events overlap and are not an additive CPI breakdown.",
+  "physical": [
+    {
+      "name": "nocache62",
+      "cpu_hz": 62500000,
+      "memory": "external DDR3",
+      "environment": "bare-metal",
+      "icache_bytes": 0,
+      "dcache_bytes": 0,
+      "cache_placement": "serialized bridge",
+      "iterative_muldiv": true,
+      "bitstream": "build/board/synapse32_linux_cpu62.bit",
+      "bitstream_sha256": "3c3ca4550289f1bf4c675013a5938f226c5db1e7e843fce9294c29ca82266024",
+      "coremark": 3.695765,
+      "coremark_per_mhz": 0.05913224,
+      "median_cpi": 66.32072200063985,
+      "measurement": {
+        "metadata": {
+          "cpu_mhz": 62.5,
+          "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+          "payload_sha256": "3cf3418b678b6bfc6d321d88c4aa764a6f9d1e7b1eaebf5017fffd5c8b4cb511",
+          "timer_selftest_host_seconds": 1.9996529819909483,
+          "timer_selftest_cycles": 125000824
+        },
+        "pilots": [],
+        "results": [
+          {
+            "mode": "performance",
+            "repeat": 0,
+            "iterations": 50,
+            "seconds": 13.53,
+            "iterations_per_second": 3.695492,
+            "cpu_mhz": 62.5,
+            "cycles": 845644073,
+            "retired_instructions": 12749961,
+            "cpi": 66.32522821050198,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 13530\nTotal time (secs): 13.530000\nIterations/Sec   : 3.695492\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 3.695492 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x0000000032678129\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0"
+          },
+          {
+            "mode": "performance",
+            "repeat": 1,
+            "iterations": 50,
+            "seconds": 13.529,
+            "iterations_per_second": 3.695765,
+            "cpu_mhz": 62.5,
+            "cycles": 845581670,
+            "retired_instructions": 12749961,
+            "cpi": 66.32033384258979,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 13529\nTotal time (secs): 13.529000\nIterations/Sec   : 3.695765\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 3.695765 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x0000000032668d66\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0"
+          },
+          {
+            "mode": "performance",
+            "repeat": 2,
+            "iterations": 50,
+            "seconds": 13.529,
+            "iterations_per_second": 3.695765,
+            "cpu_mhz": 62.5,
+            "cycles": 845586619,
+            "retired_instructions": 12749961,
+            "cpi": 66.32072200063985,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 13529\nTotal time (secs): 13.529000\nIterations/Sec   : 3.695765\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 3.695765 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x000000003266a0bb\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0"
+          },
+          {
+            "mode": "validation",
+            "repeat": 3,
+            "iterations": 50,
+            "seconds": 13.535,
+            "iterations_per_second": 3.694126,
+            "cpu_mhz": 62.5,
+            "cycles": 845982021,
+            "retired_instructions": 12722675,
+            "cpi": 66.49403690654678,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 13535\nTotal time (secs): 13.535000\nIterations/Sec   : 3.694126\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nTimed CPU cycles: 0x00000000326ca945\nTimed retired instructions: 0x0000000000c221f3\nS32_BAREMETAL_DONE:0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bothcache62",
+      "cpu_hz": 62500000,
+      "memory": "external DDR3",
+      "environment": "bare-metal",
+      "icache_bytes": 4096,
+      "dcache_bytes": 4096,
+      "cache_placement": "serialized bridge",
+      "iterative_muldiv": true,
+      "bitstream": "build/board/synapse32_linux_icache_cpu62.bit",
+      "bitstream_sha256": "29e1f23d3eb6d58cab03f37f670730dbd30d9a009cf7c1784f35d64eb5cd45f6",
+      "coremark": 24.71027,
+      "coremark_per_mhz": 0.39536432000000005,
+      "median_cpi": 9.919053396754906,
+      "measurement": {
+        "metadata": {
+          "cpu_mhz": 62.5,
+          "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+          "payload_sha256": "3cf3418b678b6bfc6d321d88c4aa764a6f9d1e7b1eaebf5017fffd5c8b4cb511",
+          "timer_selftest_host_seconds": 1.999552253051661,
+          "timer_selftest_cycles": 125000051
+        },
+        "pilots": [
+          {
+            "mode": "performance",
+            "seconds": 2.023,
+            "iterations": 50,
+            "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 2023\nTotal time (secs): 2.023000\nIterations/Sec   : 24.715769\nERROR! Must execute for at least 10 secs for a valid result!\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nErrors detected\nTimed CPU cycles: 0x000000000789e9ce\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0"
+          }
+        ],
+        "results": [
+          {
+            "mode": "performance",
+            "repeat": 0,
+            "iterations": 371,
+            "seconds": 15.014,
+            "iterations_per_second": 24.71027,
+            "cpu_mhz": 62.5,
+            "cycles": 938375360,
+            "retired_instructions": 94603352,
+            "cpi": 9.919049802801913,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 371\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15014\nTotal time (secs): 15.014000\nIterations/Sec   : 24.710270\nIterations       : 371\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x9e6d\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 24.710270 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x0000000037ee78c0\nTimed retired instructions: 0x0000000005a38858\nS32_BAREMETAL_DONE:0"
+          },
+          {
+            "mode": "performance",
+            "repeat": 1,
+            "iterations": 371,
+            "seconds": 15.014,
+            "iterations_per_second": 24.71027,
+            "cpu_mhz": 62.5,
+            "cycles": 938375700,
+            "retired_instructions": 94603352,
+            "cpi": 9.919053396754906,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 371\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15014\nTotal time (secs): 15.014000\nIterations/Sec   : 24.710270\nIterations       : 371\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x9e6d\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 24.710270 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x0000000037ee7a14\nTimed retired instructions: 0x0000000005a38858\nS32_BAREMETAL_DONE:0"
+          },
+          {
+            "mode": "performance",
+            "repeat": 2,
+            "iterations": 371,
+            "seconds": 15.014,
+            "iterations_per_second": 24.71027,
+            "cpu_mhz": 62.5,
+            "cycles": 938376115,
+            "retired_instructions": 94603352,
+            "cpi": 9.919057783491647,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 371\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15014\nTotal time (secs): 15.014000\nIterations/Sec   : 24.710270\nIterations       : 371\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x9e6d\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 24.710270 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x0000000037ee7bb3\nTimed retired instructions: 0x0000000005a38858\nS32_BAREMETAL_DONE:0"
+          },
+          {
+            "mode": "validation",
+            "repeat": 3,
+            "iterations": 371,
+            "seconds": 15.001,
+            "iterations_per_second": 24.731685,
+            "cpu_mhz": 62.5,
+            "cycles": 937613672,
+            "retired_instructions": 94402403,
+            "cpi": 9.932095393800516,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: v 371\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15001\nTotal time (secs): 15.001000\nIterations/Sec   : 24.731685\nIterations       : 371\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0xb637\nCorrect operation validated. See README.md for run and reporting rules.\nTimed CPU cycles: 0x0000000037e2d968\nTimed retired instructions: 0x0000000005a07763\nS32_BAREMETAL_DONE:0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bothcache62-linux",
+      "cpu_hz": 62500000,
+      "kernel_hz": 25,
+      "icache_bytes": 4096,
+      "dcache_bytes": 4096,
+      "cache_placement": "serialized bridge",
+      "coremark": 0.365751,
+      "coremark_per_mhz": 0.005852016,
+      "measurement": [
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 0,
+          "seconds": 27.341,
+          "iterations_per_second": 0.365751,
+          "iterations": 10,
+          "cpu_mhz": 62.5,
+          "coremark_per_mhz": 0.005852016,
+          "validated": true,
+          "output": "/tmp/coremark-o3 0 0 0x66 0 7 1; echo S32_COREMARK_DONE_0:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 27341\nTotal time (secs): 27.341000\nIterations/Sec   : 0.365751\nIterations       : 10\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xfcaf\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.365751 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_0:0"
+        },
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 1,
+          "seconds": 27.341,
+          "iterations_per_second": 0.365751,
+          "iterations": 10,
+          "cpu_mhz": 62.5,
+          "coremark_per_mhz": 0.005852016,
+          "validated": true,
+          "output": "/tmp/coremark-o3 0 0 0x66 0 7 1; echo S32_COREMARK_DONE_1:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 27341\nTotal time (secs): 27.341000\nIterations/Sec   : 0.365751\nIterations       : 10\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xfcaf\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.365751 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_1:0"
+        },
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 2,
+          "seconds": 27.341,
+          "iterations_per_second": 0.365751,
+          "iterations": 10,
+          "cpu_mhz": 62.5,
+          "coremark_per_mhz": 0.005852016,
+          "validated": true,
+          "output": "/tmp/coremark-o3 0 0 0x66 0 7 1; echo S32_COREMARK_DONE_2:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 27341\nTotal time (secs): 27.341000\nIterations/Sec   : 0.365751\nIterations       : 10\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xfcaf\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.365751 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_2:0"
+        },
+        {
+          "optimization": "o3",
+          "mode": "validation",
+          "repeat": 0,
+          "seconds": 27.737,
+          "iterations_per_second": 0.360529,
+          "iterations": 10,
+          "cpu_mhz": 62.5,
+          "coremark_per_mhz": 0.005768464,
+          "validated": true,
+          "output": "/tmp/coremark-o3 0x3415 0x3415 0x66 0 7 1; echo S32_COREMARK_DONE_3:$?\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 27737\nTotal time (secs): 27.737000\nIterations/Sec   : 0.360529\nIterations       : 10\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0xc64e\nCorrect operation validated. See README.md for run and reporting rules.\nS32_COREMARK_DONE_3:0"
+        }
+      ]
+    },
+    {
+      "name": "bram50",
+      "cpu_hz": 50000000,
+      "memory": "128 KiB physical synchronous dual-port BRAM; all code/data/BSS/stack",
+      "environment": "bare-metal",
+      "icache_bytes": 0,
+      "dcache_bytes": 0,
+      "iterative_muldiv": true,
+      "fast_multiply": false,
+      "bitstream": "build/bram-coremark/board/synapse32_bram_coremark.bit",
+      "bitstream_sha256": "5d52592c6b29beae129e7606a2b8d5c15bdab407e7133b93ba533e9746ef9eb6",
+      "setup_wns_ns": 0.994,
+      "hold_whs_ns": 0.034,
+      "bram36_tiles": 32,
+      "coremark": 52.172175,
+      "coremark_per_mhz": 1.0434435,
+      "median_cpi": 3.758463446456489,
+      "measurement": {
+        "metadata": {
+          "cpu_mhz": 50.0,
+          "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+          "payload_sha256": "09c650b1a4b6653d9af761b29873b6c45086ab8da06b3b2a0d18230fdb6f0aed",
+          "timer_selftest_host_seconds": 1.999457270023413,
+          "timer_selftest_cycles": 100000030
+        },
+        "pilots": [
+          {
+            "mode": "performance",
+            "seconds": 0.958,
+            "iterations": 50,
+            "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 958\nTotal time (secs): 0.958000\nIterations/Sec   : 52.192067\nERROR! Must execute for at least 10 secs for a valid result!\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nErrors detected\nTimed CPU cycles: 0x0000000002db3406\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0"
+          }
+        ],
+        "results": [
+          {
+            "mode": "performance",
+            "repeat": 0,
+            "iterations": 783,
+            "seconds": 15.008,
+            "iterations_per_second": 52.172175,
+            "cpu_mhz": 50.0,
+            "cycles": 750418822,
+            "retired_instructions": 199661067,
+            "cpi": 3.758463446456489,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 783\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15008\nTotal time (secs): 15.008000\nIterations/Sec   : 52.172175\nIterations       : 783\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x81c9\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 52.172175 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x000000002cba7b86\nTimed retired instructions: 0x000000000be6960b\nS32_BAREMETAL_DONE:0"
+          },
+          {
+            "mode": "performance",
+            "repeat": 1,
+            "iterations": 783,
+            "seconds": 15.008,
+            "iterations_per_second": 52.172175,
+            "cpu_mhz": 50.0,
+            "cycles": 750418822,
+            "retired_instructions": 199661067,
+            "cpi": 3.758463446456489,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 783\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15008\nTotal time (secs): 15.008000\nIterations/Sec   : 52.172175\nIterations       : 783\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x81c9\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 52.172175 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x000000002cba7b86\nTimed retired instructions: 0x000000000be6960b\nS32_BAREMETAL_DONE:0"
+          },
+          {
+            "mode": "performance",
+            "repeat": 2,
+            "iterations": 783,
+            "seconds": 15.008,
+            "iterations_per_second": 52.172175,
+            "cpu_mhz": 50.0,
+            "cycles": 750418822,
+            "retired_instructions": 199661067,
+            "cpi": 3.758463446456489,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 783\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15008\nTotal time (secs): 15.008000\nIterations/Sec   : 52.172175\nIterations       : 783\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x81c9\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 52.172175 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x000000002cba7b86\nTimed retired instructions: 0x000000000be6960b\nS32_BAREMETAL_DONE:0"
+          },
+          {
+            "mode": "validation",
+            "repeat": 3,
+            "iterations": 783,
+            "seconds": 14.998,
+            "iterations_per_second": 52.206961,
+            "cpu_mhz": 50.0,
+            "cycles": 749947060,
+            "retired_instructions": 199236921,
+            "cpi": 3.7640968161719384,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: v 783\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 14998\nTotal time (secs): 14.998000\nIterations/Sec   : 52.206961\nIterations       : 783\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x83f7\nCorrect operation validated. See README.md for run and reporting rules.\nTimed CPU cycles: 0x000000002cb348b4\nTimed retired instructions: 0x000000000be01d39\nS32_BAREMETAL_DONE:0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fast-l1-50-lutram",
+      "cpu_hz": 50000000,
+      "memory": "external DDR3",
+      "environment": "bare-metal profiled port",
+      "icache_bytes": 4096,
+      "dcache_bytes": 4096,
+      "cache_placement": "independent local synchronous L1 ports",
+      "cache_storage": "LUTRAM (prior to BRAM inference correction)",
+      "store_buffer_depth": 0,
+      "iterative_muldiv": true,
+      "fast_multiply": false,
+      "bitstream": "build/performance/fast-l1-50/synapse32_fast-l1-50.bit",
+      "bitstream_sha256": "8742e632001259e2ccb36e84862c39025daa790e93d817e1e8605bba4b1baa00",
+      "setup_wns_ns": 0.502,
+      "hold_whs_ns": 0.057,
+      "bram36_tiles": 0,
+      "coremark": 40.117286,
+      "coremark_per_mhz": 0.80234572,
+      "median_cpi": 4.887823903002723,
+      "measurement": {
+        "metadata": {
+          "cpu_mhz": 50.0,
+          "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+          "payload_sha256": "bc0b0bd9e48d6559d6883b28fb74c47178fd98aee26f3885c32b83995651f0cc",
+          "timer_selftest_host_seconds": 1.999654364073649,
+          "timer_selftest_cycles": 100000000
+        },
+        "pilots": [
+          {
+            "mode": "performance",
+            "seconds": 1.246,
+            "iterations": 50,
+            "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 1246\nTotal time (secs): 1.246000\nIterations/Sec   : 40.128411\nERROR! Must execute for at least 10 secs for a valid result!\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nErrors detected\nS32_PERF clock: 0x0000000003b717c3\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x0000000001f4325f\nS32_PERF data_wait: 0x0000000000f3f6dd\nS32_PERF muldiv_wait: 0x0000000000ee6038\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000001cd1138\nS32_PERF icache_miss: 0x0000000000003c48\nS32_PERF dcache_hit: 0x0000000000292513\nS32_PERF dcache_miss: 0x00000000000028a4\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000b7c7f\nS32_PERF axi_write_wait: 0x0000000000a5f5fe\nS32_PERF store_queue_stall: 0x0000000000000000\nS32_PERF store_enqueued: 0x0000000000000000\nTimed CPU cycles: 0x0000000003b70f91\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0"
+          }
+        ],
+        "results": [
+          {
+            "mode": "performance",
+            "repeat": 0,
+            "iterations": 602,
+            "seconds": 15.006,
+            "iterations_per_second": 40.117286,
+            "cpu_mhz": 50.0,
+            "cycles": 750314744,
+            "retired_instructions": 153506990,
+            "cpi": 4.887821355887442,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 602\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15006\nTotal time (secs): 15.006000\nIterations/Sec   : 40.117286\nIterations       : 602\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x77f0\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 40.117286 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x000000002cb8ed28\nS32_PERF retired: 0x0000000009265535\nS32_PERF fetch_wait: 0x0000000017849071\nS32_PERF data_wait: 0x000000000b782cd2\nS32_PERF muldiv_wait: 0x000000000b360b98\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000015aed91d\nS32_PERF icache_miss: 0x000000000002cbc8\nS32_PERF dcache_hit: 0x0000000001ef60c1\nS32_PERF dcache_miss: 0x000000000001e498\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x000000000088a92e\nS32_PERF axi_write_wait: 0x0000000007cdf733\nS32_PERF store_queue_stall: 0x0000000000000000\nS32_PERF store_enqueued: 0x0000000000000000\nTimed CPU cycles: 0x000000002cb8e4f8\nTimed retired instructions: 0x00000000092654ae\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 750316840,
+              "retired": 153507125,
+              "fetch_wait": 394563697,
+              "data_wait": 192425170,
+              "muldiv_wait": 188091288,
+              "fence_wait": 0,
+              "icache_hit": 363780381,
+              "icache_miss": 183240,
+              "dcache_hit": 32465089,
+              "dcache_miss": 124056,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 8956206,
+              "axi_write_wait": 130938675,
+              "store_queue_stall": 0,
+              "store_enqueued": 0
+            }
+          },
+          {
+            "mode": "performance",
+            "repeat": 1,
+            "iterations": 602,
+            "seconds": 15.006,
+            "iterations_per_second": 40.117286,
+            "cpu_mhz": 50.0,
+            "cycles": 750315135,
+            "retired_instructions": 153506990,
+            "cpi": 4.887823903002723,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 602\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15006\nTotal time (secs): 15.006000\nIterations/Sec   : 40.117286\nIterations       : 602\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x77f0\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 40.117286 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x000000002cb8eea6\nS32_PERF retired: 0x0000000009265535\nS32_PERF fetch_wait: 0x0000000017848e9d\nS32_PERF data_wait: 0x000000000b783004\nS32_PERF muldiv_wait: 0x000000000b360b98\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000015aedb24\nS32_PERF icache_miss: 0x000000000002cbc8\nS32_PERF dcache_hit: 0x0000000001ef60c4\nS32_PERF dcache_miss: 0x000000000001e495\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x000000000088a8fb\nS32_PERF axi_write_wait: 0x0000000007cdfaaf\nS32_PERF store_queue_stall: 0x0000000000000000\nS32_PERF store_enqueued: 0x0000000000000000\nTimed CPU cycles: 0x000000002cb8e67f\nTimed retired instructions: 0x00000000092654ae\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 750317222,
+              "retired": 153507125,
+              "fetch_wait": 394563229,
+              "data_wait": 192425988,
+              "muldiv_wait": 188091288,
+              "fence_wait": 0,
+              "icache_hit": 363780900,
+              "icache_miss": 183240,
+              "dcache_hit": 32465092,
+              "dcache_miss": 124053,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 8956155,
+              "axi_write_wait": 130939567,
+              "store_queue_stall": 0,
+              "store_enqueued": 0
+            }
+          },
+          {
+            "mode": "performance",
+            "repeat": 2,
+            "iterations": 602,
+            "seconds": 15.006,
+            "iterations_per_second": 40.117286,
+            "cpu_mhz": 50.0,
+            "cycles": 750315140,
+            "retired_instructions": 153506990,
+            "cpi": 4.88782393557453,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 602\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15006\nTotal time (secs): 15.006000\nIterations/Sec   : 40.117286\nIterations       : 602\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x77f0\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 40.117286 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x000000002cb8eeb2\nS32_PERF retired: 0x0000000009265535\nS32_PERF fetch_wait: 0x0000000017849386\nS32_PERF data_wait: 0x000000000b782c24\nS32_PERF muldiv_wait: 0x000000000b360b98\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000015aed8b4\nS32_PERF icache_miss: 0x000000000002cbc8\nS32_PERF dcache_hit: 0x0000000001ef60c4\nS32_PERF dcache_miss: 0x000000000001e495\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x000000000088a7f7\nS32_PERF axi_write_wait: 0x0000000007cdf7c9\nS32_PERF store_queue_stall: 0x0000000000000000\nS32_PERF store_enqueued: 0x0000000000000000\nTimed CPU cycles: 0x000000002cb8e684\nTimed retired instructions: 0x00000000092654ae\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 750317234,
+              "retired": 153507125,
+              "fetch_wait": 394564486,
+              "data_wait": 192424996,
+              "muldiv_wait": 188091288,
+              "fence_wait": 0,
+              "icache_hit": 363780276,
+              "icache_miss": 183240,
+              "dcache_hit": 32465092,
+              "dcache_miss": 124053,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 8955895,
+              "axi_write_wait": 130938825,
+              "store_queue_stall": 0,
+              "store_enqueued": 0
+            }
+          },
+          {
+            "mode": "validation",
+            "repeat": 3,
+            "iterations": 602,
+            "seconds": 15.02,
+            "iterations_per_second": 40.079893,
+            "cpu_mhz": 50.0,
+            "cycles": 751049328,
+            "retired_instructions": 153180827,
+            "cpi": 4.903024371320309,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: v 602\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15020\nTotal time (secs): 15.020000\nIterations/Sec   : 40.079893\nIterations       : 602\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x7d71\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x000000002cc42299\nS32_PERF retired: 0x0000000009215b22\nS32_PERF fetch_wait: 0x00000000178c5e56\nS32_PERF data_wait: 0x000000000b88d6ea\nS32_PERF muldiv_wait: 0x000000000b360b98\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000015b2e1a2\nS32_PERF icache_miss: 0x000000000002d52c\nS32_PERF dcache_hit: 0x0000000001f26219\nS32_PERF dcache_miss: 0x000000000002e742\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x0000000000a7348d\nS32_PERF axi_write_wait: 0x0000000007bdb738\nS32_PERF store_queue_stall: 0x0000000000000000\nS32_PERF store_enqueued: 0x0000000000000000\nTimed CPU cycles: 0x000000002cc41a70\nTimed retired instructions: 0x0000000009215a9b\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 751051417,
+              "retired": 153180962,
+              "fetch_wait": 395075158,
+              "data_wait": 193517290,
+              "muldiv_wait": 188091288,
+              "fence_wait": 0,
+              "icache_hit": 364044706,
+              "icache_miss": 185644,
+              "dcache_hit": 32662041,
+              "dcache_miss": 190274,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 10957965,
+              "axi_write_wait": 129873720,
+              "store_queue_stall": 0,
+              "store_enqueued": 0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

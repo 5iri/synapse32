@@ -54,7 +54,7 @@ close $stream
 set rtl_files [glob "$repo/rtl/*.v" "$repo/rtl/core_modules/*.v" "$repo/rtl/pipeline_stages/*.v" "$repo/rtl/mmu/*.v"]
 add_files -norecurse $rtl_files
 set_property file_type SystemVerilog [get_files $rtl_files]
-add_files -norecurse [list "$here/axi_word_bridge.sv" "$here/sv32_bus_port.sv" "$here/uart_boot_loader.sv" "$here/synapse_ddr3_system.sv" "$here/arty_ddr3_top.sv"]
+add_files -norecurse [list "$here/axi_word_bridge.sv" "$here/physical_l1_cache.sv" "$here/ordered_write_buffer.sv" "$here/fpga_perf_counters.sv" "$here/sv32_bus_port.sv" "$here/uart_boot_loader.sv" "$here/synapse_ddr3_system.sv" "$here/arty_ddr3_top.sv"]
 set_property file_type Verilog [get_files "$here/arty_ddr3_top.sv"]
 set_property include_dirs [list "$repo/rtl/include"] [get_filesets sources_1]
 set_property top arty_ddr3_top [get_filesets sources_1]

@@ -6,7 +6,7 @@ BOOT_BAUD ?= 1000000
 IMAGE ?= build/linux-image/fw_payload.bin
 UART_LOG ?= build/hardware-uart.log
 
-.PHONY: bitstream linux llvm-toolchain program upload test-board test test-phy test-linux test-core triangulator deploy-triangulator visualizer test-triangulator coremark
+.PHONY: bitstream performance-bitstream linux llvm-toolchain program upload test-board test test-phy test-linux test-core test-l1 test-store-buffer test-posted-stores test-perf-counters test-bram-coremark test-coremark-axi triangulator deploy-triangulator visualizer test-triangulator coremark coremark-baremetal coremark-profile coremark-linux-profiler
 triangulator:
 	bash triangulator/build.sh
 deploy-triangulator: triangulator
@@ -20,8 +20,16 @@ test-triangulator:
 	$(PYTHON_RUN) triangulator/test_uart_link.py
 coremark:
 	bash coremark/build.sh
+coremark-baremetal:
+	bash coremark/build_baremetal.sh
+coremark-profile:
+	bash coremark/build_profile.sh
+coremark-linux-profiler:
+	bash coremark/build_linux_profiler.sh
 bitstream:
 	$(VIVADO) -mode batch -source build_bitstream.tcl
+performance-bitstream:
+	$(VIVADO) -mode batch -source build_performance.tcl
 linux:
 	bash build_linux.sh
 llvm-toolchain:
@@ -34,12 +42,27 @@ test-board:
 	$(PYTHON_RUN) test_board.py $(PORT) $(IMAGE) --baud $(BOOT_BAUD)
 test:
 	bash test_dcache.sh
+	bash test_fast_l1.sh
+	bash test_write_buffer.sh
+	bash test_posted_stores.sh
+	bash test_perf_counters.sh
 	bash test_axi.sh
-	verilator --binary --timing -Wno-fatal -j 4 -I../../rtl/include --top-module tb_muldiv --Mdir build/obj_muldiv tests/tb_muldiv.sv ../../rtl/core_modules/iterative_muldiv.v > build/muldiv-compile.log 2>&1
-	build/obj_muldiv/Vtb_muldiv
+	for fast in 0 1; do verilator --binary --timing -Wno-fatal -j 4 -I../../rtl/include --top-module tb_muldiv -GFAST_MULTIPLY=$$fast --Mdir build/obj_muldiv_fast$$fast tests/tb_muldiv.sv ../../rtl/core_modules/iterative_muldiv.v > build/muldiv-fast$$fast-compile.log 2>&1 && build/obj_muldiv_fast$$fast/Vtb_muldiv || exit $$?; done
 	$(PYTHON_RUN) tests/test_sv32_bus.py
 	$(PYTHON_RUN) tests/test_tlb_bus.py
 	$(PYTHON_RUN) tests/test_uart_loader.py
+test-l1:
+	bash test_fast_l1.sh
+test-store-buffer:
+	bash test_write_buffer.sh
+test-posted-stores:
+	bash test_posted_stores.sh
+test-perf-counters:
+	bash test_perf_counters.sh
+test-bram-coremark:
+	bash test_bram_coremark.sh
+test-coremark-axi:
+	bash test_coremark_axi.sh
 test-phy:
 	bash simulate.sh
 test-linux:
