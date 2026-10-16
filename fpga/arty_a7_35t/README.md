@@ -1,6 +1,6 @@
 # Synapse32 on Arty A7-35T
 
-This target adds DDR3, an uncached sequential Sv32 walker, a 50 MHz CPU clock,
+This target adds DDR3, a sequential Sv32 walker with upstream TLBs, a 50 MHz CPU clock,
 an AXI clock converter, iterative RV32M, and a UART loader to upstream Synapse32.
 The board is the **Digilent Arty A7-35T, xc7a35ticsg324-1L**, with its 256 MiB DDR3.
 Other boards require a new MIG configuration, clocking and pin constraints.
@@ -167,7 +167,12 @@ bitstreams, Linux images and full UART logs live in ignored `build/` directories
 Sv32 walks fetch PTEs through the same DDR arbiter as normal memory accesses.
 Both 4 KiB pages and 4 MiB superpages are supported, with U/S, SUM/MXR and
 read/write/execute checks. Clear A/D bits cause page faults (Svade behavior).
-There is no TLB or cache; SFENCE.VMA has no cached translations to invalidate,
+Instruction and data ports each reuse the unmodified upstream eight-entry
+`sv32_tlb` module. Hits skip the DDR page-table walk and recheck privilege,
+SUM/MXR and A/D permissions. SFENCE.VMA and writes to satp flush both TLBs;
+any satp change, including an ASID-only change, also invalidates them. A flush
+during a walk prevents a stale refill, and pre-fence instruction responses are
+discarded even when the PC is unchanged. There are no instruction/data caches,
 and FENCE.I observes stores in the shared RAM. Redirected fetches cannot return
 an old PC/context as a current instruction. Addresses above 4 GiB are rejected.
 Unexpected physical addresses or failed AXI responses latch a fabric fault and
@@ -204,7 +209,7 @@ preserves pending bits absent from the CSR operand; repeated physical-board
 commands now succeed, including after a one-minute idle period. See the
 validation notes for the interrupt capture and remaining runtime limitations.
 
-The CPU and walker intentionally issue one outstanding access at a time. This
+The CPU and walker issue one outstanding access at a time. This
 keeps the A7-35T implementation small but makes Linux substantially slower than
 a cached core. This target has no persistent storage or network peripheral;
 the root filesystem is the embedded initramfs.

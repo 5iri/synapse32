@@ -11,7 +11,7 @@ from cocotb_test.simulator import run
 async def walks_and_faults(d):
     if os.environ.get('FETCH')=='1': return
     cocotb.start_soon(Clock(d.clk, 10, units="ns").start())
-    for name in ['req','we','write_intent','translate','sum','mxr','bus_gnt','bus_done','bus_error']:
+    for name in ['req','we','write_intent','translate','sum','mxr','bus_gnt','bus_done','bus_error','flush_tlb']:
         getattr(d,name).value=0
     d.rst.value=1;d.va.value=0;d.satp.value=0;d.wdata.value=0;d.privilege.value=3
     d.be.value=15;d.load_type.value=2;d.bus_rdata.value=0
@@ -35,6 +35,10 @@ async def walks_and_faults(d):
     root_entry=root+4*(va>>22);leaf_entry=table+4*((va>>12)&1023)
     memory[pa]=0x87654380
     async def access(*,paged=True,write=False,priv=1,sum_=0,mxr=0,kind=2,fault=False,value=None,satp=None):
+        # These cases exercise the walker after editing PTEs. Cached hits and
+        # permission changes without a fence are covered by test_tlb_bus.py.
+        await FallingEdge(d.clk);d.flush_tlb.value=1
+        await FallingEdge(d.clk);d.flush_tlb.value=0
         await FallingEdge(d.clk)
         d.va.value=va;d.satp.value=satp if satp is not None else 0x80000000|(root>>12);d.translate.value=paged
         d.privilege.value=priv;d.sum.value=sum_;d.mxr.value=mxr;d.we.value=write
@@ -86,7 +90,7 @@ async def walks_and_faults(d):
 async def execute_permissions_and_redirects(d):
     if os.environ.get('FETCH')!='1': return
     cocotb.start_soon(Clock(d.clk,10,units='ns').start())
-    for name in ['req','we','write_intent','sum','mxr','bus_gnt','bus_done','bus_error']:
+    for name in ['req','we','write_intent','sum','mxr','bus_gnt','bus_done','bus_error','flush_tlb']:
         getattr(d,name).value=0
     d.rst.value=1;d.va.value=0x40001000;d.satp.value=0x80080010
     d.wdata.value=0;d.be.value=0;d.load_type.value=2;d.translate.value=1
@@ -107,6 +111,8 @@ async def execute_permissions_and_redirects(d):
                 await FallingEdge(d.clk);d.bus_done.value=0
     cocotb.start_soon(bus())
     async def access(priv,expected_fault):
+        await FallingEdge(d.clk);d.flush_tlb.value=1
+        await FallingEdge(d.clk);d.flush_tlb.value=0
         await FallingEdge(d.clk);d.req.value=1;d.privilege.value=priv
         for _ in range(100):
             await Timer(1,units='ns')
@@ -128,6 +134,8 @@ async def execute_permissions_and_redirects(d):
     flags=0x59 # user execute
     d.sum.value=1;await access(1,True) # SUM never permits S-mode execute on U pages
     await access(0,False)
+    await FallingEdge(d.clk);d.flush_tlb.value=1
+    await FallingEdge(d.clk);d.flush_tlb.value=0
     flags=0x49;d.privilege.value=1;d.req.value=1
     for _ in range(100):
         await Timer(1,units='ns')
@@ -143,7 +151,7 @@ async def execute_permissions_and_redirects(d):
 if __name__=='__main__':
     here=Path(__file__).resolve().parent;repo=here.parents[2]
     for fetch in [0,1]:
-        run(verilog_sources=[str(here.parent/'sv32_bus_port.sv')],includes=[str(repo/'rtl/include')],
+        run(verilog_sources=[str(here.parent/'sv32_bus_port.sv'),str(repo/'rtl/mmu/sv32_tlb.v')],includes=[str(repo/'rtl/include')],
             toplevel='sv32_bus_port',module='test_sv32_bus',simulator='verilator',parameters={'FETCH':fetch},
             extra_env={'FETCH':str(fetch)},sim_build=str(here.parent/f'build/test_sv32_bus_{fetch}'),
             extra_args=['-Wno-fatal'],python_search=[str(here)])

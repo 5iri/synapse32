@@ -30,7 +30,7 @@ module synapse_ddr3_system #(
     wire cpu_rst=rst||!booted||fault;
     assign core_enable=!cpu_rst;
     wire [31:0] instr, cpu_data, rd_addr, wr_addr, wr_data, satp;
-    wire rd_en, wr_en, write_intent, immu, dmmu, sum, mxr;
+    wire rd_en, wr_en, write_intent, immu, dmmu, sum, mxr, tlb_flush;
     wire [3:0] be;
     wire [2:0] load_type;
     wire [1:0] ipriv, dpriv;
@@ -50,6 +50,7 @@ module synapse_ddr3_system #(
         .module_store_page_fault_in(dfault&&write_intent),
         .module_page_fault_addr_in(wr_en ? wr_addr : rd_addr),
         .module_data_write_intent_out(write_intent),
+        .module_tlb_flush_out(tlb_flush),
         .module_data_mmu_enable_out(dmmu),.module_data_privilege_out(dpriv),
         .module_satp_out(satp),.module_data_sum_out(sum),.module_data_mxr_out(mxr),
         .module_instr_mmu_enable_out(immu),.module_instr_privilege_out(ipriv),
@@ -61,7 +62,8 @@ module synapse_ddr3_system #(
     wire [31:0] bus_result;
     wire bus_error;
     sv32_bus_port #(.FETCH(1)) instr_port (
-        .clk(clk),.rst(cpu_rst),.req(!cpu_rst),.we(1'b0),.write_intent(1'b0),
+        .clk(clk),.rst(cpu_rst),.flush_tlb(tlb_flush),
+        .req(!cpu_rst),.we(1'b0),.write_intent(1'b0),
         .translate(immu),.va(pc_debug),.satp(satp),.wdata(32'b0),
         .privilege(ipriv),.sum(1'b0),.mxr(1'b0),.be(4'b0),.load_type(3'b010),
         .gnt(ignt),.rvalid(ivalid),.page_fault(ifault),.rdata(instr),
@@ -70,7 +72,8 @@ module synapse_ddr3_system #(
         .fatal_error(ifatal)
     );
     sv32_bus_port data_port (
-        .clk(clk),.rst(cpu_rst),.req(rd_en||wr_en),.we(wr_en),.write_intent(write_intent),
+        .clk(clk),.rst(cpu_rst),.flush_tlb(tlb_flush),
+        .req(rd_en||wr_en),.we(wr_en),.write_intent(write_intent),
         .translate(dmmu),.va(wr_en ? wr_addr : rd_addr),.satp(satp),.wdata(wr_data),
         .privilege(dpriv),.sum(sum),.mxr(mxr),.be(be),.load_type(load_type),
         .gnt(dgnt),.rvalid(dvalid),.page_fault(dfault),.rdata(cpu_data),

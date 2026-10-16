@@ -236,3 +236,46 @@ integration and a newer kernel require separate implementation and hardware
 validation. The earlier BLAKE2s warning and unresolved historical LED3 fault
 limitations above remain applicable. Compilation currently uses the laptop's
 cross toolchain; a native compiler is not installed in the FPGA Linux image.
+
+### Upstream TLB integration (2026-10-16)
+
+The board's instruction and data ports now instantiate the unmodified upstream
+`rtl/mmu/sv32_tlb.v`, eight entries per port. Permission checks still run on
+every hit. The CPU's SFENCE.VMA/satp-write pulse invalidates both instances;
+the adapter also detects all satp changes, including ASID-only changes.
+Invalidation during a walk prevents stale refills and discards pre-fence
+instruction responses even when the PC does not change. No instruction/data
+cache is included in this change.
+
+All eight TLB adapter cases pass across fetch/data configurations, checking
+4 KiB and 4 MiB hits, root/ASID changes, bare-mode bypass, fault retries,
+live privilege/SUM/MXR/D-bit checks, cached stores and fences during a delayed
+leaf response. Bus traces require three physical reads for a cold 4 KiB access
+and exactly one on a hit. The existing walker/redirect tests, three AXI smoke
+and error configurations, and four core regression runners pass as well.
+
+The next bitstream is `build/board/synapse32_linux_tlb.bit`. Vivado 2024.2
+completed synthesis and routing, then passed setup/hold timing (WNS +0.688 ns,
+WHS +0.051 ns), DRC, critical-CDC and AXI bus-skew checks. Utilization is
+12,724 LUTs (61.17%) and 10,062 registers (24.19%). Reports are named
+`build/board/tlb-*.rpt`; the full build log is `build/board/tlb-build.log`.
+The existing duplicate 100 MHz input-clock definition still produces synthesis
+warning Constraints 18-1056; both definitions specify the same 10 ns period,
+and the final routed timing constraints pass.
+
+```text
+18d6f26367de347e0c90dfafd9af64fdf0b6679eb83f999505dd9c16910d81f9  synapse32_linux_tlb.bit
+```
+
+The default `build/board/synapse32_linux.bit` is a copy of this TLB image.
+The preceding physically verified image remains `synapse32_linux_synced.bit`.
+
+The Linux payload is unchanged from the preceding acceptance. This bitstream
+has not been programmed or benchmarked on physical hardware: the board was
+disconnected during this build. Test logs are `build/tlb-bus.log`,
+`build/tlb-walker-regression.log`, `build/tlb-axi-regression.log` and
+`build/tlb-core-regression.log`. Full SoC Linux simulation is recorded in
+`build/tlb-linux-sim.log`: it booted to a BusyBox shell and executed
+`echo FPGA_BOOT_OK` through the UART in 878,670,086 simulated CPU cycles.
+This run models byte-accurate AXI RAM, not the DDR PHY or USB upload, and does
+not establish physical-board boot time or triangulator throughput.
