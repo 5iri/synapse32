@@ -1,0 +1,26 @@
+[
+  {
+    "optimization": "o3",
+    "mode": "performance",
+    "repeat": 0,
+    "seconds": 171.609,
+    "iterations_per_second": 0.058272,
+    "iterations": 10,
+    "cpu_mhz": 62.5,
+    "coremark_per_mhz": 0.000932352,
+    "validated": true,
+    "output": "/tmp/coremark-o3 0 0 0x66 10 7 1; echo S32_COREMARK_DONE_0:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 171609\nTotal time (secs): 171.609000\nIterations/Sec   : 0.058272\nIterations       : 10\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xfcaf\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.058272 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_0:0"
+  },
+  {
+    "optimization": "o3",
+    "mode": "validation",
+    "repeat": 0,
+    "seconds": 174.186,
+    "iterations_per_second": 0.05741,
+    "iterations": 10,
+    "cpu_mhz": 62.5,
+    "coremark_per_mhz": 0.00091856,
+    "validated": true,
+    "output": "/tmp/coremark-o3 0x3415 0x3415 0x66 10 7 1; echo S32_COREMARK_DONE_1:$?\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 174186\nTotal time (secs): 174.186000\nIterations/Sec   : 0.057410\nIterations       : 10\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0xc64e\nCorrect operation validated. See README.md for run and reporting rules.\nS32_COREMARK_DONE_1:0"
+  }
+]

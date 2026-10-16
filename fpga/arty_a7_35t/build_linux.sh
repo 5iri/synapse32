@@ -7,8 +7,19 @@ export OPENSBI_DIR="${OPENSBI_DIR:-$here/build/opensbi}"
 export BUSYBOX_DIR="${BUSYBOX_DIR:-$here/build/busybox}"
 export PLATFORM_RISCV_ISA=rv32ima_zicsr_zifencei
 export KERNEL_MARCH=rv32ima_zicsr_zifencei
-# 100 Hz starves startup on the uncached DDR CPU; 12 Hz boots on hardware.
-export KERNEL_HZ="${KERNEL_HZ:-12}"
+# TLB hardware tests select 25 Hz as a throughput/latency compromise.
+# 12 Hz remains available for maximum throughput or uncached bring-up.
+export KERNEL_HZ="${KERNEL_HZ:-25}"
+# Match arty_linux_top's 1 GHz VCO/output divider, including UART and mtime.
+cpu_divide="${CPU_DIVIDE:-20}"
+case "$cpu_divide" in ''|*[!0-9]*) echo 'CPU_DIVIDE must be an integer in 1..128' >&2; exit 1;; esac
+test "$cpu_divide" -ge 1 && test "$cpu_divide" -le 128 || { echo 'CPU_DIVIDE must be in 1..128' >&2; exit 1; }
+cpu_clock=$(((1000000000+cpu_divide/2)/cpu_divide))
+if [ -z "${DEVICE_TREE:-}" ]; then
+    mkdir -p "$LINUX_OUT_DIR"
+    export DEVICE_TREE="$LINUX_OUT_DIR/synapse32-clock.dts"
+    sed "s/<50000000>/<${cpu_clock}>/g" "$here/../../sim/synapse32.dts" > "$DEVICE_TREE"
+fi
 # RV32 Linux requires a 4 MiB aligned kernel entry (Documentation/riscv/boot.rst).
 export FW_PAYLOAD_ALIGN=0x400000
 if [ "${LLVM:-}" = 1 ]; then

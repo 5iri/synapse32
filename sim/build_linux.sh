@@ -41,8 +41,8 @@ KERNEL_MARCH="${KERNEL_MARCH:-rv32ima_zicsr_zifencei_zihintpause}"
 KERNEL_MABI="${KERNEL_MABI:-ilp32}"
 KERNEL_HZ="${KERNEL_HZ:-100}"
 case "$KERNEL_HZ" in
-    12|100|250|300|1000) ;;
-    *) echo "Unsupported KERNEL_HZ=$KERNEL_HZ (choose 12, 100, 250, 300 or 1000)" >&2; exit 1 ;;
+    12|25|50|100|250|300|1000) ;;
+    *) echo "Unsupported KERNEL_HZ=$KERNEL_HZ (choose 12, 25, 50, 100, 250, 300 or 1000)" >&2; exit 1 ;;
 esac
 
 num_jobs() {
@@ -221,6 +221,10 @@ patch_linux_source() {
     if [ "$KERNEL_HZ" = 12 ] && ! grep -q 'config HZ_12' "$LINUX_DIR/kernel/Kconfig.hz"; then
         require_tool patch
         patch -d "$LINUX_DIR" -p1 < "$script_dir/linux-low-tick.patch"
+    fi
+    if { [ "$KERNEL_HZ" = 25 ] || [ "$KERNEL_HZ" = 50 ]; } && ! grep -q 'config HZ_25$' "$LINUX_DIR/kernel/Kconfig.hz"; then
+        require_tool patch
+        patch -d "$LINUX_DIR" -p1 < "$script_dir/linux-fpga-ticks.patch"
     fi
 }
 

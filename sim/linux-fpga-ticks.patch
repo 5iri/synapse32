@@ -1,0 +1,23 @@
+diff --git a/kernel/Kconfig.hz b/kernel/Kconfig.hz
+--- a/kernel/Kconfig.hz
++++ b/kernel/Kconfig.hz
+@@ -21,3 +21,13 @@ choice
++	config HZ_25
++		bool "25 HZ (FPGA throughput/latency compromise)"
++		help
++		  Timer tick every 40 milliseconds for slow FPGA CPUs.
++
++	config HZ_50
++		bool "50 HZ (FPGA throughput/latency compromise)"
++		help
++		  Timer tick every 20 milliseconds for slow FPGA CPUs.
++
+ 	config HZ_100
+ 		bool "100 HZ"
+ 	help
+@@ -53,3 +63,5 @@ config HZ
++	default 25 if HZ_25
++	default 50 if HZ_50
+ 	default 100 if HZ_100
+ 	default 250 if HZ_250
+ 	default 300 if HZ_300

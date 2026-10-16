@@ -9,6 +9,9 @@ The [triangulation visualizer](triangulator/README.md) runs a moving 2D mesh
 workload under FPGA Linux and displays its results and timing in a laptop
 browser. The Linux image includes `/bin/triangulator`; an uploader can also
 install the small executable into a Linux session already running.
+The [CoreMark workflow](coremark/README.md) builds the official integer
+benchmark for FPGA Linux; [physical performance results](coremark/RESULTS.md)
+record validated scores and the TLB comparison.
 
 The CPU sees 64 MiB of unified main RAM. A separate 1 MiB scratch region occupies
 the next MiB of physical DDR. UART, CLINT and PLIC accesses complete in the CPU
@@ -131,22 +134,52 @@ and LED3 a loader or fabric fault. On success, expect OpenSBI, Linux messages,
 
 ## Kernel timer tick
 
-The physical 100 Hz kernel starts but reports repeated soft lockups before
-userspace. The board build defaults to **12 Hz**, which reached a BusyBox shell
-and executed UART commands on hardware, while retaining the correct 50 MHz
-hardware timebase. Build it with:
+The board build defaults to **25 Hz**, selected after testing 12, 25, 50 and
+100 Hz on the TLB-equipped physical board. At 50 MHz, 25 Hz retains about 93%
+of the 12 Hz CoreMark throughput while reducing the tick interval from about
+83 ms to 40 ms. All four settings booted and passed CoreMark CRC validation;
+100 Hz roughly halved throughput. The earlier uncached build needed 12 Hz
+to avoid timer starvation. Build the current default with:
 
 ```sh
 LLVM=1 make -C fpga/arty_a7_35t linux
 ```
 
-The build applies `sim/linux-low-tick.patch` to the pinned Linux source and
-verifies the resulting configuration. The shared simulator build retains its
-100 Hz default; `KERNEL_HZ=100` overrides the board default for comparisons.
-The uncached core is slow: Linux reaches the prompt about 131 seconds after
-image acceptance. The boot-time BLAKE2s self-test can emit a soft-lockup warning,
-but startup completes. The UART test spaces input bytes by 100 ms to avoid
-overrunning this CPU; adjust `--input-delay` when investigating throughput.
+The build applies `sim/linux-fpga-ticks.patch` for 25/50 Hz or
+`sim/linux-low-tick.patch` for 12 Hz, and verifies the resulting configuration.
+The shared simulator build retains its 100 Hz default. `KERNEL_HZ=12`, `50`
+or `100` selects another board rate. The physical 50 MHz TLB build reaches
+`/init` at about 79 seconds with 12 Hz and 148 seconds with 100 Hz. See the
+[performance results](coremark/RESULTS.md) for the controlled workload tests.
+The UART test retains a conservative 100 ms input spacing by default;
+`--input-delay` can select a faster tested input rate.
+
+### CPU clock profiles
+
+The default CPU divider is 20: a 1 GHz MMCM VCO produces 50 MHz. `CPU_DIVIDE=18`
+produces about 55.56 MHz and `CPU_DIVIDE=16` produces 62.5 MHz. The DDR memory
+and reference clocks stay unchanged. The bitstream builder checks setup/hold,
+DRC, critical CDC and AXI bus skew before producing an image. The 55.56 and
+62.5 MHz builds pass these checks; the latter has only +0.010 ns setup slack.
+Physical benchmark acceptance is recorded in the results, rather than inferred
+from timing closure.
+
+Use the same divider for hardware and Linux so UART and the CLINT timebase
+match. For example, in one shell:
+
+```sh
+export CPU_DIVIDE=16 BOOT_BAUD=2000000 KERNEL_HZ=25 LLVM=1
+make -C fpga/arty_a7_35t bitstream
+make -C fpga/arty_a7_35t linux
+make -C fpga/arty_a7_35t program
+make -C fpga/arty_a7_35t test-board PORT=/dev/ttyUSB2
+```
+
+`BOOT_BAUD` controls only the payload loader; Linux still uses 115200 baud.
+The Linux builder generates a matching device tree automatically unless
+`DEVICE_TREE` is explicitly supplied. The full SoC simulator also uses
+`CPU_DIVIDE` to select its UART framing. Clear these environment overrides
+before building the conservative 50 MHz / 1 Mbaud profile.
 
 Use `make ... program` before retrying a failed upload. A fresh machine needs
 Vivado, the toolchain and build dependencies described above; generated

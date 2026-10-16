@@ -18,6 +18,15 @@ add_files -norecurse [concat $rtl $fabric]
 set_property file_type SystemVerilog [get_files [concat $rtl $fabric]]
 set_property include_dirs [list "$repo/rtl/include"] [get_filesets sources_1]
 set_property top arty_linux_top [get_filesets sources_1]
+set generics {}
+foreach name {CPU_DIVIDE BOOT_BAUD} {
+    if {[info exists ::env($name)]} {
+        if {![string is integer -strict $::env($name)] || $::env($name) <= 0} {error "$name must be a positive integer"}
+        if {$name eq "CPU_DIVIDE" && $::env($name) > 128} {error "CPU_DIVIDE must be in 1..128"}
+        lappend generics "$name=$::env($name)"
+    }
+}
+if {[llength $generics]} {set_property generic $generics [get_filesets sources_1]}
 add_files -fileset constrs_1 -norecurse "$here/arty.xdc"
 update_compile_order -fileset sources_1
 launch_runs synth_1 -jobs 4

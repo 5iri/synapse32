@@ -18,6 +18,7 @@ class FrameRateTests(unittest.TestCase):
         viewer.starting = False
         viewer.error = None
         viewer.revision = 3
+        viewer.hardware = {"cpu_mhz": 50, "kernel_hz": 12}
         with patch("viewer.time.monotonic", return_value=47.0):
             self.assertAlmostEqual(viewer.state()["fps"], 0.125)
             viewer.running = False

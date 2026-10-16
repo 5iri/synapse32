@@ -14,10 +14,11 @@ from protocol import mesh_record
 
 
 class Viewer:
-    def __init__(self, port, log, binary):
+    def __init__(self, port, log, binary, cpu_mhz=50, kernel_hz=None):
         self.writer = UartWriter(port)
         self.lines = LogLines(log)
         self.binary = binary
+        self.hardware = {"cpu_mhz": cpu_mhz, "kernel_hz": kernel_hz}
         self.lock = threading.Lock()
         self.control_lock = threading.Lock()
         self.frame = None
@@ -83,7 +84,7 @@ class Viewer:
             return {"mesh": self.frame, "fps": fps, "history": list(self.history),
                     "age": age,
                     "running": self.running, "starting": self.starting, "error": self.error,
-                    "revision": self.revision}
+                    "revision": self.revision, "hardware": self.hardware}
 
     def control(self, action, points=16):
         # A worker serializes commands so HTTP polling remains responsive.
@@ -129,10 +130,14 @@ def main():
     parser.add_argument("--http-port", type=int, default=8765)
     parser.add_argument("--start", action="store_true")
     parser.add_argument("--points", type=int, choices=(16, 32, 64), default=16)
+    parser.add_argument("--cpu-mhz", type=float, default=50, help="actual programmed CPU clock, for display")
+    parser.add_argument("--kernel-hz", type=int, choices=(12, 25, 50, 100, 250, 300, 1000), help="actual kernel tick, for display")
     args = parser.parse_args()
+    if not 0 < args.cpu_mhz <= 1000:
+        parser.error("cpu-mhz must be the actual positive hardware clock")
     if not re.fullmatch(r"/[A-Za-z0-9_./-]+", args.binary):
         parser.error("binary must be an absolute Linux path without shell characters")
-    viewer = Viewer(args.port, args.log, args.binary)
+    viewer = Viewer(args.port, args.log, args.binary, args.cpu_mhz, args.kernel_hz)
     page = Path(__file__).with_name("index.html").read_bytes()
 
     class Handler(BaseHTTPRequestHandler):

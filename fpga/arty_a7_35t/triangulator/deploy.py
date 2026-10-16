@@ -27,7 +27,8 @@ def main():
     writer = UartWriter(args.port)
     lines = LogLines(args.log)
     try:
-        writer.send(b"/bin/busybox stty -echo; echo S32_UPLOAD_READY\n")
+        writer.send(b"/bin/busybox stty -echo; read S32_UPLOAD_LOGLEVEL S32_UPLOAD_UNUSED < /proc/sys/kernel/printk; "
+                    b"/bin/busybox dmesg -n 5; echo S32_UPLOAD_READY\n")
         lines.wait(lambda line: line == "S32_UPLOAD_READY")
         writer.send(f": > {args.destination}; echo S32_UPLOAD_EMPTY\n".encode(), 0.03)
         lines.wait(lambda line: line == "S32_UPLOAD_EMPTY")
@@ -49,7 +50,8 @@ def main():
     finally:
         # Ctrl+C also escapes an incomplete here-document following an error.
         writer.send(b"\x03")
-        writer.send(b"/bin/busybox stty echo\n")
+        writer.send(b'if [ -n "${S32_UPLOAD_LOGLEVEL:-}" ]; then /bin/busybox dmesg -n "$S32_UPLOAD_LOGLEVEL"; fi; '
+                    b'unset S32_UPLOAD_LOGLEVEL S32_UPLOAD_UNUSED; /bin/busybox stty echo\n')
         writer.close()
         lines.close()
 

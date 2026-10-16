@@ -1,0 +1,50 @@
+[
+  {
+    "optimization": "o3",
+    "mode": "performance",
+    "repeat": 0,
+    "seconds": 17.166,
+    "iterations_per_second": 0.058255,
+    "iterations": 1,
+    "cpu_mhz": 62.5,
+    "coremark_per_mhz": 0.0009320800000000001,
+    "validated": true,
+    "output": "/tmp/coremark-o3 0 0 0x66 1 7 1; echo S32_COREMARK_DONE_0:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 17166\nTotal time (secs): 17.166000\nIterations/Sec   : 0.058255\nIterations       : 1\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xe714\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.058255 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_0:0"
+  },
+  {
+    "optimization": "o3",
+    "mode": "performance",
+    "repeat": 1,
+    "seconds": 17.16,
+    "iterations_per_second": 0.058275,
+    "iterations": 1,
+    "cpu_mhz": 62.5,
+    "coremark_per_mhz": 0.0009324,
+    "validated": true,
+    "output": "/tmp/coremark-o3 0 0 0x66 1 7 1; echo S32_COREMARK_DONE_1:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 17160\nTotal time (secs): 17.160000\nIterations/Sec   : 0.058275\nIterations       : 1\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xe714\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.058275 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_1:0"
+  },
+  {
+    "optimization": "o3",
+    "mode": "performance",
+    "repeat": 2,
+    "seconds": 17.158,
+    "iterations_per_second": 0.058282,
+    "iterations": 1,
+    "cpu_mhz": 62.5,
+    "coremark_per_mhz": 0.000932512,
+    "validated": true,
+    "output": "/tmp/coremark-o3 0 0 0x66 1 7 1; echo S32_COREMARK_DONE_2:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 17158\nTotal time (secs): 17.158000\nIterations/Sec   : 0.058282\nIterations       : 1\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xe714\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.058282 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_2:0"
+  },
+  {
+    "optimization": "o3",
+    "mode": "validation",
+    "repeat": 0,
+    "seconds": 17.408,
+    "iterations_per_second": 0.057445,
+    "iterations": 1,
+    "cpu_mhz": 62.5,
+    "coremark_per_mhz": 0.00091912,
+    "validated": true,
+    "output": "/tmp/coremark-o3 0x~ # /tmp/coremark-o3 0x3415 0x3415 0x66 1 7 1; echo S32_COREMARK_DONE_3:$?\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 17408\nTotal time (secs): 17.408000\nIterations/Sec   : 0.057445\nIterations       : 1\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0xe3c1\nCorrect operation validated. See README.md for run and reporting rules.\nS32_COREMARK_DONE_3:0"
+  }
+]

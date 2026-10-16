@@ -1,0 +1,26 @@
+[
+  {
+    "points": 16,
+    "matched_frames": 30,
+    "uncached_median_ms": 225.45100000000002,
+    "tlb_median_ms": 91.0485,
+    "speedup": 2.4761638028083937,
+    "received_fps": 5.438548985217345
+  },
+  {
+    "points": 32,
+    "matched_frames": 14,
+    "uncached_median_ms": 1145.7424999999998,
+    "tlb_median_ms": 452.5905,
+    "speedup": 2.5315213200453828,
+    "received_fps": 1.47354628810765
+  },
+  {
+    "points": 64,
+    "matched_frames": 10,
+    "uncached_median_ms": 8203.427,
+    "tlb_median_ms": 3334.5299999999997,
+    "speedup": 2.460144907978036,
+    "received_fps": 0.26982661646098366
+  }
+]

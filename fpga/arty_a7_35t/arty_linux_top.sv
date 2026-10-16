@@ -1,6 +1,6 @@
 `default_nettype none
 // Physical Arty A7-35T top. DDR3 pin locations are supplied by the MIG project.
-module arty_linux_top #(parameter BOOT_BAUD=1000000) (
+module arty_linux_top #(parameter BOOT_BAUD=1000000, CPU_DIVIDE=20) (
     input wire clk100, reset_n, uart_rx,
     output wire uart_tx,
     output wire [3:0] led,
@@ -13,8 +13,11 @@ module arty_linux_top #(parameter BOOT_BAUD=1000000) (
     output wire [1:0] ddr3_dm
 );
     wire feedback, feedback_buffered, ref200_raw, ref200, cpu50_raw, cpu50, locked;
+    // The MMCM VCO remains at 1 GHz; DDR's 200 MHz reference is unchanged.
+    // Keep loader/UART rates consistent with the selected CPU output divider.
+    localparam CPU_CLOCK_HZ=(1000000000+CPU_DIVIDE/2)/CPU_DIVIDE;
     MMCME2_BASE #(.CLKIN1_PERIOD(10.0),.CLKFBOUT_MULT_F(10.0),
-        .DIVCLK_DIVIDE(1),.CLKOUT0_DIVIDE_F(5.0),.CLKOUT1_DIVIDE(20)) reference_clock (
+        .DIVCLK_DIVIDE(1),.CLKOUT0_DIVIDE_F(5.0),.CLKOUT1_DIVIDE(CPU_DIVIDE)) reference_clock (
         .CLKIN1(clk100),.CLKFBIN(feedback_buffered),.RST(!reset_n),.PWRDWN(1'b0),
         .CLKFBOUT(feedback),.CLKOUT0(ref200_raw),.LOCKED(locked),
         .CLKFBOUTB(),.CLKOUT0B(),.CLKOUT1(cpu50_raw),.CLKOUT1B(),.CLKOUT2(),.CLKOUT2B(),
@@ -25,7 +28,7 @@ module arty_linux_top #(parameter BOOT_BAUD=1000000) (
     BUFG cpu_clock_buffer(.I(cpu50_raw),.O(cpu50));
     wire calibrated, booted, fault;
     wire [31:0] pc;
-    arty_ddr3_top #(.SERIAL_BOOT(1),.SEPARATE_CPU_CLOCK(1),.CLOCK_HZ(50000000),.BOOT_BAUD(BOOT_BAUD)) system (
+    arty_ddr3_top #(.SERIAL_BOOT(1),.SEPARATE_CPU_CLOCK(1),.CLOCK_HZ(CPU_CLOCK_HZ),.BOOT_BAUD(BOOT_BAUD)) system (
         .cpu_clk50(cpu50),.clk100(clk100),.clk_ref200(ref200),.reset_n(reset_n&&locked),
         .uart_rx(uart_rx),.uart_tx(uart_tx),.calibrated(calibrated),
         .boot_done(booted),.fault(fault),.pc_debug(pc),

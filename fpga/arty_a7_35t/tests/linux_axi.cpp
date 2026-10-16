@@ -12,6 +12,10 @@
 #include <string>
 #include <vector>
 
+#ifndef UART_BIT_CYCLES
+#define UART_BIT_CYCLES 432
+#endif
+
 int main(int argc, char **argv) {
     Verilated::commandArgs(argc,argv);
     if(argc<2) {std::cerr<<"usage: Vsynapse_ddr3_system fw_payload.bin [cycles]\n";return 2;}
@@ -37,7 +41,7 @@ int main(int argc, char **argv) {
         if(shell_seen&&input_char<input.size()) {
             d.uart_rx=input_bit==0 ? 0 : input_bit==9 ? 1 :
                 (uint8_t(input[input_char])>>(input_bit-1))&1;
-            if(++input_ticks==432) {
+            if(++input_ticks==UART_BIT_CYCLES) {
                 input_ticks=0;
                 if(++input_bit==10){input_bit=0;++input_char;}
             }
@@ -68,9 +72,9 @@ int main(int argc, char **argv) {
             <<" physical address "<<d.rootp->synapse_ddr3_system__DOT__select_addr<<"\n";return 1;}
         bool tx=d.uart_tx;
         if(uart_bit<0){
-            if(previous_tx&&!tx){uart_wait=432+216;uart_bit=0;uart_byte=0;}
+            if(previous_tx&&!tx){uart_wait=UART_BIT_CYCLES+UART_BIT_CYCLES/2;uart_bit=0;uart_byte=0;}
         }else if(--uart_wait==0){
-            if(uart_bit<8){uart_byte|=unsigned(tx)<<uart_bit++;uart_wait=432;}
+            if(uart_bit<8){uart_byte|=unsigned(tx)<<uart_bit++;uart_wait=UART_BIT_CYCLES;}
             else {
                 if(!tx){std::cerr<<"UART framing error\n";return 1;}
                 char ch=char(uart_byte);std::cout<<ch<<std::flush;transcript+=ch;uart_bit=-1;

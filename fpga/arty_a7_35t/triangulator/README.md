@@ -51,6 +51,9 @@ LLVM=1 make -C fpga/arty_a7_35t linux
 ```
 
 After booting that image, use `viewer.py --binary /bin/triangulator`.
+For the tested faster profile, also pass `--cpu-mhz 62.5 --kernel-hz 25` so
+the hardware labels reflect the programmed clock and kernel image. These
+options only label the viewer; they do not configure the FPGA or Linux.
 `BUILD_TRIANGULATOR=0` omits the demo. `triangulator/build.sh` accepts
 `TRIANGULATOR_CC` and `TRIANGULATOR_OUT`; the default compiler is the local
 LLVM/musl wrapper produced by `prepare_llvm.sh`.

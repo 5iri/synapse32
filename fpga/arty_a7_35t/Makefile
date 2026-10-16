@@ -2,10 +2,11 @@ VIVADO ?= vivado
 PYTHON ?= python3
 PYTHON_RUN := $(if $(findstring /,$(PYTHON)),$(abspath $(PYTHON)),$(PYTHON))
 PORT ?= /dev/ttyUSB1
+BOOT_BAUD ?= 1000000
 IMAGE ?= build/linux-image/fw_payload.bin
 UART_LOG ?= build/hardware-uart.log
 
-.PHONY: bitstream linux llvm-toolchain program upload test-board test test-phy test-linux test-core triangulator deploy-triangulator visualizer test-triangulator
+.PHONY: bitstream linux llvm-toolchain program upload test-board test test-phy test-linux test-core triangulator deploy-triangulator visualizer test-triangulator coremark
 triangulator:
 	bash triangulator/build.sh
 deploy-triangulator: triangulator
@@ -16,6 +17,9 @@ test-triangulator:
 	$(PYTHON_RUN) triangulator/test_geometry.py
 	$(PYTHON_RUN) triangulator/test_viewer.py
 	$(PYTHON_RUN) triangulator/test_protocol.py
+	$(PYTHON_RUN) triangulator/test_uart_link.py
+coremark:
+	bash coremark/build.sh
 bitstream:
 	$(VIVADO) -mode batch -source build_bitstream.tcl
 linux:
@@ -25,9 +29,9 @@ llvm-toolchain:
 program:
 	$(VIVADO) -mode batch -source program.tcl
 upload:
-	$(PYTHON_RUN) upload.py $(PORT) $(IMAGE) --console
+	$(PYTHON_RUN) upload.py $(PORT) $(IMAGE) --baud $(BOOT_BAUD) --console
 test-board:
-	$(PYTHON_RUN) test_board.py $(PORT) $(IMAGE)
+	$(PYTHON_RUN) test_board.py $(PORT) $(IMAGE) --baud $(BOOT_BAUD)
 test:
 	bash test_axi.sh
 	verilator --binary --timing -Wno-fatal -j 4 -I../../rtl/include --top-module tb_muldiv --Mdir build/obj_muldiv tests/tb_muldiv.sv ../../rtl/core_modules/iterative_muldiv.v > build/muldiv-compile.log 2>&1

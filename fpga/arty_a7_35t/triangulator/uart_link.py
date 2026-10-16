@@ -1,5 +1,6 @@
 """Write through a companion FD while the existing UART reader retains the port."""
 import os
+import re
 import threading
 import termios
 import time
@@ -51,7 +52,22 @@ class LogLines:
         self.pending = lines.pop()
         if len(self.pending) > 65536:
             self.pending = self.pending[-65536:]
-        return [line.decode("utf-8", errors="replace").strip("\r") for line in lines]
+        # With echo disabled, BusyBox leaves its prompt directly before the
+        # next command's output. Keep echoed command text, but remove prompts
+        # so exact acknowledgement checks also work in that terminal mode.
+        result = []
+        for line in lines:
+            decoded = re.sub(r"^(?:(?:~|/[^\r\n ]*) # |> )+", "",
+                             line.decode("utf-8", errors="replace").strip("\r"))
+            kernel = re.search(r"\[\s*\d+\.\d+\]", decoded)
+            if kernel and kernel.start():
+                # printk may append to a complete userspace record before its
+                # newline. Preserve both records instead of losing the ACK.
+                result.append(decoded[:kernel.start()].rstrip())
+                result.append(decoded[kernel.start():])
+            else:
+                result.append(decoded)
+        return result
 
     def wait(self, predicate, timeout=30):
         deadline = time.monotonic() + timeout

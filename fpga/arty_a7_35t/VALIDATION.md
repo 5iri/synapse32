@@ -279,3 +279,43 @@ disconnected during this build. Test logs are `build/tlb-bus.log`,
 `echo FPGA_BOOT_OK` through the UART in 878,670,086 simulated CPU cycles.
 This run models byte-accurate AXI RAM, not the DDR PHY or USB upload, and does
 not establish physical-board boot time or triangulator throughput.
+
+### Physical performance and clock/tick sweep (2026-10-16)
+
+The TLB bitstream now passes physical boot and UART command execution. Matched
+meshes compute about 2.5× faster than the prior uncached bitstream. The official
+CoreMark sources pass all published checksums; each physical run passes CRC
+validation and exceeds the minimum ten timed seconds. Median `-O3` scores:
+
+| CPU clock | Linux tick | CoreMark |
+| --- | --- | --- |
+| 50 MHz | 12 Hz | 0.056654 |
+| 50 MHz | 25 Hz | 0.052436 |
+| 50 MHz | 50 Hz | 0.044088 |
+| 50 MHz | 100 Hz | 0.027397 |
+| 62.5 MHz | 25 Hz | 0.058275 |
+
+Each row has three performance repeats and a validation-seed run. The 12/100 Hz
+profiles also include `-O2` cross-checks, with no meaningful improvement.
+All five profiles contribute 60 independently validated mesh frames each.
+The board Linux build now defaults to 25 Hz; 12/50/100 Hz remain selectable.
+
+The fast profile passes setup/hold (+0.010/+0.054 ns), DRC, critical CDC and
+bus skew. It uses MMCM divider 16 while DDR/reference clocks stay unchanged.
+The 2 Mbaud payload transfer takes 107.8 seconds, Linux reaches `/init` at
+74.67 seconds, and OpenSBI reports 62,500,000 Hz. A device-tree probe confirms
+`03 b9 ac a0` (62,500,000). Ten CoreMark performance iterations pass in 171.609
+seconds, followed by ten validation iterations in 174.186 seconds. The
+clock-aware full SoC simulation boots and executes its UART command in
+761,494,750 simulated CPU cycles. A 55.56 MHz fallback also closes timing
+(+0.256/+0.050 ns) but has not been tested physically.
+
+The active board runs 62.5 MHz / 25 Hz. [Full results](coremark/RESULTS.md)
+include image hashes, compiler settings, raw reports and all comparisons.
+Local evidence: `build/cpu62-hardware-uart.log`, `build/cpu62-long-coremark.log`,
+`build/cpu62-console-proof.log` and `build/cpu62-linux-sim.log`. Earlier tick
+logs have `25hz`, `50hz`, `100hz` or `tlb` prefixes. The reader stays open while
+host tools change; final printk settings are restored to `8 4 1 7` after upload.
+Eight host geometry/viewer/protocol/UART tests pass. The narrow timing margin
+is recorded without claiming an absolute frequency ceiling or unlimited
+runtime stability.
