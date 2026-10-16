@@ -7,6 +7,8 @@ output="${COREMARK_OUT:-$here/build/linux}"
 # updating coremark.md5. Pin its parent so the entire published checksum passes.
 revision=b56889a7bd9d5624fbeff2a73ba69878e6a9c146
 compiler="${COREMARK_CC:-riscv32-unknown-linux-gnu-gcc}"
+objcopy="${COREMARK_OBJCOPY:-riscv32-unknown-linux-gnu-objcopy}"
+alignment_script="$here/linux-static.ld"
 optimization="${COREMARK_OPT:--O3}"
 case "$optimization" in -O2|-O3|-Os) ;; *) echo 'COREMARK_OPT must be -O2, -O3 or -Os' >&2; exit 1;; esac
 if [ ! -d "$source_dir/.git" ]; then
@@ -34,7 +36,14 @@ flags="$optimization -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmal
     "$source_dir/core_list_join.c" "$source_dir/core_main.c" \
     "$source_dir/core_matrix.c" "$source_dir/core_state.c" \
     "$source_dir/core_util.c" "$output/port/core_portme.c" \
-    -Wl,--gc-sections -Wl,--build-id=none -s -o "$output/coremark"
+    -Wl,--gc-sections -Wl,--build-id=none -Wl,-T,"$alignment_script" \
+    -Wl,-Map,"$output/coremark.map" -o "$output/coremark.elf"
+python3 "$here/check_static_alignment.py" "$output/coremark.elf" --output "$output/buffer-alignment.json"
+"$objcopy" --strip-all "$output/coremark.elf" "$output/coremark"
+# Record the platform layout option and script identity beside compiler flags.
+printf '%s\n' "-Wl,-T,$alignment_script" "-Wl,-Map,$output/coremark.map" > "$output/additional-linker-flags.txt"
+printf '%s\n' "$objcopy --strip-all $output/coremark.elf $output/coremark" > "$output/strip-command.txt"
+sha256sum "$alignment_script" > "$output/alignment-script.sha256"
 printf '%s\n' "$revision" > "$output/source-revision.txt"
 printf '%s\n' "$flags" > "$output/compiler-flags.txt"
 "$compiler" --version > "$output/compiler-version.txt"

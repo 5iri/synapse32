@@ -58,6 +58,13 @@ still differ. The check is saved in `object-code-check.txt`.
 
 ## Run
 
+Linux builds align the static benchmark buffer with `linux-static.ld` and
+check its linked address before stripping symbols. An odd byte-array address
+would make the list benchmark use misaligned word/halfword accesses, which can
+cause expensive trap emulation on RISC-V. No EEMBC algorithm source is changed.
+The output includes the unstripped ELF, map, `buffer-alignment.json`, and
+`additional-linker-flags.txt`; report those layout options with compiler flags.
+
 On target Linux, copy the static executable to RAM and capture console output:
 
 ```sh
