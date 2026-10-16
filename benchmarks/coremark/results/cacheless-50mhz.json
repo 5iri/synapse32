@@ -1,0 +1,160 @@
+{
+  "configuration": {
+    "date": "2026-10-16",
+    "clock_hz": 50000000,
+    "harts": 1,
+    "instruction_cache_bytes": 0,
+    "data_cache_bytes": 0,
+    "memory": "external DDR, identical physical integration for both environments",
+    "translation_cache_entries_per_port": 8,
+    "benchmark_source_revision": "b56889a7bd9d5624fbeff2a73ba69878e6a9c146",
+    "compiler": "Clang 23.1.1",
+    "optimization": "-O3",
+    "isa": "rv32ima_zicsr_zifencei",
+    "abi": "ilp32",
+    "total_data_bytes": 2000,
+    "allocation": "static",
+    "contexts": 1,
+    "bitstream_sha256": "18d6f26367de347e0c90dfafd9af64fdf0b6679eb83f999505dd9c16910d81f9",
+    "hardware_scope": "External DDR/board integration is not included in this PR."
+  },
+  "linux": {
+    "kernel": "6.6.32",
+    "tick_hz": 25,
+    "payload_sha256": "082afb666ea7b054e4c40b727ab6ad386947d8c45a6ce5e635acff70b40c7a3c",
+    "executable_sha256": "06605377a08cade9cfc809610e4733bdb981fc4a4f43805e5a4f102f5f0729d8",
+    "results": [
+      {
+        "optimization": "o3",
+        "mode": "performance",
+        "repeat": 0,
+        "seconds": 19.071,
+        "iterations_per_second": 0.052436,
+        "iterations": 1,
+        "cpu_mhz": 50,
+        "coremark_per_mhz": 0.0010487200000000002,
+        "validated": true,
+        "output": "/tmp/coremark-o3 0 0 0x66 1 7 1; echo S32_COREMARK_DONE_0:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 19071\nTotal time (secs): 19.071000\nIterations/Sec   : 0.052436\nIterations       : 1\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xe714\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.052436 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_0:0"
+      },
+      {
+        "optimization": "o3",
+        "mode": "performance",
+        "repeat": 1,
+        "seconds": 19.075,
+        "iterations_per_second": 0.052425,
+        "iterations": 1,
+        "cpu_mhz": 50,
+        "coremark_per_mhz": 0.0010485,
+        "validated": true,
+        "output": "/tmp/coremark-o3 ~ # /tmp/coremark-o3 0 0 0x66 1 7 1; echo S32_COREMARK_DONE_1:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 19075\nTotal time (secs): 19.075000\nIterations/Sec   : 0.052425\nIterations       : 1\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xe714\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.052425 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_1:0"
+      },
+      {
+        "optimization": "o3",
+        "mode": "performance",
+        "repeat": 2,
+        "seconds": 19.06,
+        "iterations_per_second": 0.052466,
+        "iterations": 1,
+        "cpu_mhz": 50,
+        "coremark_per_mhz": 0.00104932,
+        "validated": true,
+        "output": "/tmp/coremark-o3 0 0 0x66 1 7 1; echo S32_COREMARK_DONE_2:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 19060\nTotal time (secs): 19.060000\nIterations/Sec   : 0.052466\nIterations       : 1\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0xe714\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 0.052466 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_COREMARK_DONE_2:0"
+      },
+      {
+        "optimization": "o3",
+        "mode": "validation",
+        "repeat": 0,
+        "seconds": 19.346,
+        "iterations_per_second": 0.05169,
+        "iterations": 1,
+        "cpu_mhz": 50,
+        "coremark_per_mhz": 0.0010338,
+        "validated": true,
+        "output": "/tmp/coremark-o3 0x3415 0x3415 0x66 1 7 1; echo S32_COREMARK_DONE_3:$?\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 19346\nTotal time (secs): 19.346000\nIterations/Sec   : 0.051690\nIterations       : 1\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0xe3c1\nCorrect operation validated. See README.md for run and reporting rules.\nS32_COREMARK_DONE_3:0"
+      }
+    ]
+  },
+  "baremetal": {
+    "metadata": {
+      "cpu_mhz": 50.0,
+      "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+      "payload_sha256": "09c650b1a4b6653d9af761b29873b6c45086ab8da06b3b2a0d18230fdb6f0aed",
+      "timer_selftest_host_seconds": 1.9995866159442812,
+      "timer_selftest_cycles": 100000540
+    },
+    "pilots": [
+      {
+        "mode": "performance",
+        "seconds": 0.6,
+        "iterations": 2,
+        "output": "S32_BAREMETAL_RUN: p 2\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 600\nTotal time (secs): 0.600000\nIterations/Sec   : 3.333333\nERROR! Must execute for at least 10 secs for a valid result!\nIterations       : 2\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x72be\nErrors detected\nTimed CPU cycles: 0x0000000001c9ec80\nTimed retired instructions: 0x000000000007c83f\nS32_BAREMETAL_DONE:0"
+      }
+    ],
+    "results": [
+      {
+        "mode": "performance",
+        "repeat": 0,
+        "iterations": 50,
+        "seconds": 15.003,
+        "iterations_per_second": 3.332667,
+        "cpu_mhz": 50.0,
+        "cycles": 750181011,
+        "retired_instructions": 12749961,
+        "cpi": 58.837906327713476,
+        "validated": true,
+        "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15003\nTotal time (secs): 15.003000\nIterations/Sec   : 3.332667\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 3.332667 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x000000002cb6da93\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0"
+      },
+      {
+        "mode": "performance",
+        "repeat": 1,
+        "iterations": 50,
+        "seconds": 15.004,
+        "iterations_per_second": 3.332445,
+        "cpu_mhz": 50.0,
+        "cycles": 750200721,
+        "retired_instructions": 12749961,
+        "cpi": 58.83945221479501,
+        "validated": true,
+        "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15004\nTotal time (secs): 15.004000\nIterations/Sec   : 3.332445\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 3.332445 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x000000002cb72791\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0"
+      },
+      {
+        "mode": "performance",
+        "repeat": 2,
+        "iterations": 50,
+        "seconds": 15.003,
+        "iterations_per_second": 3.332667,
+        "cpu_mhz": 50.0,
+        "cycles": 750192038,
+        "retired_instructions": 12749961,
+        "cpi": 58.838771193104044,
+        "validated": true,
+        "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15003\nTotal time (secs): 15.003000\nIterations/Sec   : 3.332667\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 3.332667 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x000000002cb705a6\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0"
+      },
+      {
+        "mode": "validation",
+        "repeat": 3,
+        "iterations": 50,
+        "seconds": 15.01,
+        "iterations_per_second": 3.331113,
+        "cpu_mhz": 50.0,
+        "cycles": 750522762,
+        "retired_instructions": 12722675,
+        "cpi": 58.990956068594066,
+        "validated": true,
+        "output": "S32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15010\nTotal time (secs): 15.010000\nIterations/Sec   : 3.331113\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nTimed CPU cycles: 0x000000002cbc118a\nTimed retired instructions: 0x0000000000c221f3\nS32_BAREMETAL_DONE:0"
+      }
+    ]
+  },
+  "comparison": {
+    "baremetal_median_coremark": 3.332667,
+    "linux_median_coremark": 0.052436,
+    "baremetal_over_linux": 63.55685025554961,
+    "linux_fraction_of_baremetal_throughput": 0.01573394521564861
+  },
+  "limitations": [
+    "Linux baseline captured earlier on the same configuration, not simultaneously.",
+    "Timed algorithm instructions match before linker relocation; addresses and data/stack layout differ.",
+    "Difference includes virtual memory, interrupts, traps, scheduling and layout; no detailed cycle breakdown measured.",
+    "Results are physical external-DDR measurements, not upstream simulation-memory scores."
+  ]
+}
