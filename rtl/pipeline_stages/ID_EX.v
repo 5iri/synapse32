@@ -20,6 +20,7 @@ module ID_EX(
     input wire [31:0] rs2_value_resolved_in,
     input wire instr_valid_in,
     input wire instr_page_fault_in,
+    input wire instr_access_fault_in,
     input wire flush,
     input wire hold,
     input wire stall,
@@ -37,7 +38,8 @@ module ID_EX(
     output reg [31:0] rs1_value_out,
     output reg [31:0] rs2_value_out,
     output reg instr_valid_out,
-    output reg instr_page_fault_out
+    output reg instr_page_fault_out,
+    output reg instr_access_fault_out
 );
     always @(posedge clk or posedge rst) begin
         if (rst) begin
@@ -56,6 +58,7 @@ module ID_EX(
             rs2_value_out <= 32'b0;
             instr_valid_out <= 1'b0;
             instr_page_fault_out <= 1'b0;
+            instr_access_fault_out <= 1'b0;
         end else if (flush) begin
             // Flush inserts a bubble into EX.
             rs1_valid_out <= 1'b0;
@@ -73,6 +76,7 @@ module ID_EX(
             rs2_value_out <= 32'b0;
             instr_valid_out <= 1'b0;
             instr_page_fault_out <= 1'b0;
+            instr_access_fault_out <= 1'b0;
         end else if (hold) begin
             rs1_valid_out <= rs1_valid_out;
             rs2_valid_out <= rs2_valid_out;
@@ -89,6 +93,7 @@ module ID_EX(
             rs2_value_out <= rs2_value_resolved_in;
             instr_valid_out <= instr_valid_out;
             instr_page_fault_out <= instr_page_fault_out;
+            instr_access_fault_out <= instr_access_fault_out;
         end else if (stall) begin
             // A decode-side stall inserts a bubble into EX while IF/ID is
             // held. This is required for load-use hazards and similar cases.
@@ -107,6 +112,7 @@ module ID_EX(
             rs2_value_out <= 32'b0;
             instr_valid_out <= 1'b0;
             instr_page_fault_out <= 1'b0;
+            instr_access_fault_out <= 1'b0;
         end else begin
             rs1_valid_out <= rs1_valid_in;
             rs2_valid_out <= rs2_valid_in;
@@ -123,6 +129,7 @@ module ID_EX(
             rs2_value_out <= rs2_value_in;
             instr_valid_out <= instr_valid_in;
             instr_page_fault_out <= instr_page_fault_in;
+            instr_access_fault_out <= instr_access_fault_in;
         end
     end
 endmodule

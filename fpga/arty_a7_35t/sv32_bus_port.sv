@@ -3,15 +3,16 @@
 // DDR-facing Sv32 front end, using the unmodified upstream leaf-PTE TLB.
 // Each port has eight entries; permissions are checked again on every hit.
 // Snapshot each access and return one response. Svade: A/D clear faults.
-module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0) (
+module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0) (
     input wire clk, rst, flush_tlb,
+    input wire fetch_cancel,
     input wire req, we, write_intent, translate,
     input wire [31:0] va, satp, wdata,
     input wire [1:0] privilege,
     input wire sum, mxr,
     input wire [3:0] be,
     input wire [2:0] load_type,
-    output wire gnt, rvalid, page_fault,
+    output wire gnt, rvalid, page_fault, access_fault,
     output wire [31:0] rdata,
     output wire bus_req,
     output wire bus_we,
@@ -32,10 +33,11 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0) (
 );
     localparam IDLE=0, PTE_REQ=1, PTE_WAIT=2, ACCESS_REQ=3, ACCESS_WAIT=4, DONE=5,
                CACHE_LOOKUP=6, CACHE_REQUEST=7;
+    localparam PIPE_FETCH=FETCH&&PIPELINED_FETCH;
     reg [2:0] state;
     reg [31:0] va_q, satp_q, data_q;
     reg [1:0] privilege_q;
-    reg translate_q, we_q, intent_q, sum_q, mxr_q, level, fault_q;
+    reg translate_q, we_q, intent_q, sum_q, mxr_q, level, fault_q, access_fault_q;
     reg [3:0] be_q;
     reg [2:0] type_q;
     reg [31:0] satp_seen;
@@ -47,12 +49,22 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0) (
     // including ASID-only changes, in addition to the CPU's fence/write pulse.
     wire invalidate=flush_tlb||(satp!=satp_seen);
     wire ram_pte=`IS_INSTR_MEM(bus_addr)||`IS_DATA_MEM(bus_addr);
-    wire stale=FETCH && (walk_discard||invalidate||(va_q!=va)||(satp_q!=satp)||
+    wire context_changed=(satp_q!=satp)||(translate_q!=translate)||(privilege_q!=privilege);
+    // A queued frontend owns request-PC tags. Its next request VA may advance
+    // while the previous hit returns, and redirects are canceled explicitly.
+    wire stale=FETCH && (walk_discard||invalidate||(PIPE_FETCH ? fetch_cancel : (va_q!=va))||(satp_q!=satp)||
                        (translate_q!=translate)||(privilege_q!=privilege));
-    assign gnt=req&&(state==IDLE)&&!fatal_error&&!invalidate;
+    assign gnt=req&&!fatal_error&&!invalidate&&!(PIPE_FETCH&&fetch_cancel)&&
+               ((state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit&&!stale));
     assign rvalid=((state==DONE)||((state==CACHE_LOOKUP)&&cache_hit))&&!stale;
     assign page_fault=rvalid&&fault_q;
-    assign bus_req=((state==PTE_REQ)&&ram_pte)||(state==ACCESS_REQ);
+    assign access_fault=PIPE_FETCH&&rvalid&&access_fault_q;
+    // Lower-bus arbitration must not depend on the EX-stage redirect path.
+    // A late cancel may coincide with a grant of this registered RAM read;
+    // preserve that transaction below and discard its eventual response.
+    assign bus_req=(((state==PTE_REQ)&&ram_pte)||
+                    ((state==ACCESS_REQ)&&(!PIPE_FETCH||ram_pte)))&&
+                   !(PIPE_FETCH&&walk_discard);
     assign bus_we=(state==ACCESS_REQ)&&we_q;
     assign bus_fetch=FETCH&&(state==ACCESS_REQ);
     assign bus_wdata=data_q;
@@ -90,6 +102,7 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0) (
     wire cache_hit;
     wire [31:0] cache_word;
     wire cache_fill=(CACHE_LINES>0)&&(state==ACCESS_WAIT)&&bus_done&&!bus_error&&!we_q&&
+                    !(PIPE_FETCH&&stale)&&
                     (`IS_INSTR_MEM(bus_addr)||`IS_DATA_MEM(bus_addr));
     physical_l1_cache #(.LINES(CACHE_LINES)) l1 (
         .clk(clk),.rst(rst),.lookup(cache_lookup),.lookup_addr(cache_addr),
@@ -123,6 +136,29 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0) (
             endcase
         end
     endfunction
+    // Both IDLE and a returning pipelined hit accept the same transaction.
+    task automatic capture_request;
+        begin
+            va_q<=va; satp_q<=satp; data_q<=wdata; privilege_q<=privilege;
+            translate_q<=translate; we_q<=we; intent_q<=write_intent;
+            sum_q<=sum; mxr_q<=mxr; be_q<=be; type_q<=load_type;
+            level<=1; fault_q<=translate&&(satp[21:20]!=0); access_fault_q<=0;
+            if(PIPE_FETCH) response_q<=32'h13;
+            bus_addr<=translate ? ({satp[19:0],12'b0}+{20'b0,va[31:22],2'b0}) : va;
+            state<=translate ? ((satp[21:20]!=0) ? DONE : PTE_REQ) : ACCESS_REQ;
+            if(translate&&satp[21:20]==0&&tlb_hit) begin
+                bus_addr<=hit_physical;
+                fault_q<=!hit_permitted;
+                state<=hit_permitted ? ACCESS_REQ : DONE;
+            end
+            if(direct_cache) begin bus_addr<=hit_physical; state<=CACHE_LOOKUP; end
+            if(PIPE_FETCH&&fast_translation&&
+               !(`IS_INSTR_MEM(hit_physical)||`IS_DATA_MEM(hit_physical))) begin
+                bus_addr<=hit_physical; response_q<=32'h13;
+                access_fault_q<=1; state<=DONE;
+            end
+        end
+    endtask
     assign rdata=(state==CACHE_LOOKUP) ? (FETCH ? cache_word : loaded(cache_word,type_q)) : response_q;
     always @(posedge clk) begin
         if(rst) begin cache_hits<=0;cache_misses<=0;store_wait_cycles<=0;end
@@ -139,7 +175,7 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0) (
         if(rst) begin satp_seen<=0; walk_discard<=0; end
         else begin
             satp_seen<=satp;
-            if(invalidate && state!=IDLE) walk_discard<=1;
+            if((invalidate||(PIPE_FETCH&&(fetch_cancel||context_changed)))&&state!=IDLE) walk_discard<=1;
             else if(state==IDLE) walk_discard<=0;
         end
     end
@@ -148,36 +184,40 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0) (
             state<=IDLE; bus_addr<=0; va_q<=0; satp_q<=0; data_q<=0;
             privilege_q<=3; translate_q<=0; we_q<=0; intent_q<=0;
             sum_q<=0; mxr_q<=0; be_q<=0; type_q<=2; level<=1;
-            fault_q<=0; fatal_error<=0; response_q<=32'h13;
+            fault_q<=0; access_fault_q<=0; fatal_error<=0; response_q<=32'h13;
+        end else if(PIPE_FETCH&&state!=IDLE&&stale) begin
+            // Granted bus operations cannot be withdrawn. Drain their response
+            // without a CPU token or TLB/cache fill. A grant may occur on this
+            // same cancel edge because bus_req deliberately uses only registers.
+            case(state)
+                PTE_REQ: state<=(bus_req&&bus_gnt) ? PTE_WAIT : IDLE;
+                ACCESS_REQ: state<=(bus_req&&bus_gnt) ? ACCESS_WAIT : IDLE;
+                PTE_WAIT, ACCESS_WAIT: if(bus_done) state<=IDLE;
+                default: state<=IDLE;
+            endcase
         end else case(state)
-            IDLE: if(gnt) begin
-                va_q<=va; satp_q<=satp; data_q<=wdata; privilege_q<=privilege;
-                translate_q<=translate; we_q<=we; intent_q<=write_intent;
-                sum_q<=sum; mxr_q<=mxr; be_q<=be; type_q<=load_type;
-                level<=1; fault_q<=translate&&(satp[21:20]!=0);
-                bus_addr<=translate ? ({satp[19:0],12'b0}+{20'b0,va[31:22],2'b0}) : va;
-                state<=translate ? ((satp[21:20]!=0) ? DONE : PTE_REQ) : ACCESS_REQ;
-                if(translate&&satp[21:20]==0&&tlb_hit) begin
-                    bus_addr<=tlb_megapage ? {tlb_pte[29:20],va[21:0]} :
-                                                           {tlb_pte[29:10],va[11:0]};
-                    fault_q<=!hit_permitted;
-                    state<=hit_permitted ? ACCESS_REQ : DONE;
-                end
-                if(direct_cache) begin bus_addr<=hit_physical;state<=CACHE_LOOKUP;end
-            end
+            IDLE: if(gnt) capture_request();
             PTE_REQ: begin
-                if(!ram_pte) begin fault_q<=1; response_q<=32'h13; state<=DONE; end
+                if(!ram_pte) begin
+                    fault_q<=!PIPE_FETCH; access_fault_q<=PIPE_FETCH;
+                    response_q<=32'h13; state<=DONE;
+                end
                 else if(bus_gnt) state<=PTE_WAIT;
             end
             PTE_WAIT: if(bus_done) begin
-                if(bus_error) begin fatal_error<=1; state<=IDLE; end
+                if(bus_error) begin
+                    if(PIPE_FETCH) begin access_fault_q<=1; fault_q<=0; response_q<=32'h13; state<=DONE; end
+                    else begin fatal_error<=1; state<=IDLE; end
+                end
                 else if(!pte_valid || (leaf && (!permission_ok ||
                         (level && bus_rdata[19:10]!=0))) || (!leaf&&!level) ||
                         (!leaf&&(bus_rdata[7:6]!=0 || bus_rdata[4]))) begin
                     fault_q<=1; response_q<=32'h13; state<=DONE;
                 end else if(leaf) begin
                     bus_addr<=leaf_physical;
-                    state<=((CACHE_LINES>0)&&!we_q&&
+                    if(PIPE_FETCH&&!(`IS_INSTR_MEM(leaf_physical)||`IS_DATA_MEM(leaf_physical))) begin
+                        access_fault_q<=1; response_q<=32'h13; state<=DONE;
+                    end else state<=((CACHE_LINES>0)&&!we_q&&
                             (`IS_INSTR_MEM(leaf_physical)||`IS_DATA_MEM(leaf_physical))) ?
                            CACHE_REQUEST : ACCESS_REQ;
                 end else begin
@@ -188,12 +228,19 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0) (
             CACHE_REQUEST: state<=CACHE_LOOKUP;
             CACHE_LOOKUP: begin
                 // A redirected fetch is dropped just as on the slow path.
-                if(stale||cache_hit) state<=IDLE;
+                if(PIPE_FETCH&&cache_hit&&gnt) capture_request();
+                else if(stale||cache_hit) state<=IDLE;
                 else state<=ACCESS_REQ;
             end
-            ACCESS_REQ: if(bus_gnt) state<=ACCESS_WAIT;
+            ACCESS_REQ: begin
+                if(PIPE_FETCH&&!ram_pte) begin access_fault_q<=1; response_q<=32'h13; state<=DONE; end
+                else if(bus_gnt) state<=ACCESS_WAIT;
+            end
             ACCESS_WAIT: if(bus_done) begin
-                if(bus_error) begin fatal_error<=1; state<=IDLE; end
+                if(bus_error) begin
+                    if(PIPE_FETCH) begin access_fault_q<=1; fault_q<=0; response_q<=32'h13; state<=DONE; end
+                    else begin fatal_error<=1; state<=IDLE; end
+                end
                 else begin response_q<=FETCH ? bus_rdata : loaded(bus_rdata,type_q); state<=DONE; end
             end
             DONE: state<=IDLE;

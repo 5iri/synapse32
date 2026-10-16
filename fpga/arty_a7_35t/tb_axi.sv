@@ -3,7 +3,7 @@
 // Independent, single-beat AXI RAM with independently stalled address/data
 // channels and delayed read/write responses. This is not a DDR3 PHY model.
 module tb_axi #(parameter ERROR_KIND=0, DCACHE_LINES=256, ICACHE_LINES=256,
-                FAST_L1=0, STORE_BUFFER_DEPTH=0, FAST_MULTIPLY=0);
+                FAST_L1=0, STORE_BUFFER_DEPTH=0, FAST_MULTIPLY=0, FETCH_QUEUE=0);
     reg clk=0, rst=1, calibrated=0;
     always #5 clk=~clk;
     wire [27:0] addr;
@@ -16,7 +16,7 @@ module tb_axi #(parameter ERROR_KIND=0, DCACHE_LINES=256, ICACHE_LINES=256,
     wire [31:0] pc;
     reg [27:0] saved_aw, saved_ar;
     synapse_ddr3_system #(.ITERATIVE_MULDIV(1),.DCACHE_LINES(DCACHE_LINES),.ICACHE_LINES(ICACHE_LINES),
-                         .FAST_L1(FAST_L1),.STORE_BUFFER_DEPTH(STORE_BUFFER_DEPTH),.FAST_MULTIPLY(FAST_MULTIPLY)) dut (
+                         .FAST_L1(FAST_L1),.STORE_BUFFER_DEPTH(STORE_BUFFER_DEPTH),.FAST_MULTIPLY(FAST_MULTIPLY),.FETCH_QUEUE(FETCH_QUEUE)) dut (
         .clk(clk),.rst(rst),.calibrated(calibrated),.uart_tx(uart_tx),.uart_rx(1'b1),
         .load_req(1'b0),.load_finish(1'b0),.load_addr(32'b0),.load_data(32'b0),.load_ready(),.load_done(),
         .boot_done(boot_done),.fault(fault),.core_enable(core_enable),.pc_debug(pc),

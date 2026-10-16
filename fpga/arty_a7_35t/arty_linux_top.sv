@@ -1,7 +1,7 @@
 `default_nettype none
 // Physical Arty A7-35T top. DDR3 pin locations are supplied by the MIG project.
 module arty_linux_top #(parameter BOOT_BAUD=1000000, CPU_DIVIDE=20, DCACHE_LINES=256, ICACHE_LINES=256,
-                       FAST_L1=1, STORE_BUFFER_DEPTH=4, FAST_MULTIPLY=1) (
+                       FAST_L1=1, STORE_BUFFER_DEPTH=4, FAST_MULTIPLY=1, FETCH_QUEUE=1) (
     input wire clk100, reset_n, uart_rx,
     output wire uart_tx,
     output wire [3:0] led,
@@ -31,7 +31,7 @@ module arty_linux_top #(parameter BOOT_BAUD=1000000, CPU_DIVIDE=20, DCACHE_LINES
     wire [31:0] pc;
     arty_ddr3_top #(.SERIAL_BOOT(1),.SEPARATE_CPU_CLOCK(1),.CLOCK_HZ(CPU_CLOCK_HZ),
         .BOOT_BAUD(BOOT_BAUD),.DCACHE_LINES(DCACHE_LINES),.ICACHE_LINES(ICACHE_LINES),.FAST_L1(FAST_L1),
-        .STORE_BUFFER_DEPTH(STORE_BUFFER_DEPTH),.FAST_MULTIPLY(FAST_MULTIPLY)) system (
+        .STORE_BUFFER_DEPTH(STORE_BUFFER_DEPTH),.FAST_MULTIPLY(FAST_MULTIPLY),.FETCH_QUEUE(FETCH_QUEUE)) system (
         .cpu_clk50(cpu50),.clk100(clk100),.clk_ref200(ref200),.reset_n(reset_n&&locked),
         .uart_rx(uart_rx),.uart_tx(uart_tx),.calibrated(calibrated),
         .boot_done(booted),.fault(fault),.pc_debug(pc),

@@ -13,7 +13,7 @@ create_ip -name axi_clock_converter -vendor xilinx.com -library ip -version 2.1 
 set_property -dict [list CONFIG.ADDR_WIDTH {28} CONFIG.DATA_WIDTH {128} CONFIG.ID_WIDTH {4} CONFIG.ACLK_ASYNC {1}] [get_ips axi_cpu_cdc]
 generate_target all [get_ips axi_cpu_cdc]
 set rtl [glob "$repo/rtl/*.v" "$repo/rtl/core_modules/*.v" "$repo/rtl/pipeline_stages/*.v" "$repo/rtl/mmu/*.v"]
-set fabric [list "$here/axi_word_bridge.sv" "$here/physical_l1_cache.sv" "$here/ordered_write_buffer.sv" "$here/fpga_perf_counters.sv" "$here/sv32_bus_port.sv" "$here/uart_boot_loader.sv" "$here/synapse_ddr3_system.sv" "$here/arty_ddr3_top.sv" "$here/arty_linux_top.sv"]
+set fabric [list "$here/axi_word_bridge.sv" "$here/physical_l1_cache.sv" "$here/ordered_write_buffer.sv" "$here/fpga_perf_counters.sv" "$here/sv32_bus_port.sv" "$here/instruction_fetch_queue.sv" "$here/uart_boot_loader.sv" "$here/synapse_ddr3_system.sv" "$here/arty_ddr3_top.sv" "$here/arty_linux_top.sv"]
 add_files -norecurse [concat $rtl $fabric]
 set_property file_type SystemVerilog [get_files [concat $rtl $fabric]]
 set_property include_dirs [list "$repo/rtl/include"] [get_filesets sources_1]
@@ -35,7 +35,7 @@ if {[info exists ::env($name)]} {
     lappend generics "$name=$lines"
 }
 }
-foreach name {FAST_L1 FAST_MULTIPLY} {
+foreach name {FAST_L1 FAST_MULTIPLY FETCH_QUEUE} {
     if {[info exists ::env($name)]} {
         if {$::env($name) ni {0 1}} {error "$name must be 0 or 1"}
         lappend generics "$name=$::env($name)"

@@ -210,16 +210,26 @@ discarded even when the PC is unchanged. The FPGA path now has separate 4 KiB
 instruction and data caches. FENCE.I observes stores in the
 shared RAM. Redirected fetches cannot return
 an old PC/context as a current instruction. Addresses above 4 GiB are rejected.
-Unexpected physical addresses or failed AXI responses latch a fabric fault and
-hold the CPU in reset.
+Unexpected data/loader physical addresses or failed AXI responses latch a
+fabric fault and hold the CPU in reset. With queued fetch enabled, instruction
+access errors instead reach the CPU as precise instruction access faults.
 
 ### Instruction and data caches
 
-The board defaults to `FAST_L1=1 STORE_BUFFER_DEPTH=4 FAST_MULTIPLY=1` at 50 MHz.
+The board defaults to `FAST_L1=1 STORE_BUFFER_DEPTH=4 FAST_MULTIPLY=1 FETCH_QUEUE=1` at 50 MHz.
 `FAST_L1=1` moves the physically tagged I/D caches onto independent synchronous
 ports ahead of the shared bus arbiter. A hit returns in one cycle, including
 while the other port waits for DDR. Each 4 KiB bank uses two RAMB36 blocks.
 Translation and permission checks still precede access to cached data.
+
+`FETCH_QUEUE=1` pipelines instruction-cache hits and fetches sequentially into
+four reserved slots using a separate request PC. Warm straight-line code can
+execute one instruction per cycle. Redirects and address-space changes cancel
+younger fetches; instruction bus errors trap precisely if execution reaches
+them. Speculative instruction reads never access MMIO. `FETCH_QUEUE=0` selects
+the original serialized interface for comparisons. Run `make test-fetch` in
+this directory for the fetch, fault and fence regressions; see the
+[measured performance and reproduction commands](coremark/MEMORY_PERFORMANCE.md#queued-instruction-fetch).
 
 With this path, `STORE_BUFFER_DEPTH=4` posts ordinary translated RAM stores
 into an ordered queue. A store updates matching resident I/D lines when it

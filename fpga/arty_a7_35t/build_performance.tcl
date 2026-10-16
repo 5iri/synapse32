@@ -9,14 +9,14 @@ set build "$here/build/performance/$tag"
 file mkdir $build
 set original "$here/build/board/project/synapse32_linux.xpr"
 if {![file exists $original]} {error "Run build_bitstream.tcl once to generate MIG/CDC IP"}
-set defaults {CPU_DIVIDE 20 BOOT_BAUD 1000000 DCACHE_LINES 256 ICACHE_LINES 256 FAST_L1 1 STORE_BUFFER_DEPTH 0 FAST_MULTIPLY 0}
+set defaults {CPU_DIVIDE 20 BOOT_BAUD 1000000 DCACHE_LINES 256 ICACHE_LINES 256 FAST_L1 1 STORE_BUFFER_DEPTH 0 FAST_MULTIPLY 0 FETCH_QUEUE 0}
 set generics {}
 foreach {name value} $defaults {
     if {[info exists ::env($name)]} {set value $::env($name)}
     if {![string is integer -strict $value]} {error "$name must be an integer"}
     if {$name eq "CPU_DIVIDE" && ($value<1 || $value>128)} {error "CPU_DIVIDE must be 1..128"}
     if {$name eq "BOOT_BAUD" && $value<1} {error "BOOT_BAUD must be positive"}
-    if {$name in {FAST_L1 FAST_MULTIPLY} && $value ni {0 1}} {error "$name must be 0 or 1"}
+    if {$name in {FAST_L1 FAST_MULTIPLY FETCH_QUEUE} && $value ni {0 1}} {error "$name must be 0 or 1"}
     if {$name eq "STORE_BUFFER_DEPTH" && ($value<0 || $value>8)} {error "STORE_BUFFER_DEPTH must be 0..8"}
     if {$name in {DCACHE_LINES ICACHE_LINES} && ($value<0 || $value>65536 || ($value>0 && ($value&($value-1))!=0))} {
         error "$name must be zero or a power of two up to 65536"
@@ -28,7 +28,7 @@ foreach {name value} $defaults {
 file delete -force "$build/source"
 file mkdir "$build/source/fabric"
 file copy -force "$repo/rtl" "$build/source/rtl"
-set fabric_names {axi_word_bridge.sv physical_l1_cache.sv ordered_write_buffer.sv fpga_perf_counters.sv sv32_bus_port.sv uart_boot_loader.sv synapse_ddr3_system.sv arty_ddr3_top.sv arty_linux_top.sv}
+set fabric_names {axi_word_bridge.sv physical_l1_cache.sv ordered_write_buffer.sv fpga_perf_counters.sv sv32_bus_port.sv instruction_fetch_queue.sv uart_boot_loader.sv synapse_ddr3_system.sv arty_ddr3_top.sv arty_linux_top.sv}
 foreach name $fabric_names {file copy -force "$here/$name" "$build/source/fabric/$name"}
 set rtl [glob "$build/source/rtl/*.v" "$build/source/rtl/core_modules/*.v" "$build/source/rtl/pipeline_stages/*.v" "$build/source/rtl/mmu/*.v"]
 set fabric [glob "$build/source/fabric/*.sv"]

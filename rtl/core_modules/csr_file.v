@@ -1,5 +1,5 @@
 `default_nettype none
-module csr_file (
+module csr_file #(parameter FETCH_ACCESS_FAULT = 0) (
     input wire clk,
     input wire rst,
     input wire [11:0] csr_addr,
@@ -28,6 +28,7 @@ module csr_file (
     input wire load_address_misaligned_exception,
     input wire store_address_misaligned_exception,
     input wire instr_page_fault_exception,
+    input wire instr_access_fault_exception,
     input wire load_page_fault_exception,
     input wire store_page_fault_exception,
     input wire breakpoint_trigger_exception,
@@ -164,12 +165,15 @@ module csr_file (
     wire instret_enabled = !mcountinhibit[2];
     wire writes_mcycle = write_enable && ((csr_addr == CSR_MCYCLE) || (csr_addr == CSR_MCYCLEH));
     wire writes_minstret = write_enable && ((csr_addr == CSR_MINSTRET) || (csr_addr == CSR_MINSTRETH));
+    // Default-off keeps omitted legacy input ports harmless in four-state simulation.
+    wire instr_access_fault_active = FETCH_ACCESS_FAULT ? instr_access_fault_exception : 1'b0;
     wire synchronous_exception = ecall_exception || ebreak_exception ||
                                  illegal_instruction_exception ||
                                  instruction_address_misaligned_exception ||
                                  load_address_misaligned_exception ||
                                  store_address_misaligned_exception ||
                                  instr_page_fault_exception ||
+                                 instr_access_fault_active ||
                                  load_page_fault_exception ||
                                  store_page_fault_exception ||
                                  breakpoint_trigger_exception;
@@ -186,6 +190,7 @@ module csr_file (
         load_page_fault_exception                 ? 32'h0000000D :
         store_page_fault_exception                ? 32'h0000000F :
         instr_page_fault_exception                ? 32'h0000000C :
+        instr_access_fault_active                  ? 32'h00000001 :
         instruction_address_misaligned_exception ? 32'h00000000 :
         breakpoint_trigger_exception              ? 32'h00000003 :
         illegal_instruction_exception             ? 32'h00000002 :
@@ -196,7 +201,7 @@ module csr_file (
         load_page_fault_exception                 ? 32'h0000000D :
         store_page_fault_exception                ? 32'h0000000F :
                                                     ecall_cause;
-    wire [31:0] exception_tval = (!page_fault_exception &&
+    wire [31:0] exception_tval = (!page_fault_exception && !instr_access_fault_active &&
                                   (ecall_exception || ebreak_exception)) ?
                                  32'h00000000 : exception_tval_in;
 

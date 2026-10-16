@@ -6,7 +6,7 @@ module synapse_ddr3_system #(
     parameter BOOT_WORDS=256, BOOT_FILE="boot.hex", SERIAL_BOOT=0,
     parameter ITERATIVE_MULDIV=0, UART_DIVISOR_SCALE=1, UART_DEFAULT_DIVISOR=10,
     parameter DCACHE_LINES=256, ICACHE_LINES=256, FAST_L1=0,
-    parameter STORE_BUFFER_DEPTH=0, FAST_MULTIPLY=0
+    parameter STORE_BUFFER_DEPTH=0, FAST_MULTIPLY=0, FETCH_QUEUE=0
 ) (
     input wire clk, rst, calibrated, uart_rx,
     output wire uart_tx, boot_done, fault, core_enable,
@@ -42,19 +42,24 @@ module synapse_ddr3_system #(
     wire retire_event, fetch_wait_event, data_wait_event, muldiv_wait_event, fence_wait_event;
     wire i_hit_event, i_miss_event, i_tlb_miss_event;
     wire d_hit_event, d_miss_event, d_tlb_miss_event;
+    wire instr_consume, instr_redirect, instr_access_fault;
+    wire [31:0] instr_redirect_pc;
     reg msip;
     initial begin
         if(STORE_BUFFER_DEPTH<0 || STORE_BUFFER_DEPTH>8 || (STORE_BUFFER_DEPTH>0&&!FAST_L1))
             $fatal(1,"Store queue requires FAST_L1 and depth 1..8, or zero to disable");
     end
     riscv_cpu #(.ITERATIVE_MULDIV(ITERATIVE_MULDIV),.FAST_MULTIPLY(FAST_MULTIPLY),
-                .EXTERNAL_STORE_BUFFER(STORE_BUFFER_DEPTH>0)) cpu (
+                .EXTERNAL_STORE_BUFFER(STORE_BUFFER_DEPTH>0),.FETCH_QUEUE(FETCH_QUEUE)) cpu (
         .clk(clk),.rst(cpu_rst),.module_instr_in(instr),.module_read_data_in(cpu_data),
         .module_pc_out(pc_debug),.module_wr_data_out(wr_data),
         .module_mem_wr_en(wr_en),.module_mem_rd_en(rd_en),
         .module_read_addr(rd_addr),.module_write_addr(wr_addr),
         .module_write_byte_enable(be),.module_load_type(load_type),
-        .module_instr_gnt_in(ignt),.module_instr_rvalid_in(ivalid),
+        .module_instr_gnt_in(FETCH_QUEUE ? 1'b0 : ignt),.module_instr_rvalid_in(ivalid),
+        .module_instr_consume_out(instr_consume),.module_instr_redirect_out(instr_redirect),
+        .module_instr_redirect_pc_out(instr_redirect_pc),
+        .module_instr_access_fault_in(instr_access_fault),
         .module_data_gnt_in(dgnt),.module_data_rvalid_in(dvalid),
         .module_instr_page_fault_in(ifault),
         .module_load_page_fault_in(dfault&&!write_intent),
@@ -85,12 +90,33 @@ module synapse_ddr3_system #(
     reg [31:0] transaction_addr_q, transaction_data_q;
     reg [3:0] transaction_be_q;
     reg transaction_we_q, transaction_ram_q;
-    sv32_bus_port #(.FETCH(1),.CACHE_LINES(FAST_L1 ? ICACHE_LINES : 0)) instr_port (
+    wire fetch_req, fetch_cancel, fetch_valid, fetch_page_fault, fetch_access_fault;
+    wire [31:0] fetch_pc, fetch_word;
+    wire port_valid, port_page_fault, port_access_fault;
+    wire [31:0] port_word;
+    instruction_fetch_queue fetch_queue (
+        .clk(clk),.rst(cpu_rst||!FETCH_QUEUE),.consume(instr_consume),.redirect(instr_redirect),
+        .redirect_pc(instr_redirect_pc),.cpu_pc(pc_debug),.flush_tlb(tlb_flush),
+        .translate(immu),.privilege(ipriv),.satp(satp),
+        .valid(fetch_valid),.instruction(fetch_word),.head_pc(),
+        .page_fault(fetch_page_fault),.access_fault(fetch_access_fault),
+        .req(fetch_req),.request_pc(fetch_pc),.cancel(fetch_cancel),
+        .gnt(ignt),.rvalid(port_valid),.response_data(port_word),
+        .response_page_fault(port_page_fault),.response_access_fault(port_access_fault)
+    );
+    assign ivalid=FETCH_QUEUE ? fetch_valid : port_valid;
+    assign instr=FETCH_QUEUE ? fetch_word : port_word;
+    assign ifault=FETCH_QUEUE ? fetch_page_fault : port_page_fault;
+    assign instr_access_fault=FETCH_QUEUE ? fetch_access_fault : 1'b0;
+    sv32_bus_port #(.FETCH(1),.CACHE_LINES(FAST_L1 ? ICACHE_LINES : 0),
+                    .PIPELINED_FETCH(FETCH_QUEUE)) instr_port (
         .clk(clk),.rst(cpu_rst),.flush_tlb(tlb_flush),
-        .req(!cpu_rst),.we(1'b0),.write_intent(1'b0),
-        .translate(immu),.va(pc_debug),.satp(satp),.wdata(32'b0),
+        .fetch_cancel(FETCH_QUEUE ? fetch_cancel : 1'b0),
+        .req(FETCH_QUEUE ? fetch_req : !cpu_rst),.we(1'b0),.write_intent(1'b0),
+        .translate(immu),.va(FETCH_QUEUE ? fetch_pc : pc_debug),.satp(satp),.wdata(32'b0),
         .privilege(ipriv),.sum(1'b0),.mxr(1'b0),.be(4'b0),.load_type(3'b010),
-        .gnt(ignt),.rvalid(ivalid),.page_fault(ifault),.rdata(instr),
+        .gnt(ignt),.rvalid(port_valid),.page_fault(port_page_fault),.rdata(port_word),
+        .access_fault(port_access_fault),
         .bus_req(ireq),.bus_we(iwe),.bus_addr(ia),.bus_wdata(idata),.bus_be(ibe),
         .bus_fetch(ifetch_bus),
         .bus_gnt(ibgnt),.bus_done(ibdone),.bus_rdata(bus_result),.bus_line(bridge_read_line),.bus_error(bus_error),
@@ -100,7 +126,7 @@ module synapse_ddr3_system #(
         .fatal_error(ifatal)
     );
     sv32_bus_port #(.CACHE_LINES(FAST_L1 ? DCACHE_LINES : 0)) data_port (
-        .clk(clk),.rst(cpu_rst),.flush_tlb(tlb_flush),
+        .clk(clk),.rst(cpu_rst),.flush_tlb(tlb_flush),.fetch_cancel(1'b0),
         .req((rd_en||wr_en)&&!(store_pending&&data_atomic)),.we(wr_en),.write_intent(write_intent),
         .translate(dmmu),.va(wr_en ? wr_addr : rd_addr),.satp(satp),.wdata(wr_data),
         .privilege(dpriv),.sum(sum),.mxr(mxr),.be(be),.load_type(load_type),
@@ -256,7 +282,9 @@ module synapse_ddr3_system #(
                              (select_uart ? uart_data : (select_timer ? timer_data : plic_data)));
             end else if(complete) begin
                 state<=0;
-                if(bus_error) fault_q<=1;
+                // Queued instruction reads can be speculative. Their errors
+                // travel with the instruction and trap precisely in CPU EX.
+                if(bus_error&&!(FETCH_QUEUE&&owner==2)) fault_q<=1;
                 if(owner==0&&!SERIAL_BOOT&&!bus_error) begin
                     boot_index<=boot_index+1;
                     if(boot_index==BOOT_WORDS-1) booted<=1;

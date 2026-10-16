@@ -6,7 +6,7 @@ BOOT_BAUD ?= 1000000
 IMAGE ?= build/linux-image/fw_payload.bin
 UART_LOG ?= build/hardware-uart.log
 
-.PHONY: bitstream performance-bitstream linux llvm-toolchain program upload test-board test test-phy test-linux test-core test-l1 test-store-buffer test-posted-stores test-perf-counters test-bram-coremark test-coremark-axi triangulator deploy-triangulator visualizer test-triangulator coremark coremark-baremetal coremark-profile coremark-linux-profiler
+.PHONY: bitstream performance-bitstream linux llvm-toolchain program upload test-board test test-fetch test-phy test-linux test-core test-l1 test-store-buffer test-posted-stores test-perf-counters test-bram-coremark test-coremark-axi triangulator deploy-triangulator visualizer test-triangulator coremark coremark-baremetal coremark-profile coremark-linux-profiler
 triangulator:
 	bash triangulator/build.sh
 deploy-triangulator: triangulator
@@ -46,6 +46,7 @@ test:
 	bash test_write_buffer.sh
 	bash test_posted_stores.sh
 	bash test_perf_counters.sh
+	$(MAKE) test-fetch
 	bash test_axi.sh
 	for fast in 0 1; do verilator --binary --timing -Wno-fatal -j 4 -I../../rtl/include --top-module tb_muldiv -GFAST_MULTIPLY=$$fast --Mdir build/obj_muldiv_fast$$fast tests/tb_muldiv.sv ../../rtl/core_modules/iterative_muldiv.v > build/muldiv-fast$$fast-compile.log 2>&1 && build/obj_muldiv_fast$$fast/Vtb_muldiv || exit $$?; done
 	$(PYTHON_RUN) tests/test_sv32_bus.py
@@ -53,6 +54,14 @@ test:
 	$(PYTHON_RUN) tests/test_uart_loader.py
 test-l1:
 	bash test_fast_l1.sh
+test-fetch:
+	bash test_pipelined_fetch_port.sh
+	bash test_instruction_fetch_queue.sh
+	bash test_instr_access_fault.sh
+	bash test_fetch_access_fault.sh
+	FETCH_QUEUE=0 EXPECT_INTERVAL=2 bash test_fetch_throughput.sh
+	FETCH_QUEUE=1 EXPECT_INTERVAL=1 bash test_fetch_throughput.sh
+	FETCH_QUEUE=1 POSTED_TEST_DEPTHS=4 POSTED_TEST_FAST_MUL=1 bash test_posted_stores.sh
 test-store-buffer:
 	bash test_write_buffer.sh
 test-posted-stores:

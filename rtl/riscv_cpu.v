@@ -2,7 +2,7 @@
 `include "memory_map.vh"
 `include "instr_defines.vh"
 module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
-                  EXTERNAL_STORE_BUFFER = 0) (
+                  EXTERNAL_STORE_BUFFER = 0, FETCH_QUEUE = 0) (
     input wire clk,
     input wire rst,
     input wire [31:0] module_instr_in,
@@ -19,6 +19,10 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     input wire module_store_page_fault_in,
     input wire [31:0] module_page_fault_addr_in,
     input wire module_instr_page_fault_in,
+    // Optional queued frontend: a fault token is consumed exactly like an instruction.
+    input wire module_instr_access_fault_in,
+    output wire module_instr_consume_out, module_instr_redirect_out,
+    output wire [31:0] module_instr_redirect_pc_out,
     // Memory interface: a request is outstanding until its response arrives.
     input wire module_instr_gnt_in,
     input wire module_instr_rvalid_in,
@@ -64,12 +68,14 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     wire mem_stage_trap_to_supervisor;
     wire [31:0] mem_stage_jump_addr;
     wire instr_stage_page_fault_taken;
+    wire instr_stage_access_fault_taken;
+    wire instr_stage_fault_taken;
     wire instr_stage_trap_to_supervisor;
     wire [31:0] instr_stage_jump_addr;
     // Priority: MEM page fault > instr page fault > EX branch/trap
-    assign pc_inst0_j_signal = mem_stage_page_fault_taken || instr_stage_page_fault_taken || ex_inst0_jump_signal_out;
+    assign pc_inst0_j_signal = mem_stage_page_fault_taken || instr_stage_fault_taken || ex_inst0_jump_signal_out;
     assign pc_inst0_jump = mem_stage_page_fault_taken   ? mem_stage_jump_addr :
-                           instr_stage_page_fault_taken ? instr_stage_jump_addr :
+                           instr_stage_fault_taken ? instr_stage_jump_addr :
                            ex_inst0_jump_addr_out;
     pc pc_inst0 (
         .clk(clk),
@@ -82,6 +88,10 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
 
     // Send out the PC value
     assign module_pc_out = pc_inst0_out;
+    assign module_instr_consume_out = !rst && !if_id_flush && !pipeline_stall && !fetch_wait;
+    assign module_instr_redirect_out = !rst && pc_inst0_j_signal;
+    assign module_instr_redirect_pc_out = pc_inst0_jump;
+    wire instr_access_fault_in = FETCH_QUEUE ? module_instr_access_fault_in : 1'b0;
 
 
     // Instantiate IF_ID pipeline register
@@ -89,17 +99,20 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     wire [31:0] if_id_instr_out;
     wire if_id_instr_valid_out;
     wire if_id_instr_page_fault_out;
+    wire if_id_instr_access_fault_out;
     wire execution_flush;
     wire branch_flush;
     wire if_id_flush;
     assign branch_flush = ex_inst0_jump_signal_out; // Flush IF/ID if branch taken
-    assign if_id_flush = branch_flush || execution_flush || mem_stage_page_fault_taken || instr_stage_page_fault_taken;
+    assign if_id_flush = branch_flush || execution_flush || mem_stage_page_fault_taken || instr_stage_fault_taken;
     IF_ID if_id_inst0 (
         .clk(clk),
         .rst(rst),
         .pc_in(pc_inst0_out),
-        .instruction_in(module_instr_in),
+        // Fault payload bits must not create CSR/return/multiply side effects.
+        .instruction_in(instr_access_fault_in ? 32'h00000013 : module_instr_in),
         .instr_page_fault_in(module_instr_page_fault_in),
+        .instr_access_fault_in(instr_access_fault_in),
         // A fetch still in flight delivers a bubble; while stalled, IF/ID keeps what it holds.
         .flush(if_id_flush || (fetch_wait && !pipeline_stall)),
         // Flush must win over stall, otherwise a stale IF/ID instruction can
@@ -108,7 +121,8 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         .pc_out(if_id_pc_out),
         .instruction_out(if_id_instr_out),
         .instruction_valid_out(if_id_instr_valid_out),
-        .instr_page_fault_out(if_id_instr_page_fault_out)
+        .instr_page_fault_out(if_id_instr_page_fault_out),
+        .instr_access_fault_out(if_id_instr_access_fault_out)
     );
 
     // Instantiate Decoder
@@ -186,12 +200,13 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     wire [31:0] id_ex_inst0_rs2_value_out;
     wire id_ex_inst0_instr_valid_out;
     wire id_ex_inst0_instr_page_fault_out;
+    wire id_ex_inst0_instr_access_fault_out;
 
     // Pipeline flush signals
     wire pipeline_flush;
 
     // Combine branch flush and execution unit flush
-    assign pipeline_flush = branch_flush || execution_flush || mem_stage_page_fault_taken || instr_stage_page_fault_taken;
+    assign pipeline_flush = branch_flush || execution_flush || mem_stage_page_fault_taken || instr_stage_fault_taken;
 
     ID_EX id_ex_inst0 (
         .clk(clk),
@@ -213,6 +228,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         .rs2_value_resolved_in(ex_inst0_rs2_value_out),
         .instr_valid_in(if_id_instr_valid_out),
         .instr_page_fault_in(if_id_instr_page_fault_out),
+        .instr_access_fault_in(if_id_instr_access_fault_out),
         .flush(pipeline_flush),
         .hold(pipeline_hold && !pipeline_flush),
         .stall(hazard_stall && !pipeline_flush),
@@ -230,7 +246,8 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         .rs1_value_out(id_ex_inst0_rs1_value_out),
         .rs2_value_out(id_ex_inst0_rs2_value_out),
         .instr_valid_out(id_ex_inst0_instr_valid_out),
-        .instr_page_fault_out(id_ex_inst0_instr_page_fault_out)
+        .instr_page_fault_out(id_ex_inst0_instr_page_fault_out),
+        .instr_access_fault_out(id_ex_inst0_instr_access_fault_out)
     );
 
     // Instantiate Execution Unit
@@ -310,7 +327,8 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
                                (id_ex_inst0_instr_id_out != INSTR_INVALID) &&
                                !interrupt_taken &&
                                !synchronous_exception_taken &&
-                               !mem_stage_page_fault_taken;
+                               !mem_stage_page_fault_taken &&
+                               !instr_stage_fault_taken;
 
     localparam PRIV_U = 2'b00;
     localparam PRIV_S = 2'b01;
@@ -361,7 +379,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     assign interrupt_taken_qualified = interrupt_taken &&
                                        !synchronous_exception_taken &&
                                        !mem_stage_page_fault_taken &&
-                                       !instr_stage_page_fault_taken;
+                                       !instr_stage_fault_taken;
 
     // WFI sleep state: stall fetch/decode until an enabled interrupt becomes
     // pending, even if the corresponding global interrupt-enable bit is clear.
@@ -423,7 +441,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     // A page-faulting access never reaches memory, so it is not waited for.
     // A fetch accepted before a redirect answers for the old PC, so its response is dropped.
     assign fetch_response_valid = module_instr_rvalid_in && !fetch_discard;
-    assign fetch_wait = !fetch_response_valid && !module_instr_page_fault_in;
+    assign fetch_wait = !fetch_response_valid && !module_instr_page_fault_in && !instr_access_fault_in;
     // Outstanding until rvalid; an AMO's read response still leaves its write to issue.
     assign module_data_atomic_out = is_lr_w || is_sc_w || is_amo_w;
     assign mem_wait = (EXTERNAL_STORE_BUFFER && module_store_pending_in && module_data_atomic_out) ||
@@ -542,7 +560,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     );
 
     // Instantiate CSR file at CPU level
-    csr_file csr_file_inst (
+    csr_file #(.FETCH_ACCESS_FAULT(FETCH_QUEUE)) csr_file_inst (
         .clk(clk),
         .rst(rst),
         .csr_addr(csr_addr),
@@ -568,6 +586,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         .load_address_misaligned_exception(load_address_misaligned_exception),
         .store_address_misaligned_exception(store_address_misaligned_exception),
         .instr_page_fault_exception(instr_stage_page_fault_taken),
+        .instr_access_fault_exception(instr_stage_access_fault_taken),
         .load_page_fault_exception(mem_stage_load_page_fault),
         .store_page_fault_exception(mem_stage_store_page_fault),
         .breakpoint_trigger_exception(breakpoint_trigger_exception),
@@ -624,7 +643,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         // Interrupt connections
         .interrupt_pending(interrupt_pending &&
                            !mem_stage_page_fault_taken &&
-                           !instr_stage_page_fault_taken),
+                           !instr_stage_fault_taken),
         .interrupt_cause(interrupt_cause),
         .interrupt_to_supervisor(interrupt_to_supervisor),
         .interrupt_vector(interrupt_vector),
@@ -677,7 +696,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         .rst(rst),
         .hold(mem_wait),
         .flush((md_wait && !mem_wait) || mem_stage_page_fault_taken ||
-               instr_stage_page_fault_taken ||
+               instr_stage_fault_taken ||
                synchronous_exception_taken ||
                interrupt_taken_qualified),
         .rs1_addr_in(id_ex_inst0_rs1_addr_out),
@@ -918,18 +937,24 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
                                           id_ex_inst0_instr_valid_out &&
                                           ex_stage_active &&
                                           !execute_trigger_hit;
+    assign instr_stage_access_fault_taken = id_ex_inst0_instr_access_fault_out &&
+                                            !id_ex_inst0_instr_page_fault_out &&
+                                            id_ex_inst0_instr_valid_out &&
+                                            ex_stage_active && !execute_trigger_hit;
+    assign instr_stage_fault_taken = instr_stage_page_fault_taken || instr_stage_access_fault_taken;
     assign instr_stage_trap_to_supervisor =
-        (csr_file_inst.privilege_mode != PRIV_M) && csr_file_inst.medeleg[12];
+        (csr_file_inst.privilege_mode != PRIV_M) &&
+        (instr_stage_page_fault_taken ? csr_file_inst.medeleg[12] : csr_file_inst.medeleg[1]);
     assign instr_stage_jump_addr = instr_stage_trap_to_supervisor ? stvec_base : mtvec_base;
 
     assign csr_exception_pc = mem_stage_page_fault_taken   ? ex_mem_inst0_pc_out :
-                              instr_stage_page_fault_taken ? id_ex_inst0_pc_out :
+                              instr_stage_fault_taken ? id_ex_inst0_pc_out :
                               exception_pc;
     assign csr_trap_to_supervisor = mem_stage_page_fault_taken   ? mem_stage_trap_to_supervisor :
-                                    instr_stage_page_fault_taken ? instr_stage_trap_to_supervisor :
+                                    instr_stage_fault_taken ? instr_stage_trap_to_supervisor :
                                     trap_to_supervisor;
     assign csr_exception_tval = mem_stage_page_fault_taken   ? ex_mem_inst0_mem_addr_out :
-                                instr_stage_page_fault_taken ? id_ex_inst0_pc_out :
+                                instr_stage_fault_taken ? id_ex_inst0_pc_out :
                                 exception_tval;
 
     // Instantiate MEM_WB pipeline register

@@ -156,8 +156,82 @@ to CoreMark's internally timed loop. Do not label them userspace-only CPI.
 
 ## Current verified profile
 
-Board defaults are BRAM L1, a four-entry store queue and fast multiplication at
-50 MHz. The optional 62.5 MHz profile passed all CRC/duration checks and timing
+### Queued instruction fetch
+
+`FETCH_QUEUE=1` gives the FPGA a separate sequential request PC, four reserved
+instruction slots, and a pipelined I-cache/TLB hit path. An empty queue forwards
+the returning instruction directly; backpressure retains it. The CPU's existing
+PC remains the architectural instruction position. Branches, traps, FENCE.I,
+SFENCE.VMA, satp writes and privilege/translation changes discard queued and
+in-flight work. Already granted bus reads drain before a new request is accepted.
+Speculative fetches cannot read MMIO. Instruction access faults carry their PC
+to EX and use cause 1, including supervisor delegation; page faults use cause 12.
+
+The warm 64-instruction loop improves from exactly **two clocks per instruction**
+to **one clock per instruction**, including request, response and counted
+instruction cadence. The final accumulator checks for dropped or repeated work.
+See [fetch-throughput.json](results/fetch-throughput.json) for traces and hashes.
+
+With the same 1 MHz profiling binary and 20-cycle AXI response model:
+
+| Fetch path | Performance CoreMark/MHz | CPI | Timed instructions |
+| --- | ---: | ---: | ---: |
+| Serialized cache controller | 1.245175 | 3.149472 | 12,749,965 |
+| Pipelined controller and queue | 1.561573 | 2.511313 | 12,749,965 |
+
+Both performance and validation seeds pass, with runs over 10 simulated seconds.
+The gain is **25.41%** in this model. A registered-only queue measured 1.510894;
+empty-queue forwarding removes another refill cycle. The initial forwarding
+candidate measured 1.562207; removing the live cancellation path from bus
+arbitration gives the final 1.561573 result. A cancel-edge RAM read grant drains
+silently, preserving bus ownership without a long redirect-to-device path.
+Instruction access and page faults are both excluded from `instret`.
+These are simulation
+results; use the physical measurements below for FPGA throughput.
+Full reports, counter snapshots, bitstream/source hashes and clock-matched
+baselines are in [fetch-performance.json](results/fetch-performance.json).
+
+Run `make -C fpga/arty_a7_35t test-fetch` for queue credits/backpressure,
+redirect/context cancellation, pipelined cache hits and misses, precise access
+faults, fences, atomics and warm-loop cadence. `test_linux.sh` defaults to this
+fetch path and requires boot plus execution of a UART shell command.
+
+```bash
+FAST_MULTIPLY=1 FETCH_QUEUE=1 bash fpga/arty_a7_35t/test_coremark_axi.sh \
+  build/coremark-profile-1000000/coremark.bin
+PERF_TAG=fetch-queue-50 CPU_DIVIDE=20 BOOT_BAUD=2000000 \
+  FAST_L1=1 STORE_BUFFER_DEPTH=4 FAST_MULTIPLY=1 FETCH_QUEUE=1 \
+  vivado -mode batch -nojournal -source fpga/arty_a7_35t/build_performance.tcl
+```
+
+The simulation uses the fixed profiling binary, not a benchmark recompiled to
+exploit the fetch change. Queue-enabled I-cache events include speculative work;
+they are not instruction retirement counts or a per-retired-instruction hit rate.
+
+### Initial 50 MHz FPGA measurements
+
+| Environment | CoreMark | CoreMark/MHz |
+| --- | ---: | ---: |
+| Bare metal | 88.264661 | 1.765293 |
+| Linux, aligned buffer, 25 Hz tick | 86.422954 | 1.728459 |
+
+The bare-metal median improves **32.19%** over the previous 50 MHz result of
+66.768841. Linux reaches **97.91%** of the bare-metal throughput. Three
+performance runs and one validation run pass in each environment. The initial
+bitstream meets setup +0.274 ns and hold +0.054 ns, using four RAMB36s/four DSPs.
+It precedes the cancellation timing change and page-fault counter correction;
+its exact source hashes and a reproduction patch are preserved in the result
+artifact. Benchmark loops have no instruction faults.
+
+The 16/32/64-point Linux mesh tests validate all 60 frames, including exact
+geometry agreement with the previous run. Median computation is
+6.3335/33.888/232.584 ms respectively at 50 MHz; UART transport also limits
+visible frame rate.
+
+### Previous FPGA profile
+
+The previous profile used BRAM L1, a four-entry store queue and fast multiplication
+at 50 MHz. Its optional 62.5 MHz profile passed all CRC/duration checks and timing
 (setup +0.023 ns, hold +0.051 ns); its setup margin is narrow. Tested artifacts:
 `build/performance/fastmul-bram-l1-62/synapse32_fastmul-bram-l1-62.bit` and
 `build/linux-image-25hz-cpu62-aligned-profile/fw_payload.bin` (2 Mbaud loader,
