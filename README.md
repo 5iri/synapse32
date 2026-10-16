@@ -89,6 +89,10 @@ The helper script `run_c_code.py` will compile the C code, generate the necessar
 
 ## CPU Regression Tests
 
+For reproducible Linux and direct M-mode CoreMark builds and result validation,
+see [benchmarks/coremark](benchmarks/coremark). The benchmark package does not
+change the CPU or memory-system RTL.
+
 The CPU comes with a set of regression tests to ensure its functionality. These tests cover various aspects of the CPU, including instruction execution, pipeline behavior, and hazard handling.
 
 These tests are written in Python using the Cocotb framework, which allows for writing testbenches in Python and simulating them with Verilog.
