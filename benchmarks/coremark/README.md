@@ -114,4 +114,43 @@ translation, traps/interrupts, scheduling and link/data layout effects; it
 does not isolate scheduler overhead. Simulation RAM and external DDR can
 have very different latency. [Measured cacheless comparison](RESULTS.md).
 
+## Fast-memory pipeline experiment
+
+`fastmem.sh` runs the CPU directly in Verilator with code, data, BSS and stack
+in 64 MiB of host-backed RAM. Independent instruction/data ports use the
+existing `mem_adapter` with zero- or one-cycle responses. There are no caches,
+translation, DDR, board adapters or OS. UART MMIO is immediate and used outside
+the timed algorithms. This is a latency model, not a placed/routed BRAM design.
+
+Build the bare-metal port for a **nominal simulated 1 MHz** timer, then run:
+
+```sh
+CPU_CLOCK_HZ=1000000 \
+  COREMARK_BAREMETAL_OUT="$PWD/benchmarks/coremark/build/sim-1mhz" \
+  bash benchmarks/coremark/build_baremetal.sh
+bash benchmarks/coremark/fastmem.sh --latency 0 --iterations 50 | tee fastmem.log
+python3 benchmarks/coremark/report.py fastmem.log --cpu-mhz 1 --output fastmem.json
+```
+
+Verilator and a C++17 compiler are required. Each run executes both the
+performance and validation seeds. Fifty iterations meet the ten-second rule
+at 1 MHz without simulating hundreds of millions of clocks; the simulator is
+not paced to wall time. CoreMark/MHz and CPI are the comparison quantities.
+The nominal timer frequency is not a hardware clock or Fmax measurement.
+
+The default RTL is this repository's CPU, with combinational multiply/divide.
+To isolate memory while matching a CPU with the optional iterative M unit:
+
+```sh
+bash benchmarks/coremark/fastmem.sh --rtl-root /path/to/matched/rtl --latency 0
+bash benchmarks/coremark/fastmem.sh --rtl-root /path/to/matched/rtl --latency 1
+```
+
+The harness detects the `ITERATIVE_MULDIV` parameter and enables it when
+present. Treat upstream combinational and matched iterative arithmetic as
+different configurations. The physical reference's algorithm object files
+match the 1 MHz build byte-for-byte, and all simulated performance runs retire
+the same 12,749,961 instructions as the physical 50-iteration run. See the
+[measured memory comparison](RESULTS.md#fast-memory-isolation).
+
 Upstream benchmark and run rules: <https://github.com/eembc/coremark>.
