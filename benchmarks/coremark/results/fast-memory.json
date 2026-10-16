@@ -1,0 +1,179 @@
+{
+  "experiment": "CoreMark code, data, BSS and stack in independent fast instruction/data host RAM ports",
+  "simulator": "Verilator 5.052 2026-09-05 rev v5.052",
+  "memory_bytes": 67108864,
+  "instruction_cache_bytes": 0,
+  "data_cache_bytes": 0,
+  "mmu_enabled": false,
+  "interrupts_enabled": false,
+  "nominal_simulated_cpu_hz": 1000000,
+  "payload_sha256": "dcd5cff61ae428c99b48b9da4688ab79e3fccbf3c836eae6afd0f81ce5dea550",
+  "iterations_per_seed": 50,
+  "algorithm_match": "Complete list/matrix/state object files are byte-identical to physical 50 MHz build; iterate instruction bytes identical before relocation.",
+  "physical_reference": {
+    "clock_hz": 50000000,
+    "coremark_per_mhz": 0.06665333999999999,
+    "median_cpi": 58.838771193104044,
+    "timed_retired_instructions": 12749961
+  },
+  "models": [
+    {
+      "model": "fpga-iterative-0",
+      "arithmetic": "iterative multiply/divide, matched to physical core",
+      "memory_response_latency_cycles": 0,
+      "nominal_cpu_hz": 1000000,
+      "rtl_commit": "bb54ce4127008dc60a36a4c2120ea558d1b33709",
+      "rtl_tree_sha1": "265eab3daef7cc8ed632230c65e9fab9661052b0",
+      "reports": [
+        {
+          "mode": "performance",
+          "iterations": 50,
+          "seconds": 33.237,
+          "iterations_per_second": 1.504348,
+          "compiler": "Clang 23.1.1",
+          "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+          "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+          "validated": true,
+          "cpu_mhz": 1,
+          "coremark_per_mhz": 1.504348,
+          "cycles": 33237575,
+          "retired_instructions": 12749961,
+          "cpi": 2.606876601426467
+        },
+        {
+          "mode": "validation",
+          "iterations": 50,
+          "seconds": 33.233,
+          "iterations_per_second": 1.504529,
+          "compiler": "Clang 23.1.1",
+          "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+          "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+          "validated": true,
+          "cpu_mhz": 1,
+          "coremark_per_mhz": 1.504529,
+          "cycles": 33233613,
+          "retired_instructions": 12722675,
+          "cpi": 2.6121560913880137
+        }
+      ],
+      "raw_output": "FASTMEM_CONFIG arithmetic=fpga-iterative-0 binary=/home/lazybanana/github/synapse32-coremark-pr/benchmarks/coremark/build/sim-1mhz/coremark.bin CPU_CLOCK_HZ=1000000 iterations=50\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e848e\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 33237\nTotal time (secs): 33.237000\nIterations/Sec   : 1.504348\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 1.504348 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x0000000001fb2a47\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 33233\nTotal time (secs): 33.233000\nIterations/Sec   : 1.504529\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nTimed CPU cycles: 0x0000000001fb1acd\nTimed retired instructions: 0x0000000000c221f3\nS32_BAREMETAL_DONE:0\n\nFASTMEM_SUMMARY cycles=69233873 csr_cycles=69233873 instret=27630257 fetch_wait=0 mem_wait=0 hazard_stall=3393221 completed=2\n",
+      "host_rtl_crosscheck": {
+        "cycles": 69233873,
+        "csr_cycles": 69233873,
+        "instret": 27630257,
+        "fetch_wait": 0,
+        "mem_wait": 0,
+        "hazard_stall": 3393221,
+        "completed": 2
+      }
+    },
+    {
+      "model": "fpga-iterative-1",
+      "arithmetic": "iterative multiply/divide, matched to physical core",
+      "memory_response_latency_cycles": 1,
+      "nominal_cpu_hz": 1000000,
+      "rtl_commit": "bb54ce4127008dc60a36a4c2120ea558d1b33709",
+      "rtl_tree_sha1": "265eab3daef7cc8ed632230c65e9fab9661052b0",
+      "reports": [
+        {
+          "mode": "performance",
+          "iterations": 50,
+          "seconds": 47.92,
+          "iterations_per_second": 1.043406,
+          "compiler": "Clang 23.1.1",
+          "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+          "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+          "validated": true,
+          "cpu_mhz": 1,
+          "coremark_per_mhz": 1.043406,
+          "cycles": 47920134,
+          "retired_instructions": 12749961,
+          "cpi": 3.7584533787985706
+        },
+        {
+          "mode": "validation",
+          "iterations": 50,
+          "seconds": 47.889,
+          "iterations_per_second": 1.044081,
+          "compiler": "Clang 23.1.1",
+          "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+          "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+          "validated": true,
+          "cpu_mhz": 1,
+          "coremark_per_mhz": 1.044081,
+          "cycles": 47889328,
+          "retired_instructions": 12722675,
+          "cpi": 3.7640926927709777
+        }
+      ],
+      "raw_output": "FASTMEM_CONFIG arithmetic=fpga-iterative-1 binary=/home/lazybanana/github/synapse32-coremark-pr/benchmarks/coremark/build/sim-1mhz/coremark.bin CPU_CLOCK_HZ=1000000 iterations=50\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e8494\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 47920\nTotal time (secs): 47.920000\nIterations/Sec   : 1.043406\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 1.043406 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x0000000002db3406\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 47889\nTotal time (secs): 47.889000\nIterations/Sec   : 1.044081\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nTimed CPU cycles: 0x0000000002dabbb0\nTimed retired instructions: 0x0000000000c221f3\nS32_BAREMETAL_DONE:0\n\nFASTMEM_SUMMARY cycles=98753145 csr_cycles=98753145 instret=26625047 fetch_wait=50762448 mem_wait=7087953 hazard_stall=1060631 completed=2\n",
+      "host_rtl_crosscheck": {
+        "cycles": 98753145,
+        "csr_cycles": 98753145,
+        "instret": 26625047,
+        "fetch_wait": 50762448,
+        "mem_wait": 7087953,
+        "hazard_stall": 1060631,
+        "completed": 2
+      }
+    },
+    {
+      "model": "upstream-combinational-0",
+      "arithmetic": "upstream combinational multiply/divide, separate arithmetic configuration",
+      "memory_response_latency_cycles": 0,
+      "nominal_cpu_hz": 1000000,
+      "rtl_commit": "45433c387b07de048798fe93ba292a3e923083ad",
+      "rtl_tree_sha1": "c078379c862d64bcd4dc0bbca0ab4b45e7774916",
+      "reports": [
+        {
+          "mode": "performance",
+          "iterations": 50,
+          "seconds": 17.615,
+          "iterations_per_second": 2.83849,
+          "compiler": "Clang 23.1.1",
+          "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+          "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+          "validated": true,
+          "cpu_mhz": 1,
+          "coremark_per_mhz": 2.83849,
+          "cycles": 17615375,
+          "retired_instructions": 12749961,
+          "cpi": 1.3816022652932036
+        },
+        {
+          "mode": "validation",
+          "iterations": 50,
+          "seconds": 17.611,
+          "iterations_per_second": 2.839135,
+          "compiler": "Clang 23.1.1",
+          "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+          "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+          "validated": true,
+          "cpu_mhz": 1,
+          "coremark_per_mhz": 2.839135,
+          "cycles": 17611413,
+          "retired_instructions": 12722675,
+          "cpi": 1.3842539403073646
+        }
+      ],
+      "raw_output": "FASTMEM_CONFIG arithmetic=upstream-combinational-0 binary=/home/lazybanana/github/synapse32-coremark-pr/benchmarks/coremark/build/sim-1mhz/coremark.bin CPU_CLOCK_HZ=1000000 iterations=50\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e848e\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 17615\nTotal time (secs): 17.615000\nIterations/Sec   : 2.838490\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 2.838490 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nTimed CPU cycles: 0x00000000010cca0f\nTimed retired instructions: 0x0000000000c28c89\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 17611\nTotal time (secs): 17.611000\nIterations/Sec   : 2.839135\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nTimed CPU cycles: 0x00000000010cba95\nTimed retired instructions: 0x0000000000c221f3\nS32_BAREMETAL_DONE:0\n\nFASTMEM_SUMMARY cycles=37940123 csr_cycles=37940123 instret=27630776 fetch_wait=0 mem_wait=0 hazard_stall=3393295 completed=2\n",
+      "host_rtl_crosscheck": {
+        "cycles": 37940123,
+        "csr_cycles": 37940123,
+        "instret": 27630776,
+        "fetch_wait": 0,
+        "mem_wait": 0,
+        "hazard_stall": 3393295,
+        "completed": 2
+      }
+    }
+  ],
+  "limitations": [
+    "Nominal simulated frequency is not a physical timing/Fmax claim.",
+    "Independent zero/one-cycle memory ports replace DDR, its arbitration, CDC and board adapters collectively.",
+    "One-cycle response is a latency model, not a placed/routed BRAM implementation.",
+    "Upstream default has a different multiply/divide implementation from the physical core.",
+    "UART MMIO is immediate; UART/reporting are outside timed workload.",
+    "One performance and one validation run per deterministic simulation model; all meet ten simulated seconds and reference CRCs."
+  ]
+}
