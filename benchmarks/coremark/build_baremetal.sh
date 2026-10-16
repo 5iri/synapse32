@@ -7,7 +7,7 @@ output="${COREMARK_BAREMETAL_OUT:-$here/build/baremetal}"
 compiler="${COREMARK_CC:-riscv32-unknown-elf-gcc}"
 cpu_clock="${CPU_CLOCK_HZ:-50000000}"
 case "$cpu_clock" in ''|*[!0-9]*) echo 'CPU_CLOCK_HZ must be an integer' >&2; exit 1;; esac
-test "$cpu_clock" -ge 1000 && test "$((cpu_clock%1000))" -eq 0
+test "$cpu_clock" -ge 1000
 mkdir -p "$output/port" "$output/linux-reference/port"
 revision=b56889a7bd9d5624fbeff2a73ba69878e6a9c146
 if [ ! -d "$source_dir/.git" ]; then

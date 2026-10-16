@@ -49,7 +49,15 @@ void stop_time(void) {
     retired_stop=retired(); cycles_stop=cycles(); timer_stop=mtime();
 }
 CORE_TICKS get_time(void) {
+#if CPU_CLOCK_HZ % 1000 == 0
     return (CORE_TICKS)((timer_stop-timer_start)/(CPU_CLOCK_HZ/1000));
+#else
+    // Preserve millisecond ticks for fractional-MHz clocks without rounding
+    // the clock first or overflowing a cycles*1000 intermediate.
+    uint64_t elapsed=timer_stop-timer_start;
+    return (CORE_TICKS)((elapsed/CPU_CLOCK_HZ)*1000+
+                       ((elapsed%CPU_CLOCK_HZ)*1000)/CPU_CLOCK_HZ);
+#endif
 }
 secs_ret time_in_secs(CORE_TICKS ticks) { return (secs_ret)ticks/1000.0; }
 void portable_init(core_portable *p,int *argc,char *argv[]) {
