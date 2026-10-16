@@ -26,6 +26,13 @@ foreach name {CPU_DIVIDE BOOT_BAUD} {
         lappend generics "$name=$::env($name)"
     }
 }
+if {[info exists ::env(DCACHE_LINES)]} {
+    set lines $::env(DCACHE_LINES)
+    if {![string is integer -strict $lines] || $lines < 0 || $lines > 65536 || ($lines > 0 && ($lines & ($lines-1)) != 0)} {
+        error "DCACHE_LINES must be zero or a power of two up to 65536"
+    }
+    lappend generics "DCACHE_LINES=$lines"
+}
 if {[llength $generics]} {set_property generic $generics [get_filesets sources_1]}
 add_files -fileset constrs_1 -norecurse "$here/arty.xdc"
 update_compile_order -fileset sources_1

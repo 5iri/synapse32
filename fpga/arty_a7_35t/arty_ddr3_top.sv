@@ -3,7 +3,7 @@
 module arty_ddr3_top #(
     parameter SERIAL_BOOT=0, BOOT_WORDS=256, BOOT_FILE="boot.hex",
     parameter ITERATIVE_MULDIV=1, CLOCK_HZ=81250000, SEPARATE_CPU_CLOCK=0,
-    parameter BOOT_BAUD=115200
+    parameter BOOT_BAUD=115200, DCACHE_LINES=256
 ) (
     input wire clk100, clk_ref200, reset_n, uart_rx, cpu_clk50,
     output wire uart_tx, calibrated, boot_done, fault,
@@ -60,7 +60,7 @@ module arty_ddr3_top #(
     assign uart_tx=boot_done ? cpu_tx : loader_tx;
     assign fault=system_fault||loader_error;
     synapse_ddr3_system #(.SERIAL_BOOT(SERIAL_BOOT),.BOOT_WORDS(BOOT_WORDS),.BOOT_FILE(BOOT_FILE),
-        .ITERATIVE_MULDIV(ITERATIVE_MULDIV),.UART_DIVISOR_SCALE(16),
+        .ITERATIVE_MULDIV(ITERATIVE_MULDIV),.UART_DIVISOR_SCALE(16),.DCACHE_LINES(DCACHE_LINES),
         .UART_DEFAULT_DIVISOR((CLOCK_HZ+115200*8)/(115200*16))) system_inst (
         .clk(fabric_clk),.rst(rst),.calibrated(cal_sync[1]),
         .uart_tx(cpu_tx),.uart_rx(uart_sync[1]),.boot_done(boot_done),.fault(system_fault),

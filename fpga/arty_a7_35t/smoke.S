@@ -79,8 +79,13 @@ _start:
     bne t1, t2, fail
     // Change an instruction in DDR3, then execute it after fence.i.
     la t4, patched_instruction
+    // Warm the D-cache with the old code before patching the same line.
+    lw t2, 0(t4)
     li t1, 0x04d00393  // addi t2, zero, 77
     sw t1, 0(t4)
+    fence rw, rw
+    lw t2, 0(t4)
+    bne t1, t2, fail
     fence.i
     j patched_instruction
 patched_instruction:
@@ -127,6 +132,10 @@ supervisor:
     li t1, 0x55aa7733
     sw t1, 0(t0)
     lw t2, 0(t0)
+    bne t1, t2, supervisor_fail
+    // The virtual alias and identity mapping share one physical D-cache line.
+    li t3, 0x80001000
+    lw t2, 0(t3)
     bne t1, t2, supervisor_fail
     // Return to M via an ECALL; exercise delegation-clear exception entry.
     la t1, machine_resume

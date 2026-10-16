@@ -2,7 +2,7 @@
 `default_nettype none
 // Independent, single-beat AXI RAM with independently stalled address/data
 // channels and delayed read/write responses. This is not a DDR3 PHY model.
-module tb_axi #(parameter ERROR_KIND=0);
+module tb_axi #(parameter ERROR_KIND=0, DCACHE_LINES=256);
     reg clk=0, rst=1, calibrated=0;
     always #5 clk=~clk;
     wire [27:0] addr;
@@ -14,7 +14,7 @@ module tb_axi #(parameter ERROR_KIND=0);
     wire uart_tx,boot_done,fault,core_enable;
     wire [31:0] pc;
     reg [27:0] saved_aw, saved_ar;
-    synapse_ddr3_system #(.ITERATIVE_MULDIV(1)) dut (
+    synapse_ddr3_system #(.ITERATIVE_MULDIV(1),.DCACHE_LINES(DCACHE_LINES)) dut (
         .clk(clk),.rst(rst),.calibrated(calibrated),.uart_tx(uart_tx),.uart_rx(1'b1),
         .load_req(1'b0),.load_finish(1'b0),.load_addr(32'b0),.load_data(32'b0),.load_ready(),.load_done(),
         .boot_done(boot_done),.fault(fault),.core_enable(core_enable),.pc_debug(pc),
@@ -45,6 +45,7 @@ module tb_axi #(parameter ERROR_KIND=0);
     always @(posedge clk) begin
         ticks<=ticks+1;
         if(!rst) begin
+            if(dut.mmio_fire && dut.bridge.req) $fatal(1,"MMIO reached cached RAM bridge");
             if(arvalid&&arready) begin
                 saved_ar<=addr; read_delay<=3+(ticks%9);
                 if(addr<28'h4000000) fetches<=fetches+1; else reads<=reads+1;

@@ -319,3 +319,29 @@ host tools change; final printk settings are restored to `8 4 1 7` after upload.
 Eight host geometry/viewer/protocol/UART tests pass. The narrow timing margin
 is recorded without claiming an absolute frequency ceiling or unlimited
 runtime stability.
+
+## Data cache, 2026-10-16
+
+The board DDR bridge now has a 4 KiB physical direct-mapped data cache with
+16-byte lines. Only data-port reads allocate. All stores remain write-through,
+wait for the AXI response and update matching cache lines by byte enable;
+instruction reads remain uncached. MMIO never enters the DDR bridge. There
+are no dirty lines, new cache-maintenance instructions or Linux image changes.
+
+`make test` passes with four cache capacities (disabled, one line, 1 KiB and
+4 KiB). Directed cases cover line reuse, last-byte reads, byte/halfword/sparse
+stores, uncached reads and writers, tag conflicts, no-write-allocate, failed
+stores/refills, missing RLAST and reset. Each capacity also runs 300 fixed-seed
+random samples against an independent byte scoreboard. The CPU AXI suite
+passes normal/error-response tests with the cache both disabled and enabled;
+the smoke program now warms code through the data port before patching it,
+executes FENCE/FENCE.I, and checks virtual aliases of one physical word.
+Existing MMU/TLB, UART loader, iterative M and four core regression runners
+also pass.
+
+Vivado 2024.2 out-of-context synthesis of the bridge infers two RAMB36E1 tiles
+for the cache data. This is a synthesis check, not full-board timing signoff.
+The real 62.5 MHz / 25 Hz Linux image boots in the full cached SoC simulation
+and executes `echo FPGA_BOOT_OK` through its UART in 750,497,246 cycles.
+Evidence: `build/dcache-regressions.log`, `build/dcache-core-regressions.log`,
+`build/dcache-utilization.rpt`, and `build/dcache-linux.log`.

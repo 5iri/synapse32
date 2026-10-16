@@ -14,6 +14,7 @@ mkdir -p build
 verilator --cc --exe --build -O3 -Wno-fatal -j 4 -I../../rtl/include \
     --top-module synapse_ddr3_system --Mdir "$sim_build" \
     -GSERIAL_BOOT=1 -GITERATIVE_MULDIV=1 -GUART_DIVISOR_SCALE=16 -GUART_DEFAULT_DIVISOR="$uart_divisor" \
+    -GDCACHE_LINES="${DCACHE_LINES:-256}" \
     -CFLAGS "-O3 -DUART_BIT_CYCLES=$uart_bit_cycles" tests/linux_axi.cpp synapse_ddr3_system.sv axi_word_bridge.sv sv32_bus_port.sv \
     ../../rtl/riscv_cpu.v ../../rtl/execution_unit.v ../../rtl/memory_unit.v \
     ../../rtl/writeback.v ../../rtl/core_modules/*.v ../../rtl/pipeline_stages/*.v ../../rtl/mmu/sv32_tlb.v \

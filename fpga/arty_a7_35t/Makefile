@@ -33,6 +33,7 @@ upload:
 test-board:
 	$(PYTHON_RUN) test_board.py $(PORT) $(IMAGE) --baud $(BOOT_BAUD)
 test:
+	bash test_dcache.sh
 	bash test_axi.sh
 	verilator --binary --timing -Wno-fatal -j 4 -I../../rtl/include --top-module tb_muldiv --Mdir build/obj_muldiv tests/tb_muldiv.sv ../../rtl/core_modules/iterative_muldiv.v > build/muldiv-compile.log 2>&1
 	build/obj_muldiv/Vtb_muldiv

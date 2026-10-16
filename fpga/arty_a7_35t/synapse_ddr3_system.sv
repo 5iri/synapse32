@@ -4,7 +4,8 @@
 // SERIAL_BOOT=1 holds the CPU reset while the host loader writes the payload.
 module synapse_ddr3_system #(
     parameter BOOT_WORDS=256, BOOT_FILE="boot.hex", SERIAL_BOOT=0,
-    parameter ITERATIVE_MULDIV=0, UART_DIVISOR_SCALE=1, UART_DEFAULT_DIVISOR=10
+    parameter ITERATIVE_MULDIV=0, UART_DIVISOR_SCALE=1, UART_DEFAULT_DIVISOR=10,
+    parameter DCACHE_LINES=256
 ) (
     input wire clk, rst, calibrated, uart_rx,
     output wire uart_tx, boot_done, fault, core_enable,
@@ -121,8 +122,9 @@ module synapse_ddr3_system #(
                      28'(address-`DATA_MEM_BASE+`INSTR_MEM_SIZE);
         end
     endfunction
-    axi_word_bridge bridge (
+    axi_word_bridge #(.CACHE_LINES(DCACHE_LINES)) bridge (
         .clk(clk),.rst(rst),.req(accept&&select_ram),.we(select_we),
+        .cache_read(booted&&(select_owner==1)),
         .addr(physical(select_addr)),.data(select_data),.be(select_be),
         .ready(bridge_ready),.done(bridge_done),.error(bridge_error),.result(bridge_result),
         .axi_addr(axi_addr),.arvalid(arvalid),.arready(arready),.rready(rready),
