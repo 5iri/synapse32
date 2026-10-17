@@ -216,7 +216,8 @@ access errors instead reach the CPU as precise instruction access faults.
 
 ### Instruction and data caches
 
-The board defaults to `FAST_L1=1 STORE_BUFFER_DEPTH=4 FAST_MULTIPLY=1 FETCH_QUEUE=1` at 50 MHz.
+The board defaults to `FAST_L1=1 STORE_BUFFER_DEPTH=8 FAST_MULTIPLY=1 FETCH_QUEUE=1`
+and `LOAD_FORWARDING=0 FAST_STORE_ACK=1` at 50 MHz.
 `FAST_L1=1` moves the physically tagged I/D caches onto independent synchronous
 ports ahead of the shared bus arbiter. A hit returns in one cycle, including
 while the other port waits for DDR. Each 4 KiB bank uses two RAMB36 blocks.
@@ -231,12 +232,28 @@ the original serialized interface for comparisons. Run `make test-fetch` in
 this directory for the fetch, fault and fence regressions; see the
 [measured performance and reproduction commands](coremark/MEMORY_PERFORMANCE.md#queued-instruction-fetch).
 
-With this path, `STORE_BUFFER_DEPTH=4` posts ordinary translated RAM stores
+With this path, `STORE_BUFFER_DEPTH=8` posts ordinary translated RAM stores
 into an ordered queue. A store updates matching resident I/D lines when it
 enters the queue; the queued write remains pending until its AXI response.
 Misses, page walks, MMIO, fences and atomic operations wait for older stores.
 A failed write latches the fabric fault and halts the CPU. There is no dirty
 write-back cache state.
+
+The experimental `LOAD_FORWARDING=1` forwards completed ordinary load data from MEM to a dependent
+EX instruction. EX waits for the response; atomics retain their existing
+interlock. An older memory fault suppresses younger EX effects, including
+privilege returns and WFI. `FAST_STORE_ACK=1` acknowledges a successful data-port
+write on its completion cycle, removing the separate DONE cycle. Permission
+checks, failures and queue/fence ordering retain their normal handling.
+Both parameters default to zero in the reusable CPU/system and in the
+performance-build script so comparisons must enable them explicitly. Run
+`make test-memory-path` for the directed regressions and see the
+[memory microbenchmark](memory_bench/README.md) for measurement commands.
+
+The verified 58.82 MHz store-path bitstream keeps load forwarding disabled:
+it reaches 106.809701 bare-metal CoreMark and 101.332523 on Linux. The full
+bypass misses timing at both attempted 58.82 and 55.56 MHz configurations.
+See [the accepted profile and timing results](coremark/MEMORY_PERFORMANCE.md#accepted-store-path-fpga-profile).
 
 `FAST_MULTIPLY=1` uses four DSPs for two-cycle RV32 multiplication; division
 remains iterative. The board build checks timing for each configuration.
@@ -275,11 +292,13 @@ FAST_L1=0 STORE_BUFFER_DEPTH=0 FAST_MULTIPLY=0 DCACHE_LINES=0 ICACHE_LINES=0 LIN
 bash fpga/arty_a7_35t/test_dcache.sh
 ```
 
-The caches require rebuilding and programming the FPGA. Bitstreams built
-before this change remain uncached. The Linux image and device tree do not
-need cache-specific changes. The 62.5 MHz cached bitstream has been tested on
-the board: CoreMark improves from 0.058275 to 0.065954 (13.2%), with all 60
-mesh frames validated. See [the measured comparison](coremark/RESULTS.md#data-cache-at-625-mhz).
+Cache changes require rebuilding and programming the FPGA. The Linux image and
+device tree do not need cache-specific changes. The initial 62.5 MHz bridge-cache
+comparison improved Linux CoreMark from 0.058275 to 0.065954, with all 60 mesh
+frames validated. Those early results precede the separate local L1 ports and
+the benchmark-buffer alignment correction. See the
+[historical comparison](coremark/RESULTS.md#data-cache-at-625-mhz) and the
+[current measurements](coremark/MEMORY_PERFORMANCE.md).
 
 ## Verification
 

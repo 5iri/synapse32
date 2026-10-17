@@ -5,7 +5,7 @@ module arty_ddr3_top #(
     parameter ITERATIVE_MULDIV=1, CLOCK_HZ=81250000, SEPARATE_CPU_CLOCK=0,
     parameter BOOT_BAUD=115200, DCACHE_LINES=256, ICACHE_LINES=256, FAST_L1=1,
     parameter STORE_BUFFER_DEPTH=8, FAST_MULTIPLY=1, FETCH_QUEUE=1,
-    parameter LOAD_FORWARDING=1, FAST_STORE_ACK=1
+    parameter LOAD_FORWARDING=0, FAST_STORE_ACK=1
 ) (
     input wire clk100, clk_ref200, reset_n, uart_rx, cpu_clk50,
     output wire uart_tx, calibrated, boot_done, fault,

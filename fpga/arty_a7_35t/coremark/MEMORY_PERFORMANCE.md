@@ -132,6 +132,8 @@ Read high/low/high and retry on rollover.
 | 7 | I-cache misses | 15 | stores enqueued |
 
 Events overlap; adding wait counts does not produce an additive CPI breakdown.
+Multiply/divide wait includes an M instruction held behind older memory before
+the arithmetic unit starts; it is not just the unit's execution time.
 Instruction counts use the core's EX-completion event, also used by `instret`,
 not a separate writeback retirement trace. Cache-hit events can include repeated
 fetches while execution is held. The profiled port's MMIO snapshots bracket the
@@ -155,6 +157,133 @@ background tasks, process startup and reporting. Its counters are not restricted
 to CoreMark's internally timed loop. Do not label them userspace-only CPI.
 
 ## Current verified profile
+
+### Data-path latency
+
+The experimental data-path configuration enables ordinary-load MEM-to-EX forwarding,
+acknowledges successful data-port stores on their completion cycle, and expands
+the ordered store queue from four to eight entries. Atomics retain their load
+interlock; fences still drain queued writes. An older MEM fault also suppresses
+younger EX effects, including MRET, SRET and WFI.
+
+The same fixed 1 MHz profiling binary, compiler, 50 iterations and 20-cycle AXI
+response model give the following separate experiments. Each performance and
+validation seed set passes CRC and minimum-duration checks.
+
+| Change from queued-fetch baseline | Performance CoreMark/MHz | CPI |
+| --- | ---: | ---: |
+| Baseline, four-entry queue | 1.561573 | 2.511313 |
+| Load forwarding only | 1.631428 | 2.403781 |
+| Store completion acknowledgement only | 1.568775 | 2.499777 |
+| Eight-entry queue only | 1.627975 | 2.408859 |
+| All three changes | **1.712329** | **2.290192** |
+| Double I-cache capacity only | 1.579729 | 2.482443 |
+| Double D-cache capacity only | 1.583431 | 2.476686 |
+
+The combined gain is **9.65%** in this synthetic memory model, with unchanged
+12,749,965 timed instructions. This does not establish the FPGA clock or physical
+throughput. A faster one-cycle AXI-response experiment on the baseline reaches
+1.946737/MHz; it retains the real bridge handshakes and is not an ideal-memory
+pipeline measurement.
+
+A separate simulated warm straight-line trace verifies dependent-load request, response
+and EX-completion spacing of exactly three clocks becoming two. The memory
+microbenchmark includes loop overhead: its steady-state AXI20 dependent-load
+cost falls from 3.252838 to 2.315323 cycles/load, while independent chains remain
+about 2.3156. Sparse stores save one clock; saturated stores remain limited by
+the external write path. Every sample, including initial instruction-cache
+warmup outliers, is retained in
+[data-path-performance.json](results/data-path-performance.json). See the
+[microbenchmark commands and scope](../memory_bench/README.md).
+
+Directed load, store-response, fault-priority, fence and atomic tests pass.
+The variable-latency core suite passes with load forwarding, including 1,128
+interrupt positions. The combined eight-entry system boots the complete Linux
+simulation to its shell.
+
+#### Accepted store-path FPGA profile
+
+The tested **58.823529 MHz** profile enables `FAST_STORE_ACK=1` and an eight-entry
+store queue, while keeping `LOAD_FORWARDING=0`. It retains 4 KiB I/D caches,
+queued fetch and fast multiplication. Three performance runs and one validation
+run pass in each environment, all at least ten seconds long.
+
+| Environment | CoreMark | CoreMark/MHz | CPI |
+| --- | ---: | ---: | ---: |
+| Bare metal | **106.809701** | **1.815765** | **2.159803** |
+| Linux, aligned buffer, 25 Hz tick | **101.332523** | **1.722653** | Whole-CPU counters in evidence |
+
+These improve the preceding clock-matched physical results by **3.90%** and
+**3.77%**, respectively. Linux reaches **94.87%** of bare-metal throughput;
+the platform ports differ, so this is not a pure OS-overhead measurement.
+The same bare-metal and Linux payload binaries are reused. The two-second
+timer test and CPU-cycle comparison pass.
+
+All 40 physical microbenchmark records validate. Sparse-store cost falls from
+37.270050 to 36.270065 cycles/store; steady-state saturated-store and load costs
+remain unchanged. This profile does not enable the experimental load bypass.
+The 16/32/64-point Linux mesh medians are **4.8355/27.2505/200.239 ms**; all
+60 frames pass geometry checks and exactly match the preceding sequence.
+
+The normal route missed setup by 0.524 ns and produced no bitstream. One
+postroute refinement passes setup **+0.016 ns**, hold **+0.012 ns**, pulse width
+**+0.206 ns**, clock methodology, critical CDC and bus skew. Timing margin is
+narrow. Tested source is `f0d2f83`; the bitstream is
+`build/performance/store-path-div17/postopt/synapse32_store-path-div17.bit`,
+SHA256 `3b072166a94ad5c519c83416912b479a0d83fe01af1d3d87567f04c00dfd1fc2`.
+It was copied to `siriboi:~/synapse32-store-path-div17.bit`, with the remote
+checksum verified. Firmware is the same
+`build/linux-image-25hz-cpu59-aligned-profile/fw_payload.bin` used for the
+preceding 58.82 MHz comparison. Full configuration and frozen UART evidence
+are in [data-path-performance.json](results/data-path-performance.json).
+
+Build flags for that profile (run from the repository root, using the tested
+source revision above for an exact reproduction):
+
+```sh
+PERF_TAG=store-path-div17 CPU_DIVIDE=17 BOOT_BAUD=2000000 \
+  FAST_L1=1 ICACHE_LINES=256 DCACHE_LINES=256 STORE_BUFFER_DEPTH=8 \
+  FAST_MULTIPLY=1 FETCH_QUEUE=1 LOAD_FORWARDING=0 FAST_STORE_ACK=1 \
+  vivado -mode batch -nojournal -source fpga/arty_a7_35t/build_performance.tcl
+
+# The accepted run needed one refinement after normal routing failed setup.
+PERF_TAG=store-path-div17 vivado -mode batch -nojournal \
+  -source fpga/arty_a7_35t/refine_performance.tcl
+```
+
+The first full-bypass implementation missed 58.82 MHz setup by **4.427 ns** and
+was rejected. The late path runs from data-cache BRAM through load forwarding,
+address-trigger comparison and fetch cancellation. Subsequent source removes
+duplicate load formatting only for an explicit formatted-response contract,
+and uses the equivalent 32-bit trigger comparison `base == target - offset`.
+All four address triggers remain supported; memory addresses and trap values
+retain their original calculation. Raw/formatted load contracts and 10,804
+trigger comparisons pass, and matched CoreMark cycles remain exactly unchanged.
+The subsequent 55.555556 MHz `Performance_Explore` implementation also fails
+setup: **−2.145 ns WNS, −4763.703 ns TNS**, with hold **+0.008 ns**.
+No bitstream is accepted or programmed for that experiment. The clock and
+implementation strategy differ, so its slack cannot isolate either source
+change's timing effect. Load forwarding remains opt-in; physical board defaults
+retain the tested store-path configuration.
+The remaining worst path crosses data-cache BRAM, forwarded EX arithmetic and
+redirect/control logic into instruction-cache BRAM write data. Further timing
+work needs to separate those stages while preserving cancellation, cache
+coherence and precise faults.
+
+### MIG clock constraint audit
+
+The integration now derives MIG's `system/mig/sys_clk_i` clock from `board_clk`,
+matching their physical connection. All 23 clock periods, waveforms and source
+pins are unchanged. This resolves TIMING-4/6/27 rather than hiding those warnings.
+
+The corrected relationship exposes the vendor temperature sampler's intentional
+CDC. A narrowly scoped 20 ns datapath-only bound applies to its 12 XADC source
+registers and 12 first-stage synchronizer endpoints. The existing data bound and
+all 12 first-to-second-stage hold checks remain. The old accepted routed design,
+rechecked with this model, has setup +0.014 ns, hold +0.051 ns and pulse-width
++0.206 ns, with no critical CDC or bus-skew violations. This audit does not change
+the old programmed bitstream. New builds snapshot these constraints and reject
+the clock warnings, negative setup/hold slack, critical CDC or failed bus skew.
 
 ### Queued instruction fetch
 
@@ -242,8 +371,8 @@ and four DSPs, with no critical CDC or bus-skew violations. Its setup margin is
 narrow. Reports retain inherited critical clock-methodology warnings TIMING-4/27
 for `system/mig/sys_clk_i` redefinition beneath `board_clk`, and TIMING-6 for
 `ref200_raw`/`clk_pll_i` lacking a common primary clock. The same warnings occur in
-the initial 50 MHz and previous fastmul62 reports; they remain unresolved. Positive
-slack describes the constraints currently reported, not a clean methodology audit.
+the initial 50 MHz and previous fastmul62 reports. They were unresolved when this
+bitstream was accepted; the subsequent clock audit above records the correction.
 
 Tested bitstream:
 `build/performance/fetch-queue-div17/postopt/synapse32_fetch-queue-div17.bit`
