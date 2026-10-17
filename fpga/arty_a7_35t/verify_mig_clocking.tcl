@@ -2,7 +2,7 @@
 # programming, bitstream output, or clock relaxation. Model only the documented
 # MIG temperature first-stage CDC with its existing 20ns datapath bound.
 # vivado -mode batch -source fpga/arty_a7_35t/verify_mig_clocking.tcl
-# Optional CLOCK_CHECKPOINT, CLOCK_AUDIT_DIR, CLOCK_REPAIR_HOLD=1.
+# Optional CLOCK_CHECKPOINT and CLOCK_AUDIT_DIR.
 set here [file dirname [file normalize [info script]]]
 set checkpoint "$here/build/performance/fetch-queue-div17/postopt/routed.dcp"
 set output "$here/build/clock-constraints-audit/verified"
@@ -103,16 +103,4 @@ puts "PASS: MIG shares board_clk; all [dict size $before] clocks preserved; TIMI
 if {[get_property SLACK [get_timing_paths -delay_type max -max_paths 1]]<0} {error "Corrected model fails setup timing"}
 if {[get_property SLACK [get_timing_paths -delay_type min -max_paths 1]]<0} {error "Corrected model fails hold timing"}
 
-# Restoring the correct clock relationship can expose real hold violations in a
-# previously routed design. Repair routing only when explicitly requested; keep
-# both original and corrected reports, and retain strict setup/hold gates.
-if {[info exists ::env(CLOCK_REPAIR_HOLD)] && $::env(CLOCK_REPAIR_HOLD) eq "1"} {
-    phys_opt_design -hold_fix
-    route_design -directive Explore
-    reports $output repaired
-    write_checkpoint -force "$output/repaired-routed.dcp"
-    if {[get_property SLACK [get_timing_paths -delay_type max -max_paths 1]]<0} {error "Corrected design fails setup timing"}
-    if {[get_property SLACK [get_timing_paths -delay_type min -max_paths 1]]<0} {error "Corrected design fails hold timing"}
-    puts "PASS: corrected clock model also meets routed setup and hold timing"
-}
 close_design
