@@ -3,7 +3,10 @@
 `include "instr_defines.vh"
 module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
                   EXTERNAL_STORE_BUFFER = 0, FETCH_QUEUE = 0,
-                  LOAD_FORWARDING = 0) (
+                  LOAD_FORWARDING = 0,
+                  // External responses already apply module_load_type to the
+                  // addressed low byte/halfword. Only shortens the MEM bypass.
+                  LOAD_RESPONSE_FORMATTED = 0) (
     input wire clk,
     input wire rst,
     input wire [31:0] module_instr_in,
@@ -625,7 +628,8 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
                                 (ex_mem_inst0_instr_id_out == INSTR_LBU) ||
                                 (ex_mem_inst0_instr_id_out == INSTR_LHU);
     wire [31:0] ex_mem_forward_result = (LOAD_FORWARDING && ordinary_load_in_mem) ?
-                                       mem_read_data_effective :
+                                       (LOAD_RESPONSE_FORMATTED ? module_read_data_in :
+                                                                  mem_read_data_effective) :
                                        (is_sc_w ? sc_result : ex_mem_inst0_exec_output_out);
 
     execution_unit #(.IMPLEMENT_M(!ITERATIVE_MULDIV)) ex_unit_inst0 (

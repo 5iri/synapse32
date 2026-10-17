@@ -117,6 +117,28 @@ function trigger_match;
     end
 endfunction
 
+// Ordinary load/store addresses are base+offset modulo 2^32. Compare the
+// forwarded base with target-offset, so the carry chain can run before a late
+// MEM response arrives. Keep the actual address calculation for memory/tval.
+function trigger_base_match;
+    input [3:0] enabled;
+    input [3:0] kind;
+    input [31:0] base;
+    input [31:0] offset;
+    input [127:0] tdata2;
+    reg [31:0] base0, base1, base2, base3;
+    begin
+        base0 = tdata2[31:0] - offset;
+        base1 = tdata2[63:32] - offset;
+        base2 = tdata2[95:64] - offset;
+        base3 = tdata2[127:96] - offset;
+        trigger_base_match = (enabled[0] && kind[0] && (base == base0)) ||
+                             (enabled[1] && kind[1] && (base == base1)) ||
+                             (enabled[2] && kind[2] && (base == base2)) ||
+                             (enabled[3] && kind[3] && (base == base3));
+    end
+endfunction
+
 function is_counter_shadow_csr;
     input [11:0] csr_addr_in;
     begin
@@ -316,7 +338,7 @@ always @(*) begin
             effective_addr = rs1_value + imm;
             mem_addr = effective_addr;
             // A load/store trigger fires before the access, so above misalignment and page faults.
-            if (trigger_match(trigger_enabled, trigger_load, effective_addr, trigger_tdata2)) begin
+            if (trigger_base_match(trigger_enabled, trigger_load, rs1_value, imm, trigger_tdata2)) begin
                 jump_signal = 1;
                 trap_to_supervisor = delegate_breakpoint;
                 jump_addr = trap_to_supervisor ? stvec : mtvec;
@@ -335,7 +357,7 @@ always @(*) begin
             7'b0100011: begin // Store instructions
             effective_addr = rs1_value + imm;
             mem_addr = effective_addr;
-            if (trigger_match(trigger_enabled, trigger_store, effective_addr, trigger_tdata2)) begin
+            if (trigger_base_match(trigger_enabled, trigger_store, rs1_value, imm, trigger_tdata2)) begin
                 jump_signal = 1;
                 trap_to_supervisor = delegate_breakpoint;
                 jump_addr = trap_to_supervisor ? stvec : mtvec;

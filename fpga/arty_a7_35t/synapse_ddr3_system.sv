@@ -52,7 +52,8 @@ module synapse_ddr3_system #(
     end
     riscv_cpu #(.ITERATIVE_MULDIV(ITERATIVE_MULDIV),.FAST_MULTIPLY(FAST_MULTIPLY),
                 .EXTERNAL_STORE_BUFFER(STORE_BUFFER_DEPTH>0),.FETCH_QUEUE(FETCH_QUEUE),
-                .LOAD_FORWARDING(LOAD_FORWARDING)) cpu (
+                // The data port's loaded() formats both cache-hit and bus responses.
+                .LOAD_FORWARDING(LOAD_FORWARDING),.LOAD_RESPONSE_FORMATTED(1)) cpu (
         .clk(clk),.rst(cpu_rst),.module_instr_in(instr),.module_read_data_in(cpu_data),
         .module_pc_out(pc_debug),.module_wr_data_out(wr_data),
         .module_mem_wr_en(wr_en),.module_mem_rd_en(rd_en),

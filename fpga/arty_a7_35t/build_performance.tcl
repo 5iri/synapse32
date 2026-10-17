@@ -40,12 +40,14 @@ set source_head unavailable
 if {[info exists ::env(SOURCE_HEAD)]} {set source_head $::env(SOURCE_HEAD)}
 if {$source_head eq "unavailable" && ![catch {exec git -C $repo rev-parse HEAD} revision]} {set source_head $revision}
 puts $manifest "source HEAD: $source_head"
+if {[info exists ::env(IMPL_STRATEGY)]} {puts $manifest "implementation strategy: $::env(IMPL_STRATEGY)"}
 puts $manifest [exec sha256sum {*}$rtl {*}$fabric {*}[glob "$build/source/rtl/include/*.vh"]]
 puts $manifest [exec sha256sum {*}[glob "$build/source/constraints/*.xdc"]]
 close $manifest
 set_param general.maxThreads 4
 open_project $original
 save_project_as -include_local_ip_cache -force synapse32_performance "$build/project"
+if {[info exists ::env(IMPL_STRATEGY)]} {set_property strategy $::env(IMPL_STRATEGY) [get_runs impl_1]}
 source "$here/add_mig_clocking.tcl"
 # Use this run's frozen board constraints, including when cloning an old project.
 foreach constraint [get_files -of_objects [get_filesets constrs_1]] {
