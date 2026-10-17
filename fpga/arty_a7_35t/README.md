@@ -156,23 +156,23 @@ The UART test retains a conservative 100 ms input spacing by default;
 
 ### CPU clock profiles
 
-The default CPU divider is 20: a 1 GHz MMCM VCO produces 50 MHz. `CPU_DIVIDE=18`
-produces about 55.56 MHz and `CPU_DIVIDE=16` produces 62.5 MHz. The DDR memory
-and reference clocks stay unchanged. The bitstream builder checks setup/hold,
-DRC, critical CDC and AXI bus skew before producing an image. The 55.56 and
-62.5 MHz legacy bridge-cache builds pass these checks; the latter has only +0.010 ns setup slack.
-Physical benchmark acceptance is recorded in the results, rather than inferred
-from timing closure.
+The default CPU divider is 20: a 1 GHz MMCM VCO produces 50 MHz. Divider 17
+produces about 58.82 MHz, 18 produces 55.56 MHz, and 16 produces 62.5 MHz.
+The DDR memory and reference clocks stay unchanged. Clock limits depend on the
+RTL configuration. The accepted store-path profile uses divider 17; earlier
+55.56/62.5 MHz bridge-cache results belong to their historical configurations.
+The builder checks setup/hold, clock methodology, DRC, critical CDC and AXI bus
+skew. Physical benchmark acceptance is recorded separately from timing closure.
 
 Use the same divider for hardware and Linux so UART and the CLINT timebase
-match. For example, in one shell:
+match. First follow the [accepted store-profile build and refinement](coremark/MEMORY_PERFORMANCE.md#accepted-store-path-fpga-profile).
+Then build matching Linux and explicitly select that bitstream:
 
 ```sh
-export CPU_DIVIDE=16 BOOT_BAUD=2000000 KERNEL_HZ=25 LLVM=1
-make -C fpga/arty_a7_35t bitstream
-make -C fpga/arty_a7_35t linux
-make -C fpga/arty_a7_35t program
-make -C fpga/arty_a7_35t test-board PORT=/dev/ttyUSB2
+CPU_DIVIDE=17 KERNEL_HZ=25 LLVM=1 make -C fpga/arty_a7_35t linux
+vivado -mode batch -nojournal -source fpga/arty_a7_35t/program.tcl \
+  -tclargs fpga/arty_a7_35t/build/performance/store-path-div17/postopt/synapse32_store-path-div17.bit
+BOOT_BAUD=2000000 make -C fpga/arty_a7_35t test-board PORT=/dev/ttyUSB2
 ```
 
 `BOOT_BAUD` controls only the payload loader; Linux still uses 115200 baud.
