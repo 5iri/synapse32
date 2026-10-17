@@ -45,6 +45,9 @@ LATENCIES = [0, 1, 2, 4]
 SWEEP_LATENCY = 2
 # Extra build with fast fetch and slow data, so instructions arrive back to back behind a waiting store.
 FAST_FETCH = os.environ.get("MEMORY_WAIT_FAST_FETCH") == "1"
+LOAD_FORWARDING = int(os.environ.get("MEMORY_WAIT_LOAD_FORWARDING", "0"))
+if LOAD_FORWARDING not in (0, 1):
+    raise ValueError("MEMORY_WAIT_LOAD_FORWARDING must be 0 or 1")
 PROLOGUE_STORE = 0x00872223  # sw s0, 4(a4)
 
 PROGRAM = f"""
@@ -165,7 +168,8 @@ def _find_repo_root() -> Path:
 
 
 def _build_dir() -> Path:
-    return Path(os.environ.get("MEMORY_WAIT_BUILD", Path.cwd() / "build" / "memory_wait"))
+    default_name = "memory_wait_load_forwarding" if LOAD_FORWARDING else "memory_wait"
+    return Path(os.environ.get("MEMORY_WAIT_BUILD", Path.cwd() / "build" / default_name))
 
 
 def _compile(build_dir: Path, name: str, program: str) -> None:
@@ -421,14 +425,16 @@ def runCocotbTests():
     builds = [(f"lat{latency}", latency, latency) for latency in LATENCIES]
     builds.append(("fast_fetch", SWEEP_LATENCY, 0))
     for name, latency, fetch_latency in builds:
-        sim_build = Path.cwd() / "sim_build" / f"sim_build_memory_wait_{name}"
+        variant = "_load_forwarding" if LOAD_FORWARDING else ""
+        sim_build = Path.cwd() / "sim_build" / f"sim_build_memory_wait{variant}_{name}"
         if sim_build.exists():
             shutil.rmtree(sim_build)
         run(
             verilog_sources=sources,
             toplevel="top",
             module="test_memory_wait",
-            parameters={"MEM_LATENCY": latency, "FETCH_LATENCY": fetch_latency},
+            parameters={"MEM_LATENCY": latency, "FETCH_LATENCY": fetch_latency,
+                        "LOAD_FORWARDING": LOAD_FORWARDING},
             includes=[str(rtl_dir / "include")],
             simulator="verilator",
             timescale="1ns/1ps",
@@ -443,6 +449,7 @@ def runCocotbTests():
                 "MEMORY_WAIT_BUILD": str(build_dir.resolve()),
                 "MEMORY_WAIT_LATENCY": str(latency),
                 "MEMORY_WAIT_FAST_FETCH": "1" if fetch_latency != latency else "0",
+                "MEMORY_WAIT_LOAD_FORWARDING": str(LOAD_FORWARDING),
             },
         )
 

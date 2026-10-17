@@ -1,6 +1,6 @@
 `default_nettype none
 `include "instr_defines.vh"
-module forwarding_unit (
+module forwarding_unit #(parameter LOAD_FORWARDING = 0) (
     // Current instruction registers to check
     input wire [4:0] rs1_addr_ex,
     input wire [4:0] rs2_addr_ex,
@@ -44,6 +44,14 @@ module forwarding_unit (
                          (instr_id_mem == INSTR_AMOMIN_W) ||
                          (instr_id_mem == INSTR_AMOMAXU_W) ||
                          (instr_id_mem == INSTR_AMOMINU_W);
+    wire ordinary_load = (instr_id_mem == INSTR_LB) ||
+                         (instr_id_mem == INSTR_LH) ||
+                         (instr_id_mem == INSTR_LW) ||
+                         (instr_id_mem == INSTR_LBU) ||
+                         (instr_id_mem == INSTR_LHU);
+    // The CPU stalls EX until MEM completes. Atomic read/modify/write results
+    // still wait for WB; only ordinary completed loads use the MEM bypass.
+    wire mem_can_forward = !is_mem_load || (LOAD_FORWARDING && ordinary_load);
     
     always @(*) begin
         // Default: no forwarding
@@ -53,8 +61,7 @@ module forwarding_unit (
         // Forward to RS1 if needed
         if (rs1_valid_ex) begin
             // Check if forwarding from MEM stage is needed
-            // Don't forward for a load in MEM stage - wait for it to reach WB
-            if (rd_valid_mem && (rd_addr_mem != 5'b0) && (rd_addr_mem == rs1_addr_ex) && !is_mem_load) begin
+            if (rd_valid_mem && (rd_addr_mem != 5'b0) && (rd_addr_mem == rs1_addr_ex) && mem_can_forward) begin
                 forward_a = FORWARD_FROM_MEM;
             end
             // Check if forwarding from WB stage is needed (only if MEM isn't forwarding)
@@ -66,8 +73,7 @@ module forwarding_unit (
         // Forward to RS2 if needed
         if (rs2_valid_ex) begin
             // Check if forwarding from MEM stage is needed
-            // Don't forward for a load in MEM stage - wait for it to reach WB
-            if (rd_valid_mem && (rd_addr_mem != 5'b0) && (rd_addr_mem == rs2_addr_ex) && !is_mem_load) begin
+            if (rd_valid_mem && (rd_addr_mem != 5'b0) && (rd_addr_mem == rs2_addr_ex) && mem_can_forward) begin
                 forward_b = FORWARD_FROM_MEM;
             end
             // Check if forwarding from WB stage is needed (only if MEM isn't forwarding)

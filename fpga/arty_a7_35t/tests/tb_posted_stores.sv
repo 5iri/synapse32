@@ -2,7 +2,8 @@
 `default_nettype none
 `include "instr_defines.vh"
 // Integrated core/translation/L1/posted queue with deliberately slow AXI writes.
-module tb_posted_stores #(parameter DEPTH=4, FAST_MULTIPLY=0, FETCH_QUEUE=0);
+module tb_posted_stores #(parameter DEPTH=4, FAST_MULTIPLY=0, FETCH_QUEUE=0,
+                         LOAD_FORWARDING=0, FAST_STORE_ACK=0);
     reg clk=0,rst=1;
     always #5 clk=~clk;
     wire [27:0] axi_addr;
@@ -26,7 +27,8 @@ module tb_posted_stores #(parameter DEPTH=4, FAST_MULTIPLY=0, FETCH_QUEUE=0);
     integer lr_waits=0,sc_waits=0,amo_waits=0,failed_sc_waits=0,successful_sc_waits=0,muldiv_waits=0;
     synapse_ddr3_system #(.BOOT_WORDS(512),.BOOT_FILE("build/posted_stores.hex"),
         .ITERATIVE_MULDIV(1),.FAST_L1(1),.DCACHE_LINES(256),.ICACHE_LINES(256),
-        .STORE_BUFFER_DEPTH(DEPTH),.FAST_MULTIPLY(FAST_MULTIPLY),.FETCH_QUEUE(FETCH_QUEUE)) dut (
+        .STORE_BUFFER_DEPTH(DEPTH),.FAST_MULTIPLY(FAST_MULTIPLY),.FETCH_QUEUE(FETCH_QUEUE),
+        .LOAD_FORWARDING(LOAD_FORWARDING),.FAST_STORE_ACK(FAST_STORE_ACK)) dut (
         .clk(clk),.rst(rst),.calibrated(1'b1),.uart_rx(1'b1),.uart_tx(uart_tx),
         .boot_done(boot_done),.fault(fault),.core_enable(core_enable),.pc_debug(pc_debug),
         .load_req(1'b0),.load_finish(1'b0),.load_addr(32'b0),.load_data(32'b0),.load_ready(),.load_done(),

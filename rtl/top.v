@@ -3,7 +3,8 @@
 
 module top #(
     parameter MEM_LATENCY = 0,  // Cycles to answer an access; 0 is today's combinational memory
-    parameter FETCH_LATENCY = MEM_LATENCY  // Fetch side only, when it should differ
+    parameter FETCH_LATENCY = MEM_LATENCY,  // Fetch side only, when it should differ
+    parameter LOAD_FORWARDING = 0
 ) (
     input wire clk,
     input wire rst,
@@ -207,7 +208,7 @@ module top #(
     );
 
     // Instantiate the RISC-V CPU core
-    riscv_cpu cpu_inst (
+    riscv_cpu #(.LOAD_FORWARDING(LOAD_FORWARDING)) cpu_inst (
         .clk(clk),
         .rst(rst),
         .timer_interrupt(timer_interrupt),

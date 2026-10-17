@@ -3,7 +3,8 @@
 // DDR-facing Sv32 front end, using the unmodified upstream leaf-PTE TLB.
 // Each port has eight entries; permissions are checked again on every hit.
 // Snapshot each access and return one response. Svade: A/D clear faults.
-module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0) (
+module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
+                      EARLY_STORE_RESPONSE=0) (
     input wire clk, rst, flush_tlb,
     input wire fetch_cancel,
     input wire req, we, write_intent, translate,
@@ -56,7 +57,13 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0) (
                        (translate_q!=translate)||(privilege_q!=privilege));
     assign gnt=req&&!fatal_error&&!invalidate&&!(PIPE_FETCH&&fetch_cancel)&&
                ((state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit&&!stale));
-    assign rvalid=((state==DONE)||((state==CACHE_LOOKUP)&&cache_hit))&&!stale;
+    // A write has no response data to register. Once its actual completion is
+    // visible, acknowledge it directly and avoid a separate DONE cycle. This
+    // never acknowledges a grant, a permission fault, or a failed transaction.
+    wire early_store_response=EARLY_STORE_RESPONSE&&!FETCH&&we_q&&
+                              (state==ACCESS_WAIT)&&bus_done&&!bus_error;
+    assign rvalid=((state==DONE)||((state==CACHE_LOOKUP)&&cache_hit)||
+                   early_store_response)&&!stale;
     assign page_fault=rvalid&&fault_q;
     assign access_fault=PIPE_FETCH&&rvalid&&access_fault_q;
     // Lower-bus arbitration must not depend on the EX-stage redirect path.
@@ -241,7 +248,10 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0) (
                     if(PIPE_FETCH) begin access_fault_q<=1; fault_q<=0; response_q<=32'h13; state<=DONE; end
                     else begin fatal_error<=1; state<=IDLE; end
                 end
-                else begin response_q<=FETCH ? bus_rdata : loaded(bus_rdata,type_q); state<=DONE; end
+                else begin
+                    response_q<=FETCH ? bus_rdata : loaded(bus_rdata,type_q);
+                    state<=(EARLY_STORE_RESPONSE&&!FETCH&&we_q) ? IDLE : DONE;
+                end
             end
             DONE: state<=IDLE;
             default: state<=IDLE;

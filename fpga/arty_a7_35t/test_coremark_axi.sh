@@ -10,9 +10,11 @@ depth="${STORE_BUFFER_DEPTH:-4}"
 fast_l1="${FAST_L1:-1}"
 fast_multiply="${FAST_MULTIPLY:-0}"
 fetch_queue="${FETCH_QUEUE:-0}"
+load_forwarding="${LOAD_FORWARDING:-0}"
+fast_store_ack="${FAST_STORE_ACK:-0}"
 dcache="${DCACHE_LINES:-256}"
 icache="${ICACHE_LINES:-256}"
-for value in "$iterations" "$delay" "$depth" "$fast_l1" "$fast_multiply" "$fetch_queue" "$dcache" "$icache"; do
+for value in "$iterations" "$delay" "$depth" "$fast_l1" "$fast_multiply" "$fetch_queue" "$load_forwarding" "$fast_store_ack" "$dcache" "$icache"; do
     case "$value" in ''|*[!0-9]*) echo 'Simulation parameters must be unsigned integers' >&2; exit 1;; esac
 done
 test "$iterations" -gt 0 && test "$delay" -gt 0
@@ -37,7 +39,7 @@ if [ ! -f "$binary" ]; then
             tail -n 50 "$output/build.log" >&2; exit 1;
         }
 fi
-sim_build="${COREMARK_SIM_BUILD:-build/obj_coremark_axi_l1${fast_l1}_sb${depth}_mul${fast_multiply}_fq${fetch_queue}_d${dcache}_i${icache}}"
+sim_build="${COREMARK_SIM_BUILD:-build/obj_coremark_axi_l1${fast_l1}_sb${depth}_mul${fast_multiply}_fq${fetch_queue}_lf${load_forwarding}_sa${fast_store_ack}_d${dcache}_i${icache}}"
 mkdir -p "$sim_build"
 sim_build="$(cd "$sim_build" && pwd)"
 log="${COREMARK_SIM_LOG:-$sim_build/run.log}"
@@ -47,14 +49,15 @@ verilator --cc --exe --build -O3 -Wno-fatal -j "${JOBS:-4}" -I../../rtl/include 
     -GSERIAL_BOOT=1 -GITERATIVE_MULDIV=1 -GUART_DIVISOR_SCALE=16 -GUART_DEFAULT_DIVISOR=1 \
     -GDCACHE_LINES="$dcache" -GICACHE_LINES="$icache" -GFAST_L1="$fast_l1" \
     -GSTORE_BUFFER_DEPTH="$depth" -GFAST_MULTIPLY="$fast_multiply" -GFETCH_QUEUE="$fetch_queue" \
+    -GLOAD_FORWARDING="$load_forwarding" -GFAST_STORE_ACK="$fast_store_ack" \
     -CFLAGS '-O3 -std=c++17 -DUART_BIT_CYCLES=16' \
     tests/coremark_axi.cpp synapse_ddr3_system.sv axi_word_bridge.sv physical_l1_cache.sv \
     ordered_write_buffer.sv fpga_perf_counters.sv sv32_bus_port.sv instruction_fetch_queue.sv \
     ../../rtl/riscv_cpu.v ../../rtl/execution_unit.v ../../rtl/memory_unit.v \
     ../../rtl/writeback.v ../../rtl/core_modules/*.v ../../rtl/pipeline_stages/*.v ../../rtl/mmu/sv32_tlb.v \
     > "$sim_build/build.log" 2>&1 || { tail -n 70 "$sim_build/build.log" >&2; exit 1; }
-printf 'COREMARK_AXI_CONFIG nominal_cpu_hz=1000000 fast_l1=%s store_buffer_depth=%s fast_multiply=%s fetch_queue=%s dcache_lines=%s icache_lines=%s iterations=%s response_cycles=%s\n' \
-    "$fast_l1" "$depth" "$fast_multiply" "$fetch_queue" "$dcache" "$icache" "$iterations" "$delay" | tee "$log"
+printf 'COREMARK_AXI_CONFIG nominal_cpu_hz=1000000 fast_l1=%s store_buffer_depth=%s fast_multiply=%s fetch_queue=%s load_forwarding=%s fast_store_ack=%s dcache_lines=%s icache_lines=%s iterations=%s response_cycles=%s\n' \
+    "$fast_l1" "$depth" "$fast_multiply" "$fetch_queue" "$load_forwarding" "$fast_store_ack" "$dcache" "$icache" "$iterations" "$delay" | tee "$log"
 "$sim_build/Vsynapse_ddr3_system" "$binary" "${COREMARK_TEST_CYCLES:-2000000000}" "$iterations" "$delay" | tee -a "$log"
 python3 "$bench/report.py" "$log" --cpu-mhz 1 --output "$report"
 python3 - "$report" "$iterations" <<'PY'

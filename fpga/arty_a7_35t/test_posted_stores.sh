@@ -17,9 +17,10 @@ print(f'Posted-store program: {len(raw)} bytes')
 PY
 for depth in ${POSTED_TEST_DEPTHS:-1 4}; do
 for fastmul in ${POSTED_TEST_FAST_MUL:-0 1}; do
-    output="build/obj_posted_stores_${depth}_${fastmul}_fq${FETCH_QUEUE:-0}"
+    output="build/obj_posted_stores_${depth}_${fastmul}_fq${FETCH_QUEUE:-0}_lf${LOAD_FORWARDING:-0}_sa${FAST_STORE_ACK:-0}"
     verilator --binary --timing -Wno-fatal -j 4 -I../../rtl/include \
-        --top-module tb_posted_stores -GDEPTH="$depth" -GFAST_MULTIPLY="$fastmul" -GFETCH_QUEUE="${FETCH_QUEUE:-0}" --Mdir "$output" \
+        --top-module tb_posted_stores -GDEPTH="$depth" -GFAST_MULTIPLY="$fastmul" -GFETCH_QUEUE="${FETCH_QUEUE:-0}" \
+        -GLOAD_FORWARDING="${LOAD_FORWARDING:-0}" -GFAST_STORE_ACK="${FAST_STORE_ACK:-0}" --Mdir "$output" \
         tests/tb_posted_stores.sv synapse_ddr3_system.sv axi_word_bridge.sv physical_l1_cache.sv \
         ordered_write_buffer.sv fpga_perf_counters.sv sv32_bus_port.sv instruction_fetch_queue.sv \
         ../../rtl/riscv_cpu.v ../../rtl/execution_unit.v ../../rtl/memory_unit.v ../../rtl/writeback.v \

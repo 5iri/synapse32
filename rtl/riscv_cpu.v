@@ -2,7 +2,8 @@
 `include "memory_map.vh"
 `include "instr_defines.vh"
 module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
-                  EXTERNAL_STORE_BUFFER = 0, FETCH_QUEUE = 0) (
+                  EXTERNAL_STORE_BUFFER = 0, FETCH_QUEUE = 0,
+                  LOAD_FORWARDING = 0) (
     input wire clk,
     input wire rst,
     input wire [31:0] module_instr_in,
@@ -149,6 +150,18 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         .instr_id(decoder_inst0_instr_id_out)
     );
     
+    // MEM holds EX until a load response arrives. With load forwarding enabled,
+    // a dependent ordinary instruction can wait in EX and use that response on
+    // its completion cycle instead of inserting the traditional ID bubble.
+    // Atomics retain their existing interlock and multi-phase result handling.
+    wire load_use_interlock;
+    wire ordinary_load_in_ex = (id_ex_inst0_instr_id_out == INSTR_LB) ||
+                               (id_ex_inst0_instr_id_out == INSTR_LH) ||
+                               (id_ex_inst0_instr_id_out == INSTR_LW) ||
+                               (id_ex_inst0_instr_id_out == INSTR_LBU) ||
+                               (id_ex_inst0_instr_id_out == INSTR_LHU);
+    assign hazard_stall = load_use_interlock && !(LOAD_FORWARDING && ordinary_load_in_ex);
+
     // Instantiate Load-Use Hazard Detector
     load_use_detector load_use_detector_inst0 (
         .rs1_id(decoder_inst0_rs1_out),
@@ -158,7 +171,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         .instr_id_ex(id_ex_inst0_instr_id_out),
         .rd_ex(id_ex_inst0_rd_addr_out),
         .rd_valid_ex(id_ex_inst0_rd_valid_out),
-        .stall_pipeline(hazard_stall)
+        .stall_pipeline(load_use_interlock)
     );
 
     // Instantiate Register File
@@ -263,7 +276,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     wire [1:0] forward_b;
     
     // Instantiate forwarding unit
-    forwarding_unit forwarding_unit_inst0 (
+    forwarding_unit #(.LOAD_FORWARDING(LOAD_FORWARDING)) forwarding_unit_inst0 (
         .rs1_addr_ex(id_ex_inst0_rs1_addr_out),
         .rs2_addr_ex(id_ex_inst0_rs2_addr_out),
         .rs1_valid_ex(id_ex_inst0_rs1_valid_out),
@@ -470,7 +483,11 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         assign md_busy=1'b0;
         assign md_result=32'b0;
     end endgenerate
-    assign ex_stage_active = !mem_wait && !md_wait && !fence_drain_stall;
+    // A faulting older MEM access releases mem_wait so the trap can progress,
+    // but the younger EX instruction must still have no architectural effects
+    // (including privilege returns and WFI). MEM trap bookkeeping is separate.
+    assign ex_stage_active = !mem_wait && !md_wait && !fence_drain_stall &&
+                             !mem_stage_page_fault_taken;
     assign module_retire_event_out = instret_increment;
     assign module_fetch_wait_out = fetch_wait;
     assign module_data_wait_out = mem_wait;
@@ -602,7 +619,14 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     // Value available for EX-stage forwarding from MEM stage.
     // SC computes its architectural result in MEM, so forward that instead of
     // the raw EX result for dependent instructions.
-    wire [31:0] ex_mem_forward_result = is_sc_w ? sc_result : ex_mem_inst0_exec_output_out;
+    wire ordinary_load_in_mem = (ex_mem_inst0_instr_id_out == INSTR_LB) ||
+                                (ex_mem_inst0_instr_id_out == INSTR_LH) ||
+                                (ex_mem_inst0_instr_id_out == INSTR_LW) ||
+                                (ex_mem_inst0_instr_id_out == INSTR_LBU) ||
+                                (ex_mem_inst0_instr_id_out == INSTR_LHU);
+    wire [31:0] ex_mem_forward_result = (LOAD_FORWARDING && ordinary_load_in_mem) ?
+                                       mem_read_data_effective :
+                                       (is_sc_w ? sc_result : ex_mem_inst0_exec_output_out);
 
     execution_unit #(.IMPLEMENT_M(!ITERATIVE_MULDIV)) ex_unit_inst0 (
         .rs1(id_ex_inst0_rs1_value_out),

@@ -6,7 +6,8 @@ module synapse_ddr3_system #(
     parameter BOOT_WORDS=256, BOOT_FILE="boot.hex", SERIAL_BOOT=0,
     parameter ITERATIVE_MULDIV=0, UART_DIVISOR_SCALE=1, UART_DEFAULT_DIVISOR=10,
     parameter DCACHE_LINES=256, ICACHE_LINES=256, FAST_L1=0,
-    parameter STORE_BUFFER_DEPTH=0, FAST_MULTIPLY=0, FETCH_QUEUE=0
+    parameter STORE_BUFFER_DEPTH=0, FAST_MULTIPLY=0, FETCH_QUEUE=0,
+    parameter LOAD_FORWARDING=0, FAST_STORE_ACK=0
 ) (
     input wire clk, rst, calibrated, uart_rx,
     output wire uart_tx, boot_done, fault, core_enable,
@@ -50,7 +51,8 @@ module synapse_ddr3_system #(
             $fatal(1,"Store queue requires FAST_L1 and depth 1..8, or zero to disable");
     end
     riscv_cpu #(.ITERATIVE_MULDIV(ITERATIVE_MULDIV),.FAST_MULTIPLY(FAST_MULTIPLY),
-                .EXTERNAL_STORE_BUFFER(STORE_BUFFER_DEPTH>0),.FETCH_QUEUE(FETCH_QUEUE)) cpu (
+                .EXTERNAL_STORE_BUFFER(STORE_BUFFER_DEPTH>0),.FETCH_QUEUE(FETCH_QUEUE),
+                .LOAD_FORWARDING(LOAD_FORWARDING)) cpu (
         .clk(clk),.rst(cpu_rst),.module_instr_in(instr),.module_read_data_in(cpu_data),
         .module_pc_out(pc_debug),.module_wr_data_out(wr_data),
         .module_mem_wr_en(wr_en),.module_mem_rd_en(rd_en),
@@ -125,7 +127,8 @@ module synapse_ddr3_system #(
         .cache_hit_event(i_hit_event),.cache_miss_event(i_miss_event),.tlb_miss_event(i_tlb_miss_event),
         .fatal_error(ifatal)
     );
-    sv32_bus_port #(.CACHE_LINES(FAST_L1 ? DCACHE_LINES : 0)) data_port (
+    sv32_bus_port #(.CACHE_LINES(FAST_L1 ? DCACHE_LINES : 0),
+                    .EARLY_STORE_RESPONSE(FAST_STORE_ACK)) data_port (
         .clk(clk),.rst(cpu_rst),.flush_tlb(tlb_flush),.fetch_cancel(1'b0),
         .req((rd_en||wr_en)&&!(store_pending&&data_atomic)),.we(wr_en),.write_intent(write_intent),
         .translate(dmmu),.va(wr_en ? wr_addr : rd_addr),.satp(satp),.wdata(wr_data),
