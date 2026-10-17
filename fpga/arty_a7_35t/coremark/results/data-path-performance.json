@@ -1,0 +1,3329 @@
+{
+  "schema_version": 1,
+  "status": {
+    "final_combined_coremark": "PASS as a synthetic LF1 experiment, not the selected physical configuration; accepted physical LF0 result is physical_coremark",
+    "final_bitstream": "PASS: store-path-div17 postopt, LOAD_FORWARDING=0 FAST_STORE_ACK=1 STORE_BUFFER_DEPTH=8",
+    "final_physical_measurements": "PASS: store-path-div17 microbench40/40, bare-metal3p+1v, Linux3p+1v, mesh60frames",
+    "clock_audit": "PASS: final-supported old-checkpoint audit and fresh accepted store-path-div17 postopt methodology/CDC/skew gates",
+    "next_experimental_candidate": "REJECTED: formatted load bypass div18 Performance_Explore setup WNS-2.145ns; no bitstream written. Physical accepted configuration remains LF0/ACK1/SB8/div17."
+  },
+  "scope": "Data-side latency experiments. Paths are relative to repository root; build/ logs are ignored and hashes preserve their identity. All samples are retained here. Synthetic AXI timing is not a measured FPGA frequency.",
+  "common_config": {
+    "ISA": "RV32IMA_Zicsr_Zifencei",
+    "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+    "ITERATIVE_MULDIV": 1,
+    "FAST_MULTIPLY": 1,
+    "FAST_L1": 1,
+    "FETCH_QUEUE": 1,
+    "ICACHE_LINES": 256,
+    "DCACHE_LINES": 256,
+    "cache_line_bytes": 16,
+    "UART_DIVISOR_SCALE": 16
+  },
+  "firmware": {
+    "simulation": {
+      "path": "fpga/arty_a7_35t/build/memory-bench-1000000/memory-bench.bin",
+      "sha256": "24f8f3c42307071e00579c92057f5afc581413b35b279fa930659546132686d2"
+    },
+    "physical_baseline": {
+      "path": "fpga/arty_a7_35t/build/memory-bench-58823529/memory-bench.bin",
+      "sha256": "d84117b4c6116e48538ab68123d2c1cd85ee780d60048d5541af0787504cf7ec"
+    },
+    "source": {
+      "path": "fpga/arty_a7_35t/memory_bench/benchmark.c",
+      "sha256": "eddfd2c59a0951b770980c422954493d6f39f02b56f320b82a3bcf8001b9c79e"
+    },
+    "build_script": {
+      "path": "fpga/arty_a7_35t/memory_bench/build.sh",
+      "sha256": "1300c0562e49f282fdda5aa6fa0f0f99273d36dc850c0527ca53c327298c3846"
+    }
+  },
+  "microbenchmarks": [
+    {
+      "name": "memory-baseline-58823529",
+      "environment": "physical FPGA",
+      "report": {
+        "path": "fpga/arty_a7_35t/build/memory-baseline-58823529.json",
+        "sha256": "1c211035dcfb17d056b5442faddcba374691b1b2dd4eef73e5e639a092b0a794"
+      },
+      "raw_log": {
+        "path": "fpga/arty_a7_35t/build/memory-baseline-58823529.uart.log",
+        "sha256": "362db86133820a72290e09c9e85337cd4d176e9b8e8b3cd3157fdda67ce9cc66"
+      },
+      "repeats": 5,
+      "LOAD_FORWARDING": 0,
+      "FAST_STORE_ACK": 0,
+      "STORE_BUFFER_DEPTH": 4,
+      "cases": [
+        {
+          "case": "register_baseline",
+          "operations": 65536,
+          "instructions": 73746,
+          "checksum": 610905312,
+          "working_set_bytes": 0,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 86221,
+          "median_cycles_per_operation": 1.3156280517578125,
+          "sample_cycles": [86632, 86221, 86221, 86224, 86220],
+          "profiling_samples": {
+            "clock": [88306, 87124, 87124, 87128, 87123],
+            "retired": [73859, 73859, 73859, 73859, 73859],
+            "fetch_wait": [9379, 8329, 8329, 8332, 8328],
+            "data_wait": [1470, 884, 887, 883, 885],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [77939, 77966, 77966, 77966, 77966],
+            "icache_miss": [27, 3, 3, 3, 3],
+            "dcache_hit": [0, 1, 1, 1, 1],
+            "dcache_miss": [3, 2, 2, 2, 2],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [713, 161, 162, 165, 161],
+            "axi_write_wait": [595, 596, 599, 596, 600],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [35, 35, 35, 35, 35]
+          }
+        },
+        {
+          "case": "dependent_loads",
+          "operations": 65536,
+          "instructions": 73751,
+          "checksum": 0,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 213203,
+          "median_cycles_per_operation": 3.2532196044921875,
+          "sample_cycles": [351483, 213205, 213201, 213202, 213203],
+          "profiling_samples": {
+            "clock": [352386, 214107, 214104, 214108, 214104],
+            "retired": [73864, 73864, 73864, 73864, 73864],
+            "fetch_wait": [146619, 8327, 8328, 8329, 8328],
+            "data_wait": [66431, 66424, 66421, 66423, 66421],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [82058, 90258, 90258, 90258, 90258],
+            "icache_miss": [4104, 3, 3, 3, 3],
+            "dcache_hit": [65537, 65537, 65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2, 2, 2],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [138449, 166, 161, 161, 163],
+            "axi_write_wait": [595, 598, 597, 596, 599],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [35, 35, 35, 35, 35]
+          }
+        },
+        {
+          "case": "independent_loads",
+          "operations": 65536,
+          "instructions": 73766,
+          "checksum": 192,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 151778,
+          "median_cycles_per_operation": 2.315948486328125,
+          "sample_cycles": [264671, 151785, 151778, 151777, 151777],
+          "profiling_samples": {
+            "clock": [265573, 152686, 152684, 152683, 152679],
+            "retired": [73879, 73879, 73879, 73879, 73879],
+            "fetch_wait": [129426, 8337, 8330, 8329, 8328],
+            "data_wait": [66419, 66427, 66424, 66425, 66420],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [73879, 90273, 90273, 90273, 90273],
+            "icache_miss": [4109, 3, 3, 3, 3],
+            "dcache_hit": [65537, 65537, 65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2, 2, 2],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [133505, 169, 163, 162, 162],
+            "axi_write_wait": [599, 596, 600, 600, 597],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [35, 35, 35, 35, 35]
+          }
+        },
+        {
+          "case": "stores_same_word",
+          "operations": 65536,
+          "instructions": 73749,
+          "checksum": 323980127,
+          "working_set_bytes": 4,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1257904,
+          "median_cycles_per_operation": 19.194091796875,
+          "sample_cycles": [1258132, 1257899, 1257904, 1257899, 1257906],
+          "profiling_samples": {
+            "clock": [1258993, 1258761, 1258763, 1258758, 1258766],
+            "retired": [73862, 73862, 73862, 73862, 73862],
+            "fetch_wait": [87441, 8392, 8397, 8397, 8392],
+            "data_wait": [1172295, 1172455, 1172458, 1172451, 1172462],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 68, 66, 68, 66],
+            "icache_hit": [73866, 90255, 90255, 90255, 90255],
+            "icache_miss": [4104, 3, 3, 3, 3],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [1, 1, 1, 1, 1],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [327, 128, 134, 135, 130],
+            "axi_write_wait": [1127222, 1127223, 1127222, 1127216, 1127230],
+            "store_queue_stall": [974811, 975005, 975005, 974998, 975012],
+            "store_enqueued": [65571, 65571, 65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_adjacent_words",
+          "operations": 65536,
+          "instructions": 73755,
+          "checksum": 2051148132,
+          "working_set_bytes": 16,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1257908,
+          "median_cycles_per_operation": 19.19415283203125,
+          "sample_cycles": [1258171, 1257889, 1257909, 1257907, 1257908],
+          "profiling_samples": {
+            "clock": [1259032, 1258750, 1258770, 1258772, 1258769],
+            "retired": [73868, 73868, 73868, 73868, 73868],
+            "fetch_wait": [8933, 8391, 8393, 8394, 8392],
+            "data_wait": [1172217, 1172439, 1172461, 1172459, 1172457],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [67, 66, 66, 67, 67],
+            "icache_hit": [82061, 90261, 90261, 90261, 90261],
+            "icache_miss": [4105, 3, 3, 3, 3],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [1, 1, 1, 1, 1],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [354, 128, 131, 130, 128],
+            "axi_write_wait": [1127217, 1127206, 1127224, 1127222, 1127227],
+            "store_queue_stall": [974766, 974990, 975008, 975005, 975008],
+            "store_enqueued": [65571, 65571, 65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_streaming_hot",
+          "operations": 65536,
+          "instructions": 93210,
+          "checksum": 3575244288,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1257905,
+          "median_cycles_per_operation": 19.194107055664062,
+          "sample_cycles": [1258299, 1257889, 1257905, 1257906, 1257899],
+          "profiling_samples": {
+            "clock": [1259161, 1258750, 1258765, 1258769, 1258761],
+            "retired": [93323, 93323, 93323, 93323, 93323],
+            "fetch_wait": [9052, 8387, 8388, 8390, 8388],
+            "data_wait": [1152771, 1152985, 1153001, 1153003, 1152995],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 56, 56, 58, 57],
+            "icache_hit": [98445, 105624, 105624, 105624, 105624],
+            "icache_miss": [3596, 3, 3, 3, 3],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [1, 1, 1, 1, 1],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [456, 129, 130, 130, 128],
+            "axi_write_wait": [1127221, 1127204, 1127221, 1127220, 1127216],
+            "store_queue_stall": [955319, 955536, 955551, 955550, 955545],
+            "store_enqueued": [65571, 65571, 65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_sparse",
+          "operations": 65536,
+          "instructions": 2195478,
+          "checksum": 2271031969,
+          "working_set_bytes": 4,
+          "unroll": 4,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 2442530,
+          "median_cycles_per_operation": 37.270050048828125,
+          "sample_cycles": [2442781, 2442526, 2442533, 2442519, 2442530],
+          "profiling_samples": {
+            "clock": [2443640, 2443387, 2443397, 2443378, 2443393],
+            "retired": [2195591, 2195591, 2195591, 2195591, 2195591],
+            "fetch_wait": [34268, 34013, 34020, 34006, 34017],
+            "data_wait": [197513, 197518, 197518, 197515, 197519],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [2244714, 2244721, 2244721, 2244721, 2244721],
+            "icache_miss": [39, 32, 32, 32, 32],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [1, 1, 1, 1, 1],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [1295, 1071, 1078, 1063, 1075],
+            "axi_write_wait": [1118590, 1118543, 1118514, 1118520, 1118577],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [65571, 65571, 65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "loads_streaming_cold",
+          "operations": 65536,
+          "instructions": 159735,
+          "checksum": 2198208512,
+          "working_set_bytes": 65536,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 2633896,
+          "median_cycles_per_operation": 40.1900634765625,
+          "sample_cycles": [2633926, 2633892, 2633896, 2633890, 2633913],
+          "profiling_samples": {
+            "clock": [2634832, 2634795, 2634800, 2634795, 2634816],
+            "retired": [159848, 159848, 159848, 159848, 159848],
+            "fetch_wait": [8510, 8515, 8512, 8513, 8516],
+            "data_wait": [2396885, 2396844, 2396855, 2396845, 2396865],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [172135, 172135, 172135, 172135, 172135],
+            "icache_miss": [15, 15, 15, 15, 15],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [65537, 65537, 65537, 65537, 65537],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [2134181, 2134146, 2134151, 2134145, 2134166],
+            "axi_write_wait": [596, 596, 595, 597, 602],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [35, 35, 35, 35, 35]
+          }
+        }
+      ],
+      "firmware_metadata": {
+        "cpu_hz": 58823529,
+        "loader_baud": 2000000,
+        "payload_sha256": "d84117b4c6116e48538ab68123d2c1cd85ee780d60048d5541af0787504cf7ec",
+        "environment": "bare metal M-mode, interrupts disabled"
+      },
+      "bitstream": {
+        "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/synapse32_fetch-queue-div17.bit",
+        "sha256": "8d9141c052adf2e62cd5596d2bc71f5d285ca79301a752d2d09ae1190f403001"
+      },
+      "cpu_clock_hz": 58823529,
+      "CPU_DIVIDE": 17
+    },
+    {
+      "name": "memory-baseline-axi20",
+      "environment": "Verilator full SoC AXI RAM",
+      "report": {
+        "path": "fpga/arty_a7_35t/build/memory-baseline-axi20.json",
+        "sha256": "5e75cf69733672d0aaa2f5237eb721dd0f83f11e1606279d3deabd1f5e63f8f7"
+      },
+      "raw_log": {
+        "path": "fpga/arty_a7_35t/build/memory-baseline-axi20.log",
+        "sha256": "c94a3136f3ec1e6cb59a07db520d3b7a6892784e2b80888a5a7dd8dc7f7f1c30"
+      },
+      "repeats": 3,
+      "LOAD_FORWARDING": 0,
+      "FAST_STORE_ACK": 0,
+      "STORE_BUFFER_DEPTH": 4,
+      "cases": [
+        {
+          "case": "register_baseline",
+          "operations": 65536,
+          "instructions": 73746,
+          "checksum": 610905312,
+          "working_set_bytes": 0,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 86197,
+          "median_cycles_per_operation": 1.3152618408203125,
+          "sample_cycles": [86524, 86197, 86197],
+          "profiling_samples": {
+            "clock": [88165, 87368, 87374],
+            "retired": [73859, 73859, 73859],
+            "fetch_wait": [9237, 8315, 8315],
+            "data_wait": [1473, 1129, 1129],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [77939, 77966, 77966],
+            "icache_miss": [27, 3, 3],
+            "dcache_hit": [0, 1, 1],
+            "dcache_miss": [3, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [485, 112, 112],
+            "axi_write_wait": [889, 897, 897],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "dependent_loads",
+          "operations": 65536,
+          "instructions": 73751,
+          "checksum": 0,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 213178,
+          "median_cycles_per_operation": 3.252838134765625,
+          "sample_cycles": [307486, 213178, 213178],
+          "profiling_samples": {
+            "clock": [308651, 214352, 214352],
+            "retired": [73864, 73864, 73864],
+            "fetch_wait": [102642, 8315, 8315],
+            "data_wait": [66653, 66657, 66657],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [82058, 90258, 90258],
+            "icache_miss": [4104, 3, 3],
+            "dcache_hit": [65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [94425, 110, 110],
+            "axi_write_wait": [886, 891, 891],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "independent_loads",
+          "operations": 65536,
+          "instructions": 73766,
+          "checksum": 192,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 151753,
+          "median_cycles_per_operation": 2.3155670166015625,
+          "sample_cycles": [221638, 151753, 151753],
+          "profiling_samples": {
+            "clock": [222803, 152927, 152927],
+            "retired": [73879, 73879, 73879],
+            "fetch_wait": [86403, 8315, 8315],
+            "data_wait": [66653, 66657, 66657],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [73879, 90273, 90273],
+            "icache_miss": [4109, 3, 3],
+            "dcache_hit": [65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [90444, 110, 110],
+            "axi_write_wait": [886, 891, 891],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "stores_same_word",
+          "operations": 65536,
+          "instructions": 73749,
+          "checksum": 323980127,
+          "working_set_bytes": 4,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835188,
+          "median_cycles_per_operation": 28.00274658203125,
+          "sample_cycles": [1835353, 1835188, 1835186],
+          "profiling_samples": {
+            "clock": [1836488, 1836320, 1836325],
+            "retired": [73862, 73862, 73862],
+            "fetch_wait": [123609, 8414, 8413],
+            "data_wait": [1749702, 1749977, 1749976],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 102, 102],
+            "icache_hit": [73866, 90255, 90255],
+            "icache_miss": [4104, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [219, 89, 88],
+            "axi_write_wait": [1704826, 1704825, 1704826],
+            "store_queue_stall": [1551981, 1552282, 1552281],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_adjacent_words",
+          "operations": 65536,
+          "instructions": 73755,
+          "checksum": 2051148132,
+          "working_set_bytes": 16,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835195,
+          "median_cycles_per_operation": 28.002853393554688,
+          "sample_cycles": [1835383, 1835194, 1835195],
+          "profiling_samples": {
+            "clock": [1836516, 1836327, 1836332],
+            "retired": [73868, 73868, 73868],
+            "fetch_wait": [9017, 8413, 8415],
+            "data_wait": [1749599, 1749978, 1749977],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [102, 102, 102],
+            "icache_hit": [82061, 90261, 90261],
+            "icache_miss": [4105, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [240, 88, 90],
+            "axi_write_wait": [1704819, 1704827, 1704825],
+            "store_queue_stall": [1551904, 1552283, 1552282],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_streaming_hot",
+          "operations": 65536,
+          "instructions": 93210,
+          "checksum": 3575244288,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835194,
+          "median_cycles_per_operation": 28.002838134765625,
+          "sample_cycles": [1835473, 1835194, 1835194],
+          "profiling_samples": {
+            "clock": [1836613, 1836327, 1836333],
+            "retired": [93323, 93323, 93323],
+            "fetch_wait": [9103, 8409, 8409],
+            "data_wait": [1730149, 1730524, 1730524],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 92, 92],
+            "icache_hit": [98445, 105624, 105624],
+            "icache_miss": [3596, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [311, 88, 88],
+            "axi_write_wait": [1704816, 1704826, 1704826],
+            "store_queue_stall": [1532452, 1532829, 1532829],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_sparse",
+          "operations": 65536,
+          "instructions": 2195478,
+          "checksum": 2271031969,
+          "working_set_bytes": 4,
+          "unroll": 4,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 2442233,
+          "median_cycles_per_operation": 37.26551818847656,
+          "sample_cycles": [2442415, 2442233, 2442233],
+          "profiling_samples": {
+            "clock": [2443549, 2443372, 2443372],
+            "retired": [2195591, 2195591, 2195591],
+            "fetch_wait": [33912, 33730, 33730],
+            "data_wait": [197742, 197742, 197742],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [2244714, 2244721, 2244721],
+            "icache_miss": [39, 32, 32],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [880, 725, 725],
+            "axi_write_wait": [1611205, 1611214, 1611214],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "loads_streaming_cold",
+          "operations": 65536,
+          "instructions": 159735,
+          "checksum": 2198208512,
+          "working_set_bytes": 65536,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 2003332,
+          "median_cycles_per_operation": 30.56842041015625,
+          "sample_cycles": [2003332, 2003332, 2003332],
+          "profiling_samples": {
+            "clock": [2004500, 2004506, 2004500],
+            "retired": [159848, 159848, 159848],
+            "fetch_wait": [8443, 8443, 8443],
+            "data_wait": [1766608, 1766608, 1766608],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [172135, 172135, 172135],
+            "icache_miss": [15, 15, 15],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [65537, 65537, 65537],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [1503561, 1503561, 1503561],
+            "axi_write_wait": [894, 894, 894],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        }
+      ],
+      "nominal_timer_hz": 1000000,
+      "AXI_RESPONSE_CYCLES": 20
+    },
+    {
+      "name": "memory-load-forwarding-axi20",
+      "environment": "Verilator full SoC AXI RAM",
+      "report": {
+        "path": "fpga/arty_a7_35t/build/memory-load-forwarding-axi20.json",
+        "sha256": "f4a4f991722b5b9d4934980ae6074a906b8221f09a60bb0a2d5cd13ece4aa577"
+      },
+      "raw_log": {
+        "path": "fpga/arty_a7_35t/build/memory-load-forwarding-axi20.log",
+        "sha256": "c161a2a42a4f788e0a4580f03f5a769eb98f63be746f77e523fcfbbb0af86dbe"
+      },
+      "repeats": 3,
+      "LOAD_FORWARDING": 1,
+      "FAST_STORE_ACK": 0,
+      "STORE_BUFFER_DEPTH": 4,
+      "cases": [
+        {
+          "case": "register_baseline",
+          "operations": 65536,
+          "instructions": 73746,
+          "checksum": 610905312,
+          "working_set_bytes": 0,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 86196,
+          "median_cycles_per_operation": 1.31524658203125,
+          "sample_cycles": [86546, 86196, 86195],
+          "profiling_samples": {
+            "clock": [88192, 87359, 87359],
+            "retired": [73859, 73859, 73859],
+            "fetch_wait": [9291, 8317, 8316],
+            "data_wait": [1476, 1131, 1132],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [77939, 77966, 77966],
+            "icache_miss": [28, 3, 3],
+            "dcache_hit": [0, 1, 1],
+            "dcache_miss": [3, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [507, 110, 108],
+            "axi_write_wait": [897, 902, 904],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "dependent_loads",
+          "operations": 65536,
+          "instructions": 73751,
+          "checksum": 0,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 151737,
+          "median_cycles_per_operation": 2.3153228759765625,
+          "sample_cycles": [233781, 151737, 151736],
+          "profiling_samples": {
+            "clock": [234947, 152906, 152900],
+            "retired": [73864, 73864, 73864],
+            "fetch_wait": [90373, 8317, 8316],
+            "data_wait": [66672, 66667, 66668],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [82058, 90258, 90258],
+            "icache_miss": [4104, 3, 3],
+            "dcache_hit": [65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [86240, 110, 108],
+            "axi_write_wait": [905, 902, 904],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "independent_loads",
+          "operations": 65536,
+          "instructions": 73766,
+          "checksum": 192,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 151752,
+          "median_cycles_per_operation": 2.3155517578125,
+          "sample_cycles": [221637, 151752, 151752],
+          "profiling_samples": {
+            "clock": [222803, 152915, 152915],
+            "retired": [73879, 73879, 73879],
+            "fetch_wait": [86405, 8317, 8317],
+            "data_wait": [66671, 66666, 66666],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [73879, 90273, 90273],
+            "icache_miss": [4109, 3, 3],
+            "dcache_hit": [65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [90444, 111, 111],
+            "axi_write_wait": [903, 900, 900],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "stores_same_word",
+          "operations": 65536,
+          "instructions": 73749,
+          "checksum": 323980127,
+          "working_set_bytes": 4,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835187,
+          "median_cycles_per_operation": 28.002731323242188,
+          "sample_cycles": [1835355, 1835187, 1835187],
+          "profiling_samples": {
+            "clock": [1836487, 1836325, 1836325],
+            "retired": [73862, 73862, 73862],
+            "fetch_wait": [123615, 8416, 8416],
+            "data_wait": [1749715, 1749993, 1749993],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 102, 102],
+            "icache_hit": [73866, 90255, 90255],
+            "icache_miss": [4104, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [222, 88, 88],
+            "axi_write_wait": [1704840, 1704843, 1704843],
+            "store_queue_stall": [1551979, 1552282, 1552282],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_adjacent_words",
+          "operations": 65536,
+          "instructions": 73755,
+          "checksum": 2051148132,
+          "working_set_bytes": 16,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835196,
+          "median_cycles_per_operation": 28.00286865234375,
+          "sample_cycles": [1835384, 1835196, 1835196],
+          "profiling_samples": {
+            "clock": [1836516, 1836326, 1836326],
+            "retired": [73868, 73868, 73868],
+            "fetch_wait": [9021, 8418, 8418],
+            "data_wait": [1749615, 1749994, 1749994],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [102, 102, 102],
+            "icache_hit": [82061, 90261, 90261],
+            "icache_miss": [4105, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [241, 90, 90],
+            "axi_write_wait": [1704835, 1704842, 1704842],
+            "store_queue_stall": [1551904, 1552283, 1552283],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_streaming_hot",
+          "operations": 65536,
+          "instructions": 93210,
+          "checksum": 3575244288,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835196,
+          "median_cycles_per_operation": 28.00286865234375,
+          "sample_cycles": [1835472, 1835196, 1835196],
+          "profiling_samples": {
+            "clock": [1836606, 1836326, 1836326],
+            "retired": [93323, 93323, 93323],
+            "fetch_wait": [9106, 8414, 8414],
+            "data_wait": [1730166, 1730540, 1730540],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 92, 92],
+            "icache_hit": [98445, 105624, 105624],
+            "icache_miss": [3596, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [310, 90, 90],
+            "axi_write_wait": [1704834, 1704841, 1704841],
+            "store_queue_stall": [1532451, 1532829, 1532829],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_sparse",
+          "operations": 65536,
+          "instructions": 2195478,
+          "checksum": 2271031969,
+          "working_set_bytes": 4,
+          "unroll": 4,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 2442234,
+          "median_cycles_per_operation": 37.265533447265625,
+          "sample_cycles": [2442417, 2442234, 2442234],
+          "profiling_samples": {
+            "clock": [2443548, 2443366, 2443366],
+            "retired": [2195591, 2195591, 2195591],
+            "fetch_wait": [33917, 33734, 33734],
+            "data_wait": [197757, 197758, 197758],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [2244714, 2244721, 2244721],
+            "icache_miss": [39, 32, 32],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [881, 726, 726],
+            "axi_write_wait": [1611220, 1611230, 1611230],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "loads_streaming_cold",
+          "operations": 65536,
+          "instructions": 159735,
+          "checksum": 2198208512,
+          "working_set_bytes": 65536,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 1819020,
+          "median_cycles_per_operation": 27.75604248046875,
+          "sample_cycles": [1819020, 1819020, 1819020],
+          "profiling_samples": {
+            "clock": [1820189, 1820195, 1820195],
+            "retired": [159848, 159848, 159848],
+            "fetch_wait": [8448, 8448, 8448],
+            "data_wait": [1647838, 1647838, 1647838],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [172135, 172135, 172135],
+            "icache_miss": [15, 15, 15],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [65537, 65537, 65537],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [1384794, 1384794, 1384794],
+            "axi_write_wait": [906, 906, 906],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        }
+      ],
+      "nominal_timer_hz": 1000000,
+      "AXI_RESPONSE_CYCLES": 20
+    },
+    {
+      "name": "memory-store-ack-axi20",
+      "environment": "Verilator full SoC AXI RAM",
+      "report": {
+        "path": "fpga/arty_a7_35t/build/memory-store-ack-axi20.json",
+        "sha256": "f269fcdbe3bb3f8a13ab6160f7ceaa917ad54c628c54fea93ecb0740cb273ebb"
+      },
+      "raw_log": {
+        "path": "fpga/arty_a7_35t/build/memory-store-ack-axi20.log",
+        "sha256": "3ed0ba46768ba91d2a065e365a7864c93a0fc81a417e33b96326e9d2833e206b"
+      },
+      "repeats": 3,
+      "LOAD_FORWARDING": 0,
+      "FAST_STORE_ACK": 1,
+      "STORE_BUFFER_DEPTH": 4,
+      "cases": [
+        {
+          "case": "register_baseline",
+          "operations": 65536,
+          "instructions": 73746,
+          "checksum": 610905312,
+          "working_set_bytes": 0,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 86197,
+          "median_cycles_per_operation": 1.3152618408203125,
+          "sample_cycles": [86526, 86196, 86197],
+          "profiling_samples": {
+            "clock": [88165, 87368, 87371],
+            "retired": [73859, 73859, 73859],
+            "fetch_wait": [9252, 8317, 8318],
+            "data_wait": [1468, 1127, 1119],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [77939, 77966, 77966],
+            "icache_miss": [27, 3, 3],
+            "dcache_hit": [0, 1, 1],
+            "dcache_miss": [3, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [485, 112, 111],
+            "axi_write_wait": [889, 897, 891],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "dependent_loads",
+          "operations": 65536,
+          "instructions": 73751,
+          "checksum": 0,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 213178,
+          "median_cycles_per_operation": 3.252838134765625,
+          "sample_cycles": [307485, 213177, 213178],
+          "profiling_samples": {
+            "clock": [308657, 214352, 214352],
+            "retired": [73864, 73864, 73864],
+            "fetch_wait": [102644, 8317, 8318],
+            "data_wait": [66651, 66655, 66654],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [82058, 90258, 90258],
+            "icache_miss": [4104, 3, 3],
+            "dcache_hit": [65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [94425, 110, 112],
+            "axi_write_wait": [886, 891, 889],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "independent_loads",
+          "operations": 65536,
+          "instructions": 73766,
+          "checksum": 192,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 151752,
+          "median_cycles_per_operation": 2.3155517578125,
+          "sample_cycles": [221637, 151752, 151752],
+          "profiling_samples": {
+            "clock": [222803, 152927, 152921],
+            "retired": [73879, 73879, 73879],
+            "fetch_wait": [86405, 8317, 8317],
+            "data_wait": [66651, 66655, 66655],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [73879, 90273, 90273],
+            "icache_miss": [4109, 3, 3],
+            "dcache_hit": [65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [90444, 110, 110],
+            "axi_write_wait": [886, 891, 891],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "stores_same_word",
+          "operations": 65536,
+          "instructions": 73749,
+          "checksum": 323980127,
+          "working_set_bytes": 4,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835187,
+          "median_cycles_per_operation": 28.002731323242188,
+          "sample_cycles": [1835352, 1835187, 1835187],
+          "profiling_samples": {
+            "clock": [1836494, 1836326, 1836320],
+            "retired": [73862, 73862, 73862],
+            "fetch_wait": [123616, 8417, 8417],
+            "data_wait": [1749690, 1749974, 1749974],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 103, 103],
+            "icache_hit": [73866, 90255, 90255],
+            "icache_miss": [4104, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [219, 89, 89],
+            "axi_write_wait": [1704826, 1704825, 1704825],
+            "store_queue_stall": [1617507, 1617817, 1617817],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_adjacent_words",
+          "operations": 65536,
+          "instructions": 73755,
+          "checksum": 2051148132,
+          "working_set_bytes": 16,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835194,
+          "median_cycles_per_operation": 28.002838134765625,
+          "sample_cycles": [1835389, 1835194, 1835193],
+          "profiling_samples": {
+            "clock": [1836528, 1836332, 1836333],
+            "retired": [73868, 73868, 73868],
+            "fetch_wait": [9031, 8418, 8416],
+            "data_wait": [1749580, 1749974, 1749975],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [103, 103, 103],
+            "icache_hit": [82061, 90261, 90261],
+            "icache_miss": [4105, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [241, 90, 88],
+            "axi_write_wait": [1704825, 1704825, 1704827],
+            "store_queue_stall": [1617423, 1617817, 1617818],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_streaming_hot",
+          "operations": 65536,
+          "instructions": 93210,
+          "checksum": 3575244288,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835193,
+          "median_cycles_per_operation": 28.002822875976562,
+          "sample_cycles": [1835470, 1835193, 1835193],
+          "profiling_samples": {
+            "clock": [1836612, 1836333, 1836333],
+            "retired": [93323, 93323, 93323],
+            "fetch_wait": [9109, 8412, 8412],
+            "data_wait": [1730131, 1730521, 1730521],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 93, 93],
+            "icache_hit": [98445, 105624, 105624],
+            "icache_miss": [3596, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [312, 88, 88],
+            "axi_write_wait": [1704815, 1704826, 1704826],
+            "store_queue_stall": [1597970, 1598364, 1598364],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_sparse",
+          "operations": 65536,
+          "instructions": 2195478,
+          "checksum": 2271031969,
+          "working_set_bytes": 4,
+          "unroll": 4,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 2376702,
+          "median_cycles_per_operation": 36.265594482421875,
+          "sample_cycles": [2376882, 2376693, 2376702],
+          "profiling_samples": {
+            "clock": [2378021, 2377826, 2377840],
+            "retired": [2195591, 2195591, 2195591],
+            "fetch_wait": [33917, 33728, 33737],
+            "data_wait": [132202, 132202, 132207],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [2244714, 2244721, 2244721],
+            "icache_miss": [39, 32, 32],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [879, 725, 726],
+            "axi_write_wait": [1629926, 1601838, 1583131],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "loads_streaming_cold",
+          "operations": 65536,
+          "instructions": 159735,
+          "checksum": 2198208512,
+          "working_set_bytes": 65536,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 2003331,
+          "median_cycles_per_operation": 30.568405151367188,
+          "sample_cycles": [2003330, 2003331, 2003332],
+          "profiling_samples": {
+            "clock": [2004503, 2004500, 2004503],
+            "retired": [159848, 159848, 159848],
+            "fetch_wait": [8444, 8445, 8446],
+            "data_wait": [1766600, 1766606, 1766598],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [172135, 172135, 172135],
+            "icache_miss": [15, 15, 15],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [65537, 65537, 65537],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [1503559, 1503561, 1503560],
+            "axi_write_wait": [889, 894, 888],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        }
+      ],
+      "nominal_timer_hz": 1000000,
+      "AXI_RESPONSE_CYCLES": 20
+    },
+    {
+      "name": "memory-data-path-axi20",
+      "environment": "Verilator full SoC AXI RAM",
+      "report": {
+        "path": "fpga/arty_a7_35t/build/memory-data-path-axi20.json",
+        "sha256": "13b2f091df7e2261883ca89640837f693088b90dc2f23788f8ad8133205725ce"
+      },
+      "raw_log": {
+        "path": "fpga/arty_a7_35t/build/memory-data-path-axi20.log",
+        "sha256": "922744afb90b0bc3296bf71c9c305603816d9f0c1401faa1da8fe53dbea02b4d"
+      },
+      "repeats": 3,
+      "LOAD_FORWARDING": 1,
+      "FAST_STORE_ACK": 1,
+      "STORE_BUFFER_DEPTH": 4,
+      "cases": [
+        {
+          "case": "register_baseline",
+          "operations": 65536,
+          "instructions": 73746,
+          "checksum": 610905312,
+          "working_set_bytes": 0,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 86195,
+          "median_cycles_per_operation": 1.3152313232421875,
+          "sample_cycles": [86548, 86195, 86195],
+          "profiling_samples": {
+            "clock": [88192, 87365, 87359],
+            "retired": [73859, 73859, 73859],
+            "fetch_wait": [9306, 8319, 8319],
+            "data_wait": [1471, 1129, 1129],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [77939, 77966, 77966],
+            "icache_miss": [28, 3, 3],
+            "dcache_hit": [0, 1, 1],
+            "dcache_miss": [3, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [507, 110, 110],
+            "axi_write_wait": [897, 902, 902],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "dependent_loads",
+          "operations": 65536,
+          "instructions": 73751,
+          "checksum": 0,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 151736,
+          "median_cycles_per_operation": 2.3153076171875,
+          "sample_cycles": [233780, 151735, 151736],
+          "profiling_samples": {
+            "clock": [234947, 152900, 152906],
+            "retired": [73864, 73864, 73864],
+            "fetch_wait": [90375, 8318, 8319],
+            "data_wait": [66670, 66666, 66665],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [82058, 90258, 90258],
+            "icache_miss": [4104, 3, 3],
+            "dcache_hit": [65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [86240, 108, 110],
+            "axi_write_wait": [905, 904, 902],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "independent_loads",
+          "operations": 65536,
+          "instructions": 73766,
+          "checksum": 192,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 151751,
+          "median_cycles_per_operation": 2.3155364990234375,
+          "sample_cycles": [221635, 151751, 151751],
+          "profiling_samples": {
+            "clock": [222803, 152915, 152915],
+            "retired": [73879, 73879, 73879],
+            "fetch_wait": [86406, 8319, 8319],
+            "data_wait": [66670, 66664, 66664],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [73879, 90273, 90273],
+            "icache_miss": [4109, 3, 3],
+            "dcache_hit": [65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [90442, 111, 111],
+            "axi_write_wait": [905, 900, 900],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        },
+        {
+          "case": "stores_same_word",
+          "operations": 65536,
+          "instructions": 73749,
+          "checksum": 323980127,
+          "working_set_bytes": 4,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835186,
+          "median_cycles_per_operation": 28.002716064453125,
+          "sample_cycles": [1835353, 1835186, 1835186],
+          "profiling_samples": {
+            "clock": [1836488, 1836319, 1836325],
+            "retired": [73862, 73862, 73862],
+            "fetch_wait": [123620, 8419, 8419],
+            "data_wait": [1749706, 1749990, 1749990],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 103, 103],
+            "icache_hit": [73866, 90255, 90255],
+            "icache_miss": [4104, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [220, 88, 88],
+            "axi_write_wait": [1704842, 1704843, 1704843],
+            "store_queue_stall": [1617507, 1617817, 1617817],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_adjacent_words",
+          "operations": 65536,
+          "instructions": 73755,
+          "checksum": 2051148132,
+          "working_set_bytes": 16,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835195,
+          "median_cycles_per_operation": 28.002853393554688,
+          "sample_cycles": [1835390, 1835195, 1835195],
+          "profiling_samples": {
+            "clock": [1836528, 1836332, 1836332],
+            "retired": [73868, 73868, 73868],
+            "fetch_wait": [9035, 8421, 8421],
+            "data_wait": [1749596, 1749991, 1749991],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [103, 103, 103],
+            "icache_hit": [82061, 90261, 90261],
+            "icache_miss": [4105, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [242, 90, 90],
+            "axi_write_wait": [1704841, 1704842, 1704842],
+            "store_queue_stall": [1617423, 1617818, 1617818],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_streaming_hot",
+          "operations": 65536,
+          "instructions": 93210,
+          "checksum": 3575244288,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1835194,
+          "median_cycles_per_operation": 28.002838134765625,
+          "sample_cycles": [1835473, 1835194, 1835194],
+          "profiling_samples": {
+            "clock": [1836607, 1836327, 1836327],
+            "retired": [93323, 93323, 93323],
+            "fetch_wait": [9114, 8415, 8415],
+            "data_wait": [1730146, 1730538, 1730538],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 93, 93],
+            "icache_hit": [98445, 105624, 105624],
+            "icache_miss": [3596, 3, 3],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [309, 88, 88],
+            "axi_write_wait": [1704835, 1704843, 1704843],
+            "store_queue_stall": [1597971, 1598365, 1598365],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_sparse",
+          "operations": 65536,
+          "instructions": 2195478,
+          "checksum": 2271031969,
+          "working_set_bytes": 4,
+          "unroll": 4,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 2376703,
+          "median_cycles_per_operation": 36.26560974121094,
+          "sample_cycles": [2376883, 2376694, 2376703],
+          "profiling_samples": {
+            "clock": [2378015, 2377826, 2377840],
+            "retired": [2195591, 2195591, 2195591],
+            "fetch_wait": [33921, 33732, 33741],
+            "data_wait": [132218, 132218, 132223],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [2244714, 2244721, 2244721],
+            "icache_miss": [39, 32, 32],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [1, 1, 1],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [880, 724, 727],
+            "axi_write_wait": [1629942, 1583132, 1583147],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "loads_streaming_cold",
+          "operations": 65536,
+          "instructions": 159735,
+          "checksum": 2198208512,
+          "working_set_bytes": 65536,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 1819018,
+          "median_cycles_per_operation": 27.756011962890625,
+          "sample_cycles": [1819018, 1819019, 1819018],
+          "profiling_samples": {
+            "clock": [1820183, 1820189, 1820183],
+            "retired": [159848, 159848, 159848],
+            "fetch_wait": [8449, 8450, 8449],
+            "data_wait": [1647830, 1647836, 1647830],
+            "muldiv_wait": [0, 0, 0],
+            "fence_wait": [0, 0, 0],
+            "icache_hit": [172135, 172135, 172135],
+            "icache_miss": [15, 15, 15],
+            "dcache_hit": [2, 2, 2],
+            "dcache_miss": [65537, 65537, 65537],
+            "itlb_miss": [0, 0, 0],
+            "dtlb_miss": [0, 0, 0],
+            "axi_read_wait": [1384793, 1384794, 1384793],
+            "axi_write_wait": [900, 906, 900],
+            "store_queue_stall": [0, 0, 0],
+            "store_enqueued": [35, 35, 35]
+          }
+        }
+      ],
+      "nominal_timer_hz": 1000000,
+      "AXI_RESPONSE_CYCLES": 20
+    },
+    {
+      "name": "memory-store-path-58823529",
+      "environment": "physical FPGA",
+      "report": {
+        "path": "fpga/arty_a7_35t/build/memory-store-path-58823529.json",
+        "sha256": "1f953d93b58dc183e1573b5ca18780a9d59dd06c5b84d181f4fedafbe1fec676"
+      },
+      "raw_log": {
+        "path": "fpga/arty_a7_35t/build/memory-store-path-58823529.uart.log",
+        "sha256": "30e12aff777ca7cf53a71337a7690d82a7b14d95d5fd745bcebeefe7bf6b0f39"
+      },
+      "repeats": 5,
+      "LOAD_FORWARDING": 0,
+      "FAST_STORE_ACK": 1,
+      "STORE_BUFFER_DEPTH": 8,
+      "firmware_metadata": {
+        "cpu_hz": 58823529,
+        "loader_baud": 2000000,
+        "payload_sha256": "d84117b4c6116e48538ab68123d2c1cd85ee780d60048d5541af0787504cf7ec",
+        "environment": "bare metal M-mode, interrupts disabled"
+      },
+      "cpu_clock_hz": 58823529,
+      "CPU_DIVIDE": 17,
+      "bitstream": {
+        "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/synapse32_store-path-div17.bit",
+        "sha256": "3b072166a94ad5c519c83416912b479a0d83fe01af1d3d87567f04c00dfd1fc2",
+        "bytes": 1526345
+      },
+      "cases": [
+        {
+          "case": "register_baseline",
+          "operations": 65536,
+          "instructions": 73746,
+          "checksum": 610905312,
+          "working_set_bytes": 0,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 86220,
+          "median_cycles_per_operation": 1.31561279296875,
+          "sample_cycles": [86635, 86219, 86219, 86220, 86224],
+          "profiling_samples": {
+            "clock": [88302, 87123, 87122, 87127, 87129],
+            "retired": [73859, 73859, 73859, 73859, 73859],
+            "fetch_wait": [9390, 8330, 8330, 8331, 8330],
+            "data_wait": [1459, 884, 882, 885, 888],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [77939, 77966, 77966, 77966, 77966],
+            "icache_miss": [27, 3, 3, 3, 3],
+            "dcache_hit": [0, 1, 1, 1, 1],
+            "dcache_miss": [3, 2, 2, 2, 2],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [713, 160, 160, 161, 166],
+            "axi_write_wait": [600, 603, 600, 600, 599],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [35, 35, 35, 35, 35]
+          }
+        },
+        {
+          "case": "dependent_loads",
+          "operations": 65536,
+          "instructions": 73751,
+          "checksum": 0,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 213201,
+          "median_cycles_per_operation": 3.2531890869140625,
+          "sample_cycles": [351445, 213201, 213205, 213201, 213201],
+          "profiling_samples": {
+            "clock": [352355, 214104, 214109, 214103, 214107],
+            "retired": [73864, 73864, 73864, 73864, 73864],
+            "fetch_wait": [146594, 8331, 8330, 8331, 8331],
+            "data_wait": [66424, 66418, 66425, 66417, 66421],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [82058, 90258, 90258, 90258, 90258],
+            "icache_miss": [4104, 3, 3, 3, 3],
+            "dcache_hit": [65537, 65537, 65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2, 2, 2],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [138413, 162, 166, 162, 162],
+            "axi_write_wait": [598, 596, 600, 595, 596],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [35, 35, 35, 35, 35]
+          }
+        },
+        {
+          "case": "independent_loads",
+          "operations": 65536,
+          "instructions": 73766,
+          "checksum": 192,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 151777,
+          "median_cycles_per_operation": 2.3159332275390625,
+          "sample_cycles": [264783, 151777, 151775, 151781, 151777],
+          "profiling_samples": {
+            "clock": [265686, 152683, 152680, 152683, 152682],
+            "retired": [73879, 73879, 73879, 73879, 73879],
+            "fetch_wait": [129540, 8332, 8330, 8336, 8330],
+            "data_wait": [66419, 66421, 66419, 66423, 66422],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [73879, 90273, 90273, 90273, 90273],
+            "icache_miss": [4109, 3, 3, 3, 3],
+            "dcache_hit": [65537, 65537, 65537, 65537, 65537],
+            "dcache_miss": [2, 2, 2, 2, 2],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [133616, 163, 162, 167, 162],
+            "axi_write_wait": [597, 601, 599, 597, 599],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [35, 35, 35, 35, 35]
+          }
+        },
+        {
+          "case": "stores_same_word",
+          "operations": 65536,
+          "instructions": 73749,
+          "checksum": 323980127,
+          "working_set_bytes": 4,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1257895,
+          "median_cycles_per_operation": 19.193954467773438,
+          "sample_cycles": [1258138, 1257887, 1257896, 1257895, 1257888],
+          "profiling_samples": {
+            "clock": [1259001, 1258751, 1258760, 1258756, 1258750],
+            "retired": [73862, 73862, 73862, 73862, 73862],
+            "fetch_wait": [87564, 8474, 8473, 8472, 8471],
+            "data_wait": [1172185, 1172364, 1172376, 1172369, 1172365],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 146, 143, 145, 144],
+            "icache_hit": [73866, 90255, 90255, 90255, 90255],
+            "icache_miss": [4104, 3, 3, 3, 3],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [1, 1, 1, 1, 1],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [333, 129, 132, 129, 129],
+            "axi_write_wait": [1127222, 1127215, 1127220, 1127218, 1127214],
+            "store_queue_stall": [1040237, 1040450, 1040460, 1040460, 1040454],
+            "store_enqueued": [65571, 65571, 65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_adjacent_words",
+          "operations": 65536,
+          "instructions": 73755,
+          "checksum": 2051148132,
+          "working_set_bytes": 16,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1257908,
+          "median_cycles_per_operation": 19.19415283203125,
+          "sample_cycles": [1258174, 1257904, 1257908, 1257907, 1257910],
+          "profiling_samples": {
+            "clock": [1259036, 1258771, 1258772, 1258769, 1258774],
+            "retired": [73868, 73868, 73868, 73868, 73868],
+            "fetch_wait": [9019, 8477, 8473, 8472, 8476],
+            "data_wait": [1172121, 1172374, 1172380, 1172378, 1172382],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [144, 143, 146, 145, 145],
+            "icache_hit": [82061, 90261, 90261, 90261, 90261],
+            "icache_miss": [4105, 3, 3, 3, 3],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [1, 1, 1, 1, 1],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [356, 136, 131, 129, 133],
+            "axi_write_wait": [1127221, 1127214, 1127226, 1127222, 1127224],
+            "store_queue_stall": [1040210, 1040458, 1040464, 1040466, 1040465],
+            "store_enqueued": [65571, 65571, 65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_streaming_hot",
+          "operations": 65536,
+          "instructions": 93210,
+          "checksum": 3575244288,
+          "working_set_bytes": 512,
+          "unroll": 16,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 1257908,
+          "median_cycles_per_operation": 19.19415283203125,
+          "sample_cycles": [1258294, 1257905, 1257908, 1257892, 1257908],
+          "profiling_samples": {
+            "clock": [1259158, 1258769, 1258770, 1258754, 1258774],
+            "retired": [93323, 93323, 93323, 93323, 93323],
+            "fetch_wait": [9149, 8468, 8473, 8471, 8472],
+            "data_wait": [1152658, 1152924, 1152925, 1152906, 1152928],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 135, 135, 136, 135],
+            "icache_hit": [98445, 105624, 105624, 105624, 105624],
+            "icache_miss": [3596, 3, 3, 3, 3],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [1, 1, 1, 1, 1],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [469, 129, 134, 131, 133],
+            "axi_write_wait": [1127203, 1127224, 1127221, 1127206, 1127222],
+            "store_queue_stall": [1020744, 1021010, 1021008, 1020994, 1021009],
+            "store_enqueued": [65571, 65571, 65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "stores_sparse",
+          "operations": 65536,
+          "instructions": 2195478,
+          "checksum": 2271031969,
+          "working_set_bytes": 4,
+          "unroll": 4,
+          "final_fence": true,
+          "all_validated": true,
+          "median_cycles": 2376995,
+          "median_cycles_per_operation": 36.27006530761719,
+          "sample_cycles": [2377249, 2376990, 2376992, 2376995, 2376996],
+          "profiling_samples": {
+            "clock": [2378114, 2377852, 2377853, 2377857, 2377856],
+            "retired": [2195591, 2195591, 2195591, 2195591, 2195591],
+            "fetch_wait": [34274, 34015, 34017, 34020, 34018],
+            "data_wait": [131980, 131978, 131976, 131980, 131980],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [2244714, 2244721, 2244721, 2244721, 2244721],
+            "icache_miss": [39, 32, 32, 32, 32],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [1, 1, 1, 1, 1],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [1295, 1068, 1069, 1073, 1073],
+            "axi_write_wait": [1118768, 1118954, 1118867, 1119067, 1119351],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [65571, 65571, 65571, 65571, 65571]
+          }
+        },
+        {
+          "case": "loads_streaming_cold",
+          "operations": 65536,
+          "instructions": 159735,
+          "checksum": 2198208512,
+          "working_set_bytes": 65536,
+          "unroll": 16,
+          "final_fence": false,
+          "all_validated": true,
+          "median_cycles": 2633884,
+          "median_cycles_per_operation": 40.18988037109375,
+          "sample_cycles": [2633886, 2633877, 2633894, 2633884, 2633869],
+          "profiling_samples": {
+            "clock": [2634790, 2634779, 2634798, 2634790, 2634772],
+            "retired": [159848, 159848, 159848, 159848, 159848],
+            "fetch_wait": [8515, 8511, 8513, 8513, 8516],
+            "data_wait": [2396839, 2396833, 2396848, 2396841, 2396824],
+            "muldiv_wait": [0, 0, 0, 0, 0],
+            "fence_wait": [0, 0, 0, 0, 0],
+            "icache_hit": [172135, 172135, 172135, 172135, 172135],
+            "icache_miss": [15, 15, 15, 15, 15],
+            "dcache_hit": [2, 2, 2, 2, 2],
+            "dcache_miss": [65537, 65537, 65537, 65537, 65537],
+            "itlb_miss": [0, 0, 0, 0, 0],
+            "dtlb_miss": [0, 0, 0, 0, 0],
+            "axi_read_wait": [2134142, 2134133, 2134150, 2134140, 2134125],
+            "axi_write_wait": [595, 601, 597, 596, 596],
+            "store_queue_stall": [0, 0, 0, 0, 0],
+            "store_enqueued": [35, 35, 35, 35, 35]
+          }
+        }
+      ]
+    }
+  ],
+  "counter_scope": {
+    "cycles": "CSR mcycle delta enclosing function call, loop overhead, and final FENCE for store cases. Preparation, verification and UART printing are outside the timed window.",
+    "instructions": "Existing Synapse32 EX-completion counter, not WB retirement. Memory and iterative-M stalls gate completion. Faulting instruction tokens are excluded after the recorded priority fix.",
+    "profiling": "16 MMIO event deltas surround the CSR window and also include snapshot/counter overhead. Events overlap; do not add them into a CPI breakdown.",
+    "operations": "65536 ADDIs, loads or stores as indicated by case. stores_sparse also executes32 ADDIs per store; report its whole loop, not intrinsic store latency.",
+    "muldiv_wait": "is_multiply_divide && !md_done can include a younger M instruction held behind older MEM, because start is gated by mem_wait. Combined performance delta1420200 to1744382 is not evidence of more arithmetic work."
+  },
+  "code_path_warmup": {
+    "observation": "First dependent/independent sample has4104/4109 I-cache misses in both physical and baseline AXI simulation; later samples have3. All raw first samples are retained. The reported median is representative of the repeated steady-state path.",
+    "hypothesis": "Four-entry sequential fetch starts a cold not-taken-path miss past the loop branch. Taken redirects drain but suppress stale cache fills, repeating the miss until final fall-through installs the line. This matches4095 taken backedges, but a direct canceled-fetch trace has not been captured.",
+    "status": "hypothesis, not a proven per-request trace",
+    "dependent_loop_branch": "0x80000e44",
+    "dependent_loop_target": "0x80000e00",
+    "cold_fallthrough_line": "0x80000e50"
+  },
+  "directed_warm_load_trace": [
+    {
+      "raw_log": {
+        "path": "fpga/arty_a7_35t/build/load-forwarding-baseline.log",
+        "sha256": "ff5bdf7de04afc989126b1c153f732b71ef2bad70bb6c05995da2e0bf5b2b4cf"
+      },
+      "measurement": {
+        "load_forwarding": 0,
+        "grants": 64,
+        "responses": 64,
+        "retired": 64,
+        "cpu_valid_cycles": 64,
+        "grant_interval_min": 3,
+        "grant_interval_max": 3,
+        "response_interval_min": 3,
+        "response_interval_max": 3,
+        "retire_interval_min": 3,
+        "retire_interval_max": 3
+      }
+    },
+    {
+      "raw_log": {
+        "path": "fpga/arty_a7_35t/build/load-forwarding-enabled.log",
+        "sha256": "8926b2c666ebea3e789ec5e78c1d764d59f56329d3b732d738538867ba8d96cb"
+      },
+      "measurement": {
+        "load_forwarding": 1,
+        "grants": 64,
+        "responses": 64,
+        "retired": 64,
+        "cpu_valid_cycles": 64,
+        "grant_interval_min": 2,
+        "grant_interval_max": 2,
+        "response_interval_min": 2,
+        "response_interval_max": 2,
+        "retire_interval_min": 2,
+        "retire_interval_max": 2
+      }
+    }
+  ],
+  "coremark_axi": {
+    "environment": "synthetic 1 MHz SoC AXI simulation, response 20 cycles, not measured FPGA frequency",
+    "firmware": {
+      "path": "fpga/arty_a7_35t/build/coremark-profile-1000000/coremark.bin",
+      "sha256": "c24f90706277b9c76dfea090d6cfd5fc852c068f045c920dacdd033401a7f7fe"
+    },
+    "fixed": {
+      "FAST_L1": 1,
+      "FAST_MULTIPLY": 1,
+      "FETCH_QUEUE": 1,
+      "iterations": 50,
+      "AXI_RESPONSE_CYCLES": 20,
+      "JOBS": 2
+    },
+    "cache_depth_sweep_source": {
+      "path": "fpga/arty_a7_35t/build/data-side-sweep-summary.json",
+      "sha256": "8525f0fb02e9ade6c34499fbf16ce6016c8fadc9c498511ed00b9db5bcc58955"
+    },
+    "variants": [
+      {
+        "name": "baseline",
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "STORE_BUFFER_DEPTH": 4,
+        "LOAD_FORWARDING": 0,
+        "FAST_STORE_ACK": 0,
+        "harness_summary": "cycles=68195031 reads=102817 writes=1375563 response_cycles=20 completed=2",
+        "results": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 32.019,
+            "iterations_per_second": 1.561573,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.561573,
+            "cycles": 32019152,
+            "retired_instructions": 12749965,
+            "cpi": 2.5113129330158945,
+            "profile_counters": {
+              "clock": 32021169,
+              "retired": 12750100,
+              "fetch_wait": 4210364,
+              "data_wait": 10467554,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18418251,
+              "icache_miss": 68772,
+              "dcache_hit": 2696467,
+              "dcache_miss": 10404,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 945576,
+              "axi_write_wait": 17481210,
+              "store_queue_stall": 5169665,
+              "store_enqueued": 678884
+            },
+            "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x0158"],
+            "cycles_saved_vs_baseline": 0,
+            "score_gain_percent_vs_baseline": 0.0
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 32.043,
+            "iterations_per_second": 1.560403,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.560403,
+            "cycles": 32043446,
+            "retired_instructions": 12722679,
+            "cpi": 2.5186083842876172,
+            "profile_counters": {
+              "clock": 32045460,
+              "retired": 12722814,
+              "fetch_wait": 4107252,
+              "data_wait": 10602344,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18411154,
+              "icache_miss": 62442,
+              "dcache_hit": 2712703,
+              "dcache_miss": 15842,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 947920,
+              "axi_write_wait": 17330475,
+              "store_queue_stall": 5097992,
+              "store_enqueued": 673296
+            },
+            "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x6bf4"],
+            "cycles_saved_vs_baseline": 0,
+            "score_gain_percent_vs_baseline": 0.0
+          }
+        ],
+        "report": {
+          "path": "fpga/arty_a7_35t/build/fetch-drain-axi.json",
+          "sha256": "b4712cd3678b22bf8afe0e42ed5f27195f807105a6fa1f1226f73a8f8002f627"
+        },
+        "raw_log": {
+          "path": "fpga/arty_a7_35t/build/fetch-drain-axi.log",
+          "sha256": "7e1b777e03c1d2a15ef4c478b85692819dd2e0671f59e55ea725e762c665b15a"
+        }
+      },
+      {
+        "name": "i512",
+        "ICACHE_LINES": 512,
+        "DCACHE_LINES": 256,
+        "STORE_BUFFER_DEPTH": 4,
+        "LOAD_FORWARDING": 0,
+        "FAST_STORE_ACK": 0,
+        "harness_summary": "cycles=67363463 reads=72566 writes=1375647 response_cycles=20 completed=2",
+        "results": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 31.651,
+            "iterations_per_second": 1.579729,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.579729,
+            "cycles": 31651055,
+            "retired_instructions": 12749965,
+            "cpi": 2.4824425008225512,
+            "profile_counters": {
+              "clock": 31652994,
+              "retired": 12750100,
+              "fetch_wait": 3780469,
+              "data_wait": 10497121,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18448590,
+              "icache_miss": 49935,
+              "dcache_hit": 2696467,
+              "dcache_miss": 10404,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 640267,
+              "axi_write_wait": 17479468,
+              "store_queue_stall": 5215139,
+              "store_enqueued": 678884
+            },
+            "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x0158"],
+            "cycles_saved_vs_baseline": 368097,
+            "score_gain_percent_vs_baseline": 1.162673791106772
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 31.764,
+            "iterations_per_second": 1.574109,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.574109,
+            "cycles": 31764089,
+            "retired_instructions": 12722679,
+            "cpi": 2.496650980504971,
+            "profile_counters": {
+              "clock": 31766031,
+              "retired": 12722814,
+              "fetch_wait": 3767310,
+              "data_wait": 10629196,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18433249,
+              "icache_miss": 47696,
+              "dcache_hit": 2712703,
+              "dcache_miss": 15842,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 730129,
+              "axi_write_wait": 17332894,
+              "store_queue_stall": 5142251,
+              "store_enqueued": 673296
+            },
+            "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x6bf4"],
+            "cycles_saved_vs_baseline": 279357,
+            "score_gain_percent_vs_baseline": 0.8783628331911597
+          }
+        ],
+        "report": {
+          "path": "fpga/arty_a7_35t/build/data-side-sweep-i512/report.json",
+          "sha256": "e7f11ee50b6cd0acfcabed58a676b321900e8516d14e6bbec6c9e0c2eb34b84a"
+        },
+        "raw_log": {
+          "path": "fpga/arty_a7_35t/build/data-side-sweep-i512/run.log",
+          "sha256": "c9c5a61fbe4a5b720507eda0feb4779a35269f8055b165e31c84eb2dc3b3d59e"
+        }
+      },
+      {
+        "name": "d512",
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 512,
+        "STORE_BUFFER_DEPTH": 4,
+        "LOAD_FORWARDING": 0,
+        "FAST_STORE_ACK": 0,
+        "harness_summary": "cycles=67084967 reads=75134 writes=1375240 response_cycles=20 completed=2",
+        "results": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 31.577,
+            "iterations_per_second": 1.583431,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.583431,
+            "cycles": 31577663,
+            "retired_instructions": 12749965,
+            "cpi": 2.47668624972696,
+            "profile_counters": {
+              "clock": 31579674,
+              "retired": 12750100,
+              "fetch_wait": 4211871,
+              "data_wait": 10017767,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18416712,
+              "icache_miss": 69040,
+              "dcache_hit": 2706743,
+              "dcache_miss": 128,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 706686,
+              "axi_write_wait": 17494823,
+              "store_queue_stall": 5244835,
+              "store_enqueued": 678884
+            },
+            "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x0158"],
+            "cycles_saved_vs_baseline": 441489,
+            "score_gain_percent_vs_baseline": 1.399742439194318
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 31.395,
+            "iterations_per_second": 1.59261,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.59261,
+            "cycles": 31395098,
+            "retired_instructions": 12722679,
+            "cpi": 2.4676483624242977,
+            "profile_counters": {
+              "clock": 31397118,
+              "retired": 12722814,
+              "fetch_wait": 4103614,
+              "data_wait": 9948579,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18409384,
+              "icache_miss": 62837,
+              "dcache_hit": 2728542,
+              "dcache_miss": 3,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 587159,
+              "axi_write_wait": 17360430,
+              "store_queue_stall": 5176614,
+              "store_enqueued": 673296
+            },
+            "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x6bf4"],
+            "cycles_saved_vs_baseline": 648348,
+            "score_gain_percent_vs_baseline": 2.064018077381302
+          }
+        ],
+        "report": {
+          "path": "fpga/arty_a7_35t/build/data-side-sweep-d512/report.json",
+          "sha256": "873d682715a0917a55200ea56452dab4a241b89047a3278073f85b13024607f4"
+        },
+        "raw_log": {
+          "path": "fpga/arty_a7_35t/build/data-side-sweep-d512/run.log",
+          "sha256": "368dca62baa5c0c46678f35c2c20e252ce7419ec6ce141b182933d5b7569b7b9"
+        }
+      },
+      {
+        "name": "sb8",
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "STORE_BUFFER_DEPTH": 8,
+        "LOAD_FORWARDING": 0,
+        "FAST_STORE_ACK": 0,
+        "harness_summary": "cycles=65514903 reads=101889 writes=1374853 response_cycles=20 completed=2",
+        "results": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 30.713,
+            "iterations_per_second": 1.627975,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.627975,
+            "cycles": 30712874,
+            "retired_instructions": 12749965,
+            "cpi": 2.4088594753005204,
+            "profile_counters": {
+              "clock": 30714885,
+              "retired": 12750100,
+              "fetch_wait": 4257338,
+              "data_wait": 9114237,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18417052,
+              "icache_miss": 68772,
+              "dcache_hit": 2696467,
+              "dcache_miss": 10404,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 941959,
+              "axi_write_wait": 17502469,
+              "store_queue_stall": 3717155,
+              "store_enqueued": 678884
+            },
+            "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x0158"],
+            "cycles_saved_vs_baseline": 1306278,
+            "score_gain_percent_vs_baseline": 4.252250775339994
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 30.707,
+            "iterations_per_second": 1.628293,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.628293,
+            "cycles": 30707405,
+            "retired_instructions": 12722679,
+            "cpi": 2.4135958315068704,
+            "profile_counters": {
+              "clock": 30709419,
+              "retired": 12722814,
+              "fetch_wait": 4152902,
+              "data_wait": 9220603,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18410355,
+              "icache_miss": 62442,
+              "dcache_hit": 2712703,
+              "dcache_miss": 15842,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 944157,
+              "axi_write_wait": 17343626,
+              "store_queue_stall": 3636940,
+              "store_enqueued": 673296
+            },
+            "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x6bf4"],
+            "cycles_saved_vs_baseline": 1336041,
+            "score_gain_percent_vs_baseline": 4.350799120483617
+          }
+        ],
+        "report": {
+          "path": "fpga/arty_a7_35t/build/data-side-sweep-sb8/report.json",
+          "sha256": "30c1e3c0a8fe01d2a3bea9d7c014016852ed79803a8f78a18a6defce35c34fd4"
+        },
+        "raw_log": {
+          "path": "fpga/arty_a7_35t/build/data-side-sweep-sb8/run.log",
+          "sha256": "cca3dedf729dd510eccd16a67adaf4586fd1bdd9754e67da32cceda960adb22d"
+        }
+      },
+      {
+        "name": "storeack",
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "STORE_BUFFER_DEPTH": 4,
+        "LOAD_FORWARDING": 0,
+        "FAST_STORE_ACK": 1,
+        "harness_summary": "cycles=67922487 reads=99713 writes=1375939 response_cycles=20 completed=2",
+        "results": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 31.872,
+            "iterations_per_second": 1.568775,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.568775,
+            "cycles": 31872068,
+            "retired_instructions": 12749965,
+            "cpi": 2.4997769013483566,
+            "profile_counters": {
+              "clock": 31874085,
+              "retired": 12750100,
+              "fetch_wait": 4217964,
+              "data_wait": 10311599,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18334392,
+              "icache_miss": 68722,
+              "dcache_hit": 2696467,
+              "dcache_miss": 10404,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 944645,
+              "axi_write_wait": 17496036,
+              "store_queue_stall": 5672780,
+              "store_enqueued": 678884
+            },
+            "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x0158"],
+            "cycles_saved_vs_baseline": 147084,
+            "score_gain_percent_vs_baseline": 0.4612016216981152
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 31.9,
+            "iterations_per_second": 1.567398,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.567398,
+            "cycles": 31900214,
+            "retired_instructions": 12722679,
+            "cpi": 2.5073503780139386,
+            "profile_counters": {
+              "clock": 31902231,
+              "retired": 12722814,
+              "fetch_wait": 4113617,
+              "data_wait": 10451588,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18326489,
+              "icache_miss": 62392,
+              "dcache_hit": 2712703,
+              "dcache_miss": 15842,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 948287,
+              "axi_write_wait": 17341233,
+              "store_queue_stall": 5596701,
+              "store_enqueued": 673296
+            },
+            "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x6bf4"],
+            "cycles_saved_vs_baseline": 143232,
+            "score_gain_percent_vs_baseline": 0.4482816298097436
+          }
+        ],
+        "report": {
+          "path": "fpga/arty_a7_35t/build/data-side-storeack/report.json",
+          "sha256": "fedb0273f374d656a63afb51110756e1e73ad88237cae686b43dd3397867a885"
+        },
+        "raw_log": {
+          "path": "fpga/arty_a7_35t/build/data-side-storeack/run.log",
+          "sha256": "311fffd106fa51d43dfe7ab2dcd155c196509e4dced6b29e6f339d32d2d5215f"
+        }
+      },
+      {
+        "name": "load_forwarding",
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "STORE_BUFFER_DEPTH": 4,
+        "LOAD_FORWARDING": 1,
+        "FAST_STORE_ACK": 0,
+        "raw_log": {
+          "path": "fpga/arty_a7_35t/build/load-forwarding-coremark-axi20.log",
+          "sha256": "618ed6354d10a2dbc1d097dbfe4c6d881c93cbd1a79d9975340b19d64e2caa2a"
+        },
+        "report": {
+          "path": "fpga/arty_a7_35t/build/load-forwarding-coremark-axi20.json",
+          "sha256": "1c3a16ab96d8208491cb0f121c5b476bd2ed08148465ad90ec2952dc8592bad0"
+        },
+        "results": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 30.648,
+            "iterations_per_second": 1.631428,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.631428,
+            "cycles": 30648125,
+            "retired_instructions": 12749965,
+            "cpi": 2.403781108418729
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 30.638,
+            "iterations_per_second": 1.63196,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.63196,
+            "cycles": 30638159,
+            "retired_instructions": 12722679,
+            "cpi": 2.4081531098913995
+          }
+        ]
+      },
+      {
+        "name": "combined",
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "STORE_BUFFER_DEPTH": 8,
+        "LOAD_FORWARDING": 1,
+        "FAST_STORE_ACK": 1,
+        "harness_summary": "cycles=62434087 reads=98886 writes=1375471 response_cycles=20 completed=2",
+        "results": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 29.2,
+            "iterations_per_second": 1.712329,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.712329,
+            "cycles": 29199872,
+            "retired_instructions": 12749965,
+            "cpi": 2.29019232601815,
+            "profile_counters": {
+              "clock": 29201880,
+              "retired": 12750100,
+              "fetch_wait": 4263941,
+              "data_wait": 9188881,
+              "muldiv_wait": 1744382,
+              "fence_wait": 0,
+              "icache_hit": 18067207,
+              "icache_miss": 68743,
+              "dcache_hit": 2696467,
+              "dcache_miss": 10404,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 934424,
+              "axi_write_wait": 17519074,
+              "store_queue_stall": 4369642,
+              "store_enqueued": 678884
+            },
+            "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x0158"],
+            "cycles_saved_vs_baseline": 2819280,
+            "score_gain_percent_vs_baseline": 9.654111591324899
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 29.111,
+            "iterations_per_second": 1.717564,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.717564,
+            "cycles": 29111219,
+            "retired_instructions": 12722679,
+            "cpi": 2.2881359342635306,
+            "profile_counters": {
+              "clock": 29113230,
+              "retired": 12722814,
+              "fetch_wait": 4156132,
+              "data_wait": 9235106,
+              "muldiv_wait": 1744150,
+              "fence_wait": 0,
+              "icache_hit": 18056147,
+              "icache_miss": 62412,
+              "dcache_hit": 2712703,
+              "dcache_miss": 15842,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 936694,
+              "axi_write_wait": 17361479,
+              "store_queue_stall": 4250230,
+              "store_enqueued": 673296
+            },
+            "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x6bf4"],
+            "cycles_saved_vs_baseline": 2932227,
+            "score_gain_percent_vs_baseline": 10.071821189782382
+          }
+        ],
+        "report": {
+          "path": "fpga/arty_a7_35t/build/data-side-combined/report.json",
+          "sha256": "f51f619634cff34d49c2006d5f1bb8939006a1b3a3bcf61b38ddfd36f1f8d819"
+        },
+        "raw_log": {
+          "path": "fpga/arty_a7_35t/build/data-side-combined/run.log",
+          "sha256": "9198b63f1a7cc65a2afefe309cf6e6063dab0b1ace602d8a46507723c8b8159b"
+        }
+      },
+      {
+        "name": "store_path_fallback",
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "STORE_BUFFER_DEPTH": 8,
+        "LOAD_FORWARDING": 0,
+        "FAST_STORE_ACK": 1,
+        "source_HEAD": "f0d2f83270b7de6fb22c5a363bc56b5736d34c3f",
+        "source_manifest": {
+          "path": "fpga/arty_a7_35t/build/performance/store-path-div17/source-manifest.txt",
+          "sha256": "5d37a0c60c866fad323b0fae6eb68c900d21cb8ff2ba258a93ae3191378a274b"
+        },
+        "build_metadata": {
+          "path": "fpga/arty_a7_35t/build/data-side-store-fallback/Vsynapse_ddr3_system__verFiles.dat",
+          "sha256": "1420260c57a877455e7ee5a700af15947171b9bb3c1c651e9b5bee5093866bf7"
+        },
+        "raw_log": {
+          "path": "fpga/arty_a7_35t/build/data-side-store-fallback/run.log",
+          "sha256": "ca7364599c8b69116af4301d9b2381a6b82f27d3d243b6b6d6a37a86cc777c99"
+        },
+        "report": {
+          "path": "fpga/arty_a7_35t/build/data-side-store-fallback/report.json",
+          "sha256": "fbb62cd1e3538e9ccc55af390250977bf1e186df20a716e408d1fc6399493b9f"
+        },
+        "results": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 30.517,
+            "iterations_per_second": 1.638431,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.638431,
+            "cycles": 30517292,
+            "retired_instructions": 12749965,
+            "cpi": 2.3935196684853643,
+            "profile_counters": {
+              "clock": 30519300,
+              "retired": 12750100,
+              "fetch_wait": 4265085,
+              "data_wait": 8909619,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18269729,
+              "icache_miss": 68722,
+              "dcache_hit": 2696467,
+              "dcache_miss": 10404,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 939961,
+              "axi_write_wait": 17542433,
+              "store_queue_stall": 4146099,
+              "store_enqueued": 678884
+            },
+            "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x0158"]
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 30.5,
+            "iterations_per_second": 1.639344,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.639344,
+            "cycles": 30500060,
+            "retired_instructions": 12722679,
+            "cpi": 2.3972985563810894,
+            "profile_counters": {
+              "clock": 30502077,
+              "retired": 12722814,
+              "fetch_wait": 4160957,
+              "data_wait": 9004032,
+              "muldiv_wait": 1420200,
+              "fence_wait": 0,
+              "icache_hit": 18259283,
+              "icache_miss": 62392,
+              "dcache_hit": 2712703,
+              "dcache_miss": 15842,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 944971,
+              "axi_write_wait": 17374203,
+              "store_queue_stall": 4060489,
+              "store_enqueued": 673296
+            },
+            "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x6bf4"]
+          }
+        ]
+      },
+      {
+        "name": "formatted_response_contract",
+        "source_commit": "977add4",
+        "scope": "Simulation-only; not the frozen f0d2f83 physical bitstream",
+        "config": {
+          "FAST_L1": 1,
+          "FAST_MULTIPLY": 1,
+          "FETCH_QUEUE": 1,
+          "LOAD_FORWARDING": 1,
+          "FAST_STORE_ACK": 1,
+          "STORE_BUFFER_DEPTH": 8,
+          "ICACHE_LINES": 256,
+          "DCACHE_LINES": 256,
+          "LOAD_RESPONSE_FORMATTED": 1,
+          "iterations": 50,
+          "AXI_RESPONSE_CYCLES": 20
+        },
+        "evidence": {
+          "path": "fpga/arty_a7_35t/build/data-side-formatted/evidence.json",
+          "sha256": "b5383e279ad29aa92f93aeb12038c5808c115efea682af7647c3cb90fb632ac8"
+        },
+        "report": {
+          "path": "fpga/arty_a7_35t/build/data-side-formatted/report.json",
+          "sha256": "f51f619634cff34d49c2006d5f1bb8939006a1b3a3bcf61b38ddfd36f1f8d819"
+        },
+        "raw_log": {
+          "path": "fpga/arty_a7_35t/build/data-side-formatted/run.log",
+          "sha256": "9198b63f1a7cc65a2afefe309cf6e6063dab0b1ace602d8a46507723c8b8159b"
+        },
+        "source_manifest": {
+          "path": "fpga/arty_a7_35t/build/data-side-formatted/source-manifest.json",
+          "sha256": "07912d824c0f1e209d3dd98ba7221b2ab50cc98b68bdf56bd492821ff0d43058"
+        },
+        "results": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 29.2,
+            "iterations_per_second": 1.712329,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.712329,
+            "cycles": 29199872,
+            "retired_instructions": 12749965,
+            "cpi": 2.29019232601815,
+            "profile_counters": {
+              "clock": 29201880,
+              "retired": 12750100,
+              "fetch_wait": 4263941,
+              "data_wait": 9188881,
+              "muldiv_wait": 1744382,
+              "fence_wait": 0,
+              "icache_hit": 18067207,
+              "icache_miss": 68743,
+              "dcache_hit": 2696467,
+              "dcache_miss": 10404,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 934424,
+              "axi_write_wait": 17519074,
+              "store_queue_stall": 4369642,
+              "store_enqueued": 678884
+            },
+            "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x0158"]
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 29.111,
+            "iterations_per_second": 1.717564,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.717564,
+            "cycles": 29111219,
+            "retired_instructions": 12722679,
+            "cpi": 2.2881359342635306,
+            "profile_counters": {
+              "clock": 29113230,
+              "retired": 12722814,
+              "fetch_wait": 4156132,
+              "data_wait": 9235106,
+              "muldiv_wait": 1744150,
+              "fence_wait": 0,
+              "icache_hit": 18056147,
+              "icache_miss": 62412,
+              "dcache_hit": 2712703,
+              "dcache_miss": 15842,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 936694,
+              "axi_write_wait": 17361479,
+              "store_queue_stall": 4250230,
+              "store_enqueued": 673296
+            },
+            "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x6bf4"]
+          }
+        ],
+        "timed_cycles_and_instructions_identical_to": "combined"
+      }
+    ],
+    "source_manifest": {
+      "path": "fpga/arty_a7_35t/build/data-side-sweep-i512/source-manifest.json",
+      "sha256": "a0c11108c61908fa5b6ecf1df788892351a3ce36ecaa197f41b091754821d01e"
+    },
+    "feature_sweep_source": {
+      "path": "fpga/arty_a7_35t/build/data-side-feature-summary.json",
+      "sha256": "f53b1798676ab94897ad25b1c583c6af68f9d494c66888a5cb319e223d5b1715"
+    },
+    "source_manifests": {
+      "capacity_sweep": {
+        "path": "fpga/arty_a7_35t/build/data-side-sweep-i512/source-manifest.json",
+        "sha256": "a0c11108c61908fa5b6ecf1df788892351a3ce36ecaa197f41b091754821d01e"
+      },
+      "feature_sweep": {
+        "path": "fpga/arty_a7_35t/build/data-side-combined/source-manifest.json",
+        "sha256": "ea05049ccafa44d3e644e92051a08db385bc97bf274cc93de8300a480c22ce3d"
+      }
+    }
+  },
+  "regressions": {
+    "load_forwarding_memory_wait": {
+      "command": "MEMORY_WAIT_LOAD_FORWARDING=1 .venv/bin/python -m pytest -s tests/system_tests/test_memory_wait.py",
+      "log": {
+        "path": "build/memory-wait-load-forwarding.log",
+        "sha256": "eeac3fed29b70bcd20f82aed6edb5648d537f3a68b05532295bbf4e3c95bc717"
+      },
+      "result": "PASS",
+      "latencies": [0, 1, 2, 4],
+      "interrupt_sweep_latency": 2,
+      "interrupt_injection_positions": 1128,
+      "retired_instructions_all_latencies": 223,
+      "checks": ["identical ordered stores and final memory", "byte/halfword loads and stores", "LR/SC/AMO legacy interlocks", "held forwarded store operands with fast fetch", "UART reads consume exactly one byte"]
+    },
+    "older_load_fault_priority": {
+      "command": "bash fpga/arty_a7_35t/test_load_fault_priority.sh",
+      "before": {
+        "log": {
+          "path": "fpga/arty_a7_35t/build/load-fault-priority-before.log",
+          "sha256": "a9b2f82390b2764229f00b2951d4a664743ca8b69911691b782a31bed490fdfa"
+        },
+        "LOAD_FORWARDING": 1,
+        "result": "FAIL",
+        "failed_cases": ["mret", "sret", "wfi"],
+        "passed_cases": ["dependent_alu", "dependent_store", "dependent_csr", "dependent_jalr", "dependent_mul"]
+      },
+      "after": {
+        "log": {
+          "path": "fpga/arty_a7_35t/build/load-fault-priority-after-both.log",
+          "sha256": "e1ef964cb9c94ccaff371f249b9cab98b9f48700adfd36208cbed53aba92d45b"
+        },
+        "LOAD_FORWARDING": [0, 1],
+        "result": "PASS",
+        "cases_per_variant": 8
+      },
+      "fix": "Gate younger EX stage_enable on !mem_stage_page_fault_taken. Older MEM trap cause/EPC/TVAL/vector remain independent."
+    },
+    "directed_data_path": {
+      "log": {
+        "path": "fpga/arty_a7_35t/build/data-path-directed-tests.log",
+        "sha256": "a891cfb78d07a0da1834a5030bdd0a81223a32818a94992175821e0a69e00cdb"
+      },
+      "result": "PASS",
+      "checks": ["signed LB/LH and unsigned LBU/LHU", "load to store/ALU/branch/JALR/CSR/multiply", "new MEM value wins over old WB value", "early store response modes0/1 complete exactly once and preserve faults"]
+    },
+    "full_linux_soc": {
+      "log": {
+        "path": "fpga/arty_a7_35t/build/data-path-linux-sim-final.log",
+        "sha256": "967259d276f9afe7b2fa1df61d2eaf3649edb97d6b8e070550d1cbbd128e1aee"
+      },
+      "result": "PASS",
+      "config": {
+        "LOAD_FORWARDING": 1,
+        "FAST_STORE_ACK": 1,
+        "STORE_BUFFER_DEPTH": 8
+      },
+      "shell_command": "echo FPGA_BOOT_OK",
+      "cycles_to_success": 252492558
+    },
+    "load_response_contract": {
+      "result": "PASS",
+      "command": "bash fpga/arty_a7_35t/test_load_response_contract.sh",
+      "generic_raw_and_formatted_log": {
+        "path": "fpga/arty_a7_35t/build/load-response-contract-final.log",
+        "sha256": "945e03f4372d2d07c9f0398563c106cefa9dc499c1e8f835bdefdb6a6b54ff93"
+      },
+      "soc_log": {
+        "path": "fpga/arty_a7_35t/build/load-response-contract-soc-final.log",
+        "sha256": "938d950ede30877cadbe483017e04dc08dd8617aa8058dae8ef6ecf99a9d6d48"
+      },
+      "generic_variants": [
+        {
+          "LOAD_RESPONSE_FORMATTED": 0,
+          "loads": 202,
+          "stores": 17
+        },
+        {
+          "LOAD_RESPONSE_FORMATTED": 1,
+          "loads": 202,
+          "stores": 17
+        }
+      ],
+      "soc_checks": ["LB/LH/LBU/LHU/LW", "dependent branch/JALR/CSR/multiply", "exact2-cycle warm dependent-load cadence"],
+      "scope": "source977add4; simulation validation, not accepted physical configuration"
+    },
+    "data_trigger_system": {
+      "result": "PASS",
+      "log": {
+        "path": "build/data-path-trigger-system.log",
+        "sha256": "c14415dac03101da1d6176853fc7c344c4c2113d53c80e83b56cf00556a31132"
+      },
+      "scope": "System trigger regression after base==target-imm equivalent comparison change"
+    },
+    "release_directed_suite": {
+      "result": "PASS",
+      "command": "make -C fpga/arty_a7_35t test-memory-path",
+      "log": {
+        "path": "fpga/arty_a7_35t/build/data-path-release-directed.log",
+        "sha256": "5b59991d38d647395f2af3cb6e42c474643477044245f47d73c34912e6d4a50e"
+      },
+      "checks": ["early-store acknowledgement modes0/1:11 responses,15 grants,5 commits", "older-load-fault priority8 cases each in LOAD_FORWARDING0/1", "raw/formatted generic response contracts202 loads and17 stores each", "trigger-base comparison10804 cases,all4 trigger slots,wrap/negative offsets,wrong kind/disabled,forwarding,atomic/priority", "posted stores with fences,FENCE.I,LR/SC,AMO,failed/successful SC and multiply/divide sequence"]
+    }
+  },
+  "source_versions": {
+    "data_path_implementation": "29b7b82",
+    "clock_constraints": "bada690",
+    "read_only_verifier_cleanup": "f0d2f83",
+    "first_candidate_source_HEAD": "bada690",
+    "fallback_source_HEAD": "f0d2f83",
+    "experimental_formatted_trigger_patch": "977add4"
+  },
+  "clock_constraint_audit": {
+    "scope": "Read-only constraint audit of the existing routed fetch-queue-div17 checkpoint, not the pending data-path-div17 implementation. No physical clock frequency, waveform or source-pin change.",
+    "result": "PASS",
+    "command": "vivado -mode batch -source fpga/arty_a7_35t/verify_mig_clocking.tcl",
+    "checkpoint": {
+      "path": "fpga/arty_a7_35t/build/performance/fetch-queue-div17/postopt/routed.dcp",
+      "sha256": "acca541b220a507a92c8963f907ce1f5c3cc27dea03f415ad28f4cc326de4207"
+    },
+    "log": {
+      "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported.log",
+      "sha256": "d7a69d82d65519db8cda12b7d0677425e4e523e0e37c8ac109018c68827a6883"
+    },
+    "clock_count_preserved": 23,
+    "preserved": ["PERIOD", "WAVEFORM", "SOURCE_PINS"],
+    "absent_methodology_warnings": ["TIMING-4", "TIMING-6", "TIMING-27"],
+    "added_exception_count": 1,
+    "added_exception": "20 ns max-delay datapath-only,12 XADC temperature sources to12 first-stage temperature synchronizer D pins",
+    "second_stage_hold_paths_still_timed": 12,
+    "critical_cdc_violations": 0,
+    "bus_skew_violations": 0,
+    "setup_wns_ns": 0.014,
+    "hold_whs_ns": 0.051,
+    "pulse_wpws_ns": 0.206,
+    "reports": {
+      "before-clocks.rpt": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/before-clocks.rpt",
+        "sha256": "b58ca0ef072e2285c8aa295d1b7be760c312b66f4459e17200a8235b90e7e803"
+      },
+      "after-clocks.rpt": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/after-clocks.rpt",
+        "sha256": "74c98bed6dff55e05486273f4d05c665e1ad5841e81a2ec7c7dab5d09d3b1508"
+      },
+      "after-methodology.rpt": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/after-methodology.rpt",
+        "sha256": "4448f88c6e8aa35dd3d20c030c1f0abadec1280219b00cf1cb7b29df0e3a15ec"
+      },
+      "after-timing.rpt": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/after-timing.rpt",
+        "sha256": "70e8e35b65f1e45c890571c94f2dd38f4e0d09cdfd96a3ea5f322befbc6053c2"
+      },
+      "after-cdc.rpt": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/after-cdc.rpt",
+        "sha256": "d03409ab8c530524b8efdfbee84496645f2e06129caffae679825d294d2cc9ea"
+      },
+      "after-bus-skew.rpt": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/after-bus-skew.rpt",
+        "sha256": "9202e7ebfdfc53741f1a1c3bae04cc87fe155d0e6323b9581d37f6f0df579946"
+      },
+      "temperature-data-bound.rpt": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/temperature-data-bound.rpt",
+        "sha256": "e92bc1277f898463000e6aa3c04acd1d3e6fa36f2d9ceba2e15da013cdf7e87d"
+      },
+      "temperature-stage2-hold.rpt": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/temperature-stage2-hold.rpt",
+        "sha256": "157338f08efeea2136ae35b0d4f887a6492b913dcf91929f0d242571c67b6d75"
+      },
+      "temperature-properties.txt": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/temperature-properties.txt",
+        "sha256": "1c0e003e813777a3723118d330d41081a6dbd9eb0669f2ebf4391759d875eb41"
+      },
+      "before.xdc": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/before.xdc",
+        "sha256": "523a1c5c695daceef63e08f94b8b4706e75653fd6620c10e85f86b5ecd00275f"
+      },
+      "after.xdc": {
+        "path": "fpga/arty_a7_35t/build/clock-constraints-audit/final-supported/after.xdc",
+        "sha256": "462de9363d7aa61af56f4729a986075579611eeea8ec4f495ba3b52201798330"
+      }
+    }
+  },
+  "implementation_candidates": [
+    {
+      "name": "data-path-div17",
+      "status": "REJECTED: setup timing failed; no bitstream written",
+      "source_HEAD": "bada690f559fed35fbded7e756e9c4d4ac7e7254",
+      "config": {
+        "CPU_DIVIDE": 17,
+        "cpu_hz": 58823529,
+        "LOAD_FORWARDING": 1,
+        "FAST_STORE_ACK": 1,
+        "STORE_BUFFER_DEPTH": 8,
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "FAST_L1": 1,
+        "FAST_MULTIPLY": 1,
+        "FETCH_QUEUE": 1
+      },
+      "source_manifest": {
+        "path": "fpga/arty_a7_35t/build/performance/data-path-div17/source-manifest.txt",
+        "sha256": "be9a83ba4b7110db33d53c9f9b3385eb9ba54567f6178ab1575093f97998ed1b"
+      },
+      "setup_wns_ns": -4.427,
+      "setup_tns_ns": -13274.97,
+      "hold_whs_ns": 0.022,
+      "pulse_wpws_ns": 0.206,
+      "reports": {
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-div17/timing.rpt",
+          "sha256": "16cb268cec71783789de391e4da4c0532b6e10e1cfefb0be2cafa79f96d9d252"
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-div17/methodology.rpt",
+          "sha256": "217881105ff9ac494df0c95f1464950275cb0272a8d3fe81283012d35f5fb7ab"
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-div17/cdc.rpt",
+          "sha256": "97121d35da845cd352c64574ab80eaf345937e52180f78d674aee23f2b2733ff"
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-div17/bus-skew.rpt",
+          "sha256": "0a2c3754bfaa8aa687b03bc7631e396589ba64567c28746f4657d55bfd63b856"
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-div17/drc.rpt",
+          "sha256": "c5e20d02e0d92add52bea4ccd0a8ef5d88563a71d8fb48def1446301be55e099"
+        }
+      }
+    },
+    {
+      "name": "store-path-div17",
+      "status": "ACCEPTED after bounded post-route optimization; physical microbench, bare-metal/Linux CoreMark and mesh validated",
+      "source_HEAD": "f0d2f83270b7de6fb22c5a363bc56b5736d34c3f",
+      "config": {
+        "CPU_DIVIDE": 17,
+        "cpu_hz": 58823529,
+        "LOAD_FORWARDING": 0,
+        "FAST_STORE_ACK": 1,
+        "STORE_BUFFER_DEPTH": 8,
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "FAST_L1": 1,
+        "FAST_MULTIPLY": 1,
+        "FETCH_QUEUE": 1
+      },
+      "source_manifest": {
+        "path": "fpga/arty_a7_35t/build/performance/store-path-div17/source-manifest.txt",
+        "sha256": "5d37a0c60c866fad323b0fae6eb68c900d21cb8ff2ba258a93ae3191378a274b"
+      },
+      "matched_frozen_source_simulation": "coremark_axi.variants[name=store_path_fallback]",
+      "normal_route_timing": {
+        "setup_wns_ns": -0.524,
+        "setup_tns_ns": -151.344,
+        "hold_whs_ns": 0.012,
+        "pulse_wpws_ns": 0.206,
+        "report": {
+          "path": "fpga/arty_a7_35t/build/performance/store-path-div17/timing.rpt",
+          "sha256": "a6e77906b047a0c4edad975c120f5e3d50092e6e13899cdbb73ccf2f17102e6a"
+        }
+      },
+      "bitstream": {
+        "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/synapse32_store-path-div17.bit",
+        "sha256": "3b072166a94ad5c519c83416912b479a0d83fe01af1d3d87567f04c00dfd1fc2",
+        "bytes": 1526345
+      },
+      "postopt_timing": {
+        "setup_wns_ns": 0.016,
+        "setup_tns_ns": 0.0,
+        "hold_whs_ns": 0.012,
+        "pulse_wpws_ns": 0.206,
+        "absent_methodology_warnings": ["TIMING-4", "TIMING-6", "TIMING-27"],
+        "critical_cdc_violations": 0,
+        "bus_skew_violations": 0,
+        "reports": {
+          "timing.rpt": {
+            "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/timing.rpt",
+            "sha256": "37446f95dcc200d3f06323e731964c786d9c515b56730f101987b62f537ab3e5"
+          },
+          "methodology.rpt": {
+            "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/methodology.rpt",
+            "sha256": "70ba4281cce987571def70b4fda2938bd27ee066d5273f8d7c09707447072c38"
+          },
+          "cdc.rpt": {
+            "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/cdc.rpt",
+            "sha256": "0ef6edf7026ee3eb568ed58287d52d4e0f22ecd2f49eb31564c8a8e0b7c5ac31"
+          },
+          "bus-skew.rpt": {
+            "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/bus-skew.rpt",
+            "sha256": "6530b3b08e7e18682fd1475ac09e23fe801c875146890fc2935246a1fee987ea"
+          },
+          "drc.rpt": {
+            "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/drc.rpt",
+            "sha256": "0cfe012a4ac2b4048fa6ef9bd25131c5554f482f4d45d8aebf508f3aeb85e0e9"
+          },
+          "utilization.rpt": {
+            "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/utilization.rpt",
+            "sha256": "93a8a3127eab1335b68c0a252ad566a7c2ed4bf0046ee2612ed0f0b305151982"
+          }
+        }
+      }
+    },
+    {
+      "name": "data-path-trigger-div18",
+      "status": "REJECTED: setup timing failed; no bitstream written",
+      "source_HEAD": "977add40846208f910b39fdcf74c2af6a3ae0685",
+      "config": {
+        "CPU_DIVIDE": 18,
+        "nominal_firmware_cpu_hz": 55555556,
+        "LOAD_FORWARDING": 1,
+        "LOAD_RESPONSE_FORMATTED": 1,
+        "FAST_STORE_ACK": 1,
+        "STORE_BUFFER_DEPTH": 8,
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "FAST_L1": 1,
+        "FAST_MULTIPLY": 1,
+        "FETCH_QUEUE": 1,
+        "IMPL_STRATEGY": "Performance_Explore"
+      },
+      "source_manifest": {
+        "path": "fpga/arty_a7_35t/build/performance/data-path-trigger-div18/source-manifest.txt",
+        "sha256": "b34353736b1733252126c495191d7f08f0cbbdccd82bb26bfbcf7530dc54de07"
+      },
+      "run_log": {
+        "path": "fpga/arty_a7_35t/build/data-path-trigger-div18-vivado.log",
+        "sha256": "c4ae2cda29f46342491a9bb3070b6a7f098c201dbb7378fbc4c0aa0767e745a3"
+      },
+      "setup_wns_ns": -2.145,
+      "setup_tns_ns": -4763.703,
+      "hold_whs_ns": 0.008,
+      "pulse_wpws_ns": 0.206,
+      "reports": {
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-trigger-div18/timing.rpt",
+          "sha256": "ce4dfc85da5da23fcd8d711073b8d115a2694e3018381a24f7d29c9b082b0ed8"
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-trigger-div18/methodology.rpt",
+          "sha256": "818e83f15498f5707f447056b220255ceee7c676b0845a81e0acfb57ad1ea3f3"
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-trigger-div18/cdc.rpt",
+          "sha256": "dd8ae40ff8526b556c4c6f447d30ca3fe259c207e8f7232c7ef564889af0d3fc"
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-trigger-div18/bus-skew.rpt",
+          "sha256": "211c7dc35467769ffb485281d1a4083c912a63add503265b8413152ff8719430"
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/data-path-trigger-div18/drc.rpt",
+          "sha256": "a64febd6dd376a7bfe4f12002638f032c0d26b576199c030bb83ded92d869225"
+        }
+      }
+    }
+  ],
+  "physical_coremark": {
+    "name": "store-path-div17",
+    "source_HEAD": "f0d2f83270b7de6fb22c5a363bc56b5736d34c3f",
+    "config": {
+      "CPU_DIVIDE": 17,
+      "cpu_hz": 58823529,
+      "LOAD_FORWARDING": 0,
+      "FAST_STORE_ACK": 1,
+      "STORE_BUFFER_DEPTH": 8,
+      "ICACHE_LINES": 256,
+      "DCACHE_LINES": 256,
+      "FAST_L1": 1,
+      "FAST_MULTIPLY": 1,
+      "FETCH_QUEUE": 1
+    },
+    "program_log": {
+      "path": "fpga/arty_a7_35t/build/store-path-div17-program.log",
+      "sha256": "147e3a7f63e054e9d6e23f4911635b83ac52d91ae3cd12394ad687ab2de8c619"
+    },
+    "baremetal": {
+      "report": {
+        "path": "fpga/arty_a7_35t/build/store-path-baremetal-58823529.json",
+        "sha256": "9730f1ccfabc4a72a0e4bce10ac4bb37ed50358342e335ac1e739c9dd1fc67b3"
+      },
+      "raw_log": {
+        "path": "fpga/arty_a7_35t/build/store-path-baremetal-58823529.uart.log",
+        "sha256": "46c4bb1e37ce6b9263b4737852f7e7ac974c82f426ebaf272598eb2fe7131474"
+      },
+      "metadata": {
+        "cpu_mhz": 58.823529,
+        "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+        "payload_sha256": "8c5d0e98a60306f357eb833aab36db1cb9d9d7732d11e22f1131a771eb1c7a0c",
+        "timer_selftest_host_seconds": 2.0000231470912695,
+        "timer_selftest_cycles": 117647099
+      },
+      "results": [
+        {
+          "mode": "performance",
+          "repeat": 0,
+          "iterations": 1603,
+          "seconds": 15.008,
+          "iterations_per_second": 106.809701,
+          "cpu_mhz": 58.823529,
+          "cycles": 882834058,
+          "retired_instructions": 408756719,
+          "cpi": 2.1598031713333135,
+          "validated": true,
+          "profiling": {
+            "clock": 882836053,
+            "retired": 408756854,
+            "fetch_wait": 144037203,
+            "data_wait": 183226961,
+            "muldiv_wait": 45531612,
+            "fence_wait": 0,
+            "icache_hit": 584118900,
+            "icache_miss": 2187091,
+            "dcache_hit": 86627099,
+            "dcache_miss": 150728,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 38802062,
+            "axi_write_wait": 371788696,
+            "store_queue_stall": 43853117,
+            "store_enqueued": 21762574
+          },
+          "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x6ab4"]
+        },
+        {
+          "mode": "performance",
+          "repeat": 1,
+          "iterations": 1603,
+          "seconds": 15.008,
+          "iterations_per_second": 106.809701,
+          "cpu_mhz": 58.823529,
+          "cycles": 882836644,
+          "retired_instructions": 408756719,
+          "cpi": 2.1598094978348232,
+          "validated": true,
+          "profiling": {
+            "clock": 882838639,
+            "retired": 408756854,
+            "fetch_wait": 144039338,
+            "data_wait": 183227165,
+            "muldiv_wait": 45531612,
+            "fence_wait": 0,
+            "icache_hit": 584118970,
+            "icache_miss": 2187091,
+            "dcache_hit": 86627099,
+            "dcache_miss": 150728,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 38804305,
+            "axi_write_wait": 371788756,
+            "store_queue_stall": 43853438,
+            "store_enqueued": 21762574
+          },
+          "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x6ab4"]
+        },
+        {
+          "mode": "performance",
+          "repeat": 2,
+          "iterations": 1603,
+          "seconds": 15.008,
+          "iterations_per_second": 106.809701,
+          "cpu_mhz": 58.823529,
+          "cycles": 882834205,
+          "retired_instructions": 408756719,
+          "cpi": 2.159803530960429,
+          "validated": true,
+          "profiling": {
+            "clock": 882836205,
+            "retired": 408756854,
+            "fetch_wait": 144036836,
+            "data_wait": 183227048,
+            "muldiv_wait": 45531612,
+            "fence_wait": 0,
+            "icache_hit": 584118916,
+            "icache_miss": 2187091,
+            "dcache_hit": 86627099,
+            "dcache_miss": 150728,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 38801605,
+            "axi_write_wait": 371789058,
+            "store_queue_stall": 43853654,
+            "store_enqueued": 21762574
+          },
+          "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x6ab4"]
+        },
+        {
+          "mode": "validation",
+          "repeat": 3,
+          "iterations": 1603,
+          "seconds": 14.893,
+          "iterations_per_second": 107.634459,
+          "cpu_mhz": 58.823529,
+          "cycles": 876069782,
+          "retired_instructions": 407888892,
+          "cpi": 2.147814758338651,
+          "validated": true,
+          "profiling": {
+            "clock": 876071785,
+            "retired": 407889027,
+            "fetch_wait": 138438100,
+            "data_wait": 182274914,
+            "muldiv_wait": 45531612,
+            "fence_wait": 0,
+            "icache_hit": 583787261,
+            "icache_miss": 1985043,
+            "dcache_hit": 87328206,
+            "dcache_miss": 150725,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 33027916,
+            "axi_write_wait": 368759681,
+            "store_queue_stall": 42586882,
+            "store_enqueued": 21585325
+          },
+          "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x1ef6"]
+        }
+      ],
+      "median_coremark": 106.809701,
+      "coremark_per_mhz": 1.8157649297103546,
+      "median_cpi": 2.159803530960429,
+      "accepted_performance_repeats": 3,
+      "accepted_validation_repeats": 1
+    },
+    "linux": {
+      "report": {
+        "path": "fpga/arty_a7_35t/build/store-path-linux-coremark-58823529.json",
+        "sha256": "40f622f0810f5fd79e2985e1e25ab2c5f34555187c61115677e44d791991435f"
+      },
+      "run_log": {
+        "path": "fpga/arty_a7_35t/build/store-path-linux-coremark-run.log",
+        "sha256": "3bd4b96a1483d8adc7be60bf9deb0fa94b6c5bfb1534858b259a269f7c4e11bb"
+      },
+      "frozen_boot_benchmark_log": {
+        "path": "fpga/arty_a7_35t/build/store-path-linux-benchmark.uart.log",
+        "sha256": "1734a148d57337a32244a7e51041496490addb2e36c92454deac749504163122"
+      },
+      "payload": {
+        "path": "fpga/arty_a7_35t/build/linux-image-25hz-cpu59-aligned-profile/fw_payload.bin",
+        "sha256": "0c669b8c6fc82aff7e2d98ab8d96f6464c034bfb29d1a07ece226fda8e826351"
+      },
+      "userspace_binary_sha256": "7192d2ad734c4db1e31545e9d73ac12ce2c46af2d177dee050afd7ab015a1c20",
+      "kernel_hz": 25,
+      "results": [
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 0,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 19.739,
+          "iterations_per_second": 101.322255,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.7224783470573484,
+          "validated": true,
+          "profiling": {
+            "clock": 1169463453,
+            "retired": 510444043,
+            "fetch_wait": 241594481,
+            "data_wait": 240747769,
+            "muldiv_wait": 56865943,
+            "fence_wait": 4379,
+            "icache_hit": 725480079,
+            "icache_miss": 4758691,
+            "dcache_hit": 108635700,
+            "dcache_miss": 351346,
+            "itlb_miss": 237,
+            "dtlb_miss": 795,
+            "axi_read_wait": 100023520,
+            "axi_write_wait": 472906898,
+            "store_queue_stall": 53450300,
+            "store_enqueued": 27679444
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity",
+          "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x4983"]
+        },
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 1,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 19.736,
+          "iterations_per_second": 101.337657,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.7227401810591811,
+          "validated": true,
+          "profiling": {
+            "clock": 1169314563,
+            "retired": 510432761,
+            "fetch_wait": 241463632,
+            "data_wait": 240739772,
+            "muldiv_wait": 56865963,
+            "fence_wait": 4460,
+            "icache_hit": 725472793,
+            "icache_miss": 4754427,
+            "dcache_hit": 108632646,
+            "dcache_miss": 351458,
+            "itlb_miss": 233,
+            "dtlb_miss": 778,
+            "axi_read_wait": 99934011,
+            "axi_write_wait": 472866532,
+            "store_queue_stall": 53449191,
+            "store_enqueued": 27677744
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity",
+          "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x4983"]
+        },
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 2,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 19.737,
+          "iterations_per_second": 101.332523,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.7226529030585702,
+          "validated": true,
+          "profiling": {
+            "clock": 1169106538,
+            "retired": 510423312,
+            "fetch_wait": 241298679,
+            "data_wait": 240681500,
+            "muldiv_wait": 56864629,
+            "fence_wait": 4116,
+            "icache_hit": 725453536,
+            "icache_miss": 4755540,
+            "dcache_hit": 108628165,
+            "dcache_miss": 351048,
+            "itlb_miss": 233,
+            "dtlb_miss": 770,
+            "axi_read_wait": 99815712,
+            "axi_write_wait": 472807503,
+            "store_queue_stall": 53446423,
+            "store_enqueued": 27674699
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity",
+          "crc_lines": ["seedcrc          : 0xe9f5", "[0]crclist       : 0xe714", "[0]crcmatrix     : 0x1fd7", "[0]crcstate      : 0x8e3a", "[0]crcfinal      : 0x4983"]
+        },
+        {
+          "optimization": "o3",
+          "mode": "validation",
+          "repeat": 0,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 21.606,
+          "iterations_per_second": 92.56688,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.5736369710154587,
+          "validated": true,
+          "profiling": {
+            "clock": 1278334865,
+            "retired": 509547726,
+            "fetch_wait": 351801564,
+            "data_wait": 239941648,
+            "muldiv_wait": 56867822,
+            "fence_wait": 3820,
+            "icache_hit": 708566611,
+            "icache_miss": 10218287,
+            "dcache_hit": 109541323,
+            "dcache_miss": 350199,
+            "itlb_miss": 186,
+            "dtlb_miss": 704,
+            "axi_read_wait": 225578507,
+            "axi_write_wait": 469630991,
+            "store_queue_stall": 51848730,
+            "store_enqueued": 27479573
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity",
+          "crc_lines": ["seedcrc          : 0x18f2", "[0]crclist       : 0xe3c1", "[0]crcmatrix     : 0x0747", "[0]crcstate      : 0x8d84", "[0]crcfinal      : 0x0cac"]
+        }
+      ],
+      "median_coremark": 101.332523,
+      "coremark_per_mhz": 1.7226529030585702,
+      "accepted_performance_repeats": 3,
+      "accepted_validation_repeats": 1,
+      "profiling_scope": "whole CPU during command, including kernel/background activity"
+    },
+    "comparison": {
+      "baseline_source": {
+        "path": "fpga/arty_a7_35t/coremark/results/fetch-performance.json",
+        "sha256": "e222fa0dd5e6403010e9e614d23b9c0571fafdfbfd1ce43ff3d8c66b1aa95488"
+      },
+      "baseline_baremetal_record": "fetch-queue-div17-bare-final",
+      "baseline_linux_record": "fetch-queue-div17-linux-final",
+      "baseline_baremetal_coremark": 102.796272,
+      "baseline_linux_coremark": 97.646714,
+      "baremetal_gain_percent": 3.9042553994565132,
+      "linux_gain_percent": 3.774637004169934,
+      "linux_fraction_of_baremetal_percent": 94.8720219711129,
+      "note": "Same physical frequency and unchanged benchmark payloads. Bare-metal and aligned Linux ports retain their different link/OS environment; Linux profiling includes kernel/background activity."
+    }
+  },
+  "physical_mesh": {
+    "report": {
+      "path": "fpga/arty_a7_35t/build/store-path-mesh.json",
+      "sha256": "77106c3886ef399fda666f1d223a2f95c72a0af2804716c6fe155860b31e886c"
+    },
+    "run_log": {
+      "path": "fpga/arty_a7_35t/build/store-path-mesh-run.log",
+      "sha256": "3f3aa1b2609eb57cbb237918a8a1b547436d599d4e1e7680d566dbefefe31ffa"
+    },
+    "frozen_uart_log": {
+      "path": "fpga/arty_a7_35t/build/store-path-linux-benchmark.uart.log",
+      "sha256": "1734a148d57337a32244a7e51041496490addb2e36c92454deac749504163122"
+    },
+    "baseline_source": {
+      "path": "fpga/arty_a7_35t/build/performance-triangulator-sweep.json",
+      "sha256": "dbfbbcfca892477745ce51703aa67d32279c656675a78bff5aa8ddc2943d10d2"
+    },
+    "geometry_frames_checked": 60,
+    "results": [
+      {
+        "points": 16,
+        "frames": 30,
+        "median_ms": 4.8355,
+        "min_ms": 3.351,
+        "max_ms": 8.001,
+        "received_fps": 23.253456683344215,
+        "compute_us_samples": [5229, 5401, 8001, 6199, 4997, 5543, 6491, 4902, 4828, 5430, 4843, 5315, 6113, 5555, 4821, 5275, 4511, 4601, 4624, 4690, 4444, 3732, 3752, 3500, 4000, 3460, 3954, 5052, 3782, 3351],
+        "geometry_sha256": "a4effe52de589e0912764e1954a24ce5ed31bfd7eca560a69f3873d4f253123b",
+        "all_points_and_triangles_exactly_match_baseline": true
+      },
+      {
+        "points": 32,
+        "frames": 20,
+        "median_ms": 27.250500000000002,
+        "min_ms": 17.472,
+        "max_ms": 34.651,
+        "received_fps": 11.118528184180397,
+        "compute_us_samples": [17472, 23016, 20442, 22552, 23993, 21246, 25003, 24890, 27356, 27145, 28334, 28837, 23344, 27487, 27609, 32233, 30988, 34619, 33343, 34651],
+        "geometry_sha256": "8444efda5c07d38b2f1b338371cbd07ef620e1a6f4d9ed67289dcbe8c8b12a68",
+        "all_points_and_triangles_exactly_match_baseline": true
+      },
+      {
+        "points": 64,
+        "frames": 10,
+        "median_ms": 200.239,
+        "min_ms": 124.565,
+        "max_ms": 203.592,
+        "received_fps": 4.863581836055383,
+        "compute_us_samples": [124565, 200252, 203487, 200226, 203592, 203443, 201949, 192468, 193989, 192879],
+        "geometry_sha256": "142795e377461429b2db79bc54bad7df766d359685f1a57fd8528bc68ce26c01",
+        "all_points_and_triangles_exactly_match_baseline": true
+      }
+    ]
+  },
+  "remote_artifacts": {
+    "host": "siriboi",
+    "verification": "Parent uploaded both artifacts and verified remote SHA256 matches local artifact",
+    "artifacts": [
+      {
+        "local": {
+          "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/synapse32_store-path-div17.bit",
+          "sha256": "3b072166a94ad5c519c83416912b479a0d83fe01af1d3d87567f04c00dfd1fc2",
+          "bytes": 1526345
+        },
+        "remote": "~/synapse32-store-path-div17.bit",
+        "remote_sha256": "3b072166a94ad5c519c83416912b479a0d83fe01af1d3d87567f04c00dfd1fc2"
+      },
+      {
+        "local": {
+          "path": "fpga/arty_a7_35t/build/linux-image-25hz-cpu59-aligned-profile/fw_payload.bin",
+          "sha256": "0c669b8c6fc82aff7e2d98ab8d96f6464c034bfb29d1a07ece226fda8e826351"
+        },
+        "remote": "~/synapse32-linux-58823529.bin",
+        "remote_sha256": "0c669b8c6fc82aff7e2d98ab8d96f6464c034bfb29d1a07ece226fda8e826351"
+      }
+    ]
+  }
+}
