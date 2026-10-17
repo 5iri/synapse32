@@ -9,14 +9,14 @@ set build "$here/build/performance/$tag"
 file mkdir $build
 set original "$here/build/board/project/synapse32_linux.xpr"
 if {![file exists $original]} {error "Run build_bitstream.tcl once to generate MIG/CDC IP"}
-set defaults {CPU_DIVIDE 20 BOOT_BAUD 1000000 DCACHE_LINES 256 ICACHE_LINES 256 FAST_L1 1 STORE_BUFFER_DEPTH 0 FAST_MULTIPLY 0 FETCH_QUEUE 0}
+set defaults {CPU_DIVIDE 20 BOOT_BAUD 1000000 DCACHE_LINES 256 ICACHE_LINES 256 FAST_L1 1 STORE_BUFFER_DEPTH 0 FAST_MULTIPLY 0 FETCH_QUEUE 0 LOAD_FORWARDING 0 FAST_STORE_ACK 0}
 set generics {}
 foreach {name value} $defaults {
     if {[info exists ::env($name)]} {set value $::env($name)}
     if {![string is integer -strict $value]} {error "$name must be an integer"}
     if {$name eq "CPU_DIVIDE" && ($value<1 || $value>128)} {error "CPU_DIVIDE must be 1..128"}
     if {$name eq "BOOT_BAUD" && $value<1} {error "BOOT_BAUD must be positive"}
-    if {$name in {FAST_L1 FAST_MULTIPLY FETCH_QUEUE} && $value ni {0 1}} {error "$name must be 0 or 1"}
+    if {$name in {FAST_L1 FAST_MULTIPLY FETCH_QUEUE LOAD_FORWARDING FAST_STORE_ACK} && $value ni {0 1}} {error "$name must be 0 or 1"}
     if {$name eq "STORE_BUFFER_DEPTH" && ($value<0 || $value>8)} {error "STORE_BUFFER_DEPTH must be 0..8"}
     if {$name in {DCACHE_LINES ICACHE_LINES} && ($value<0 || $value>65536 || ($value>0 && ($value&($value-1))!=0))} {
         error "$name must be zero or a power of two up to 65536"
@@ -27,6 +27,8 @@ foreach {name value} $defaults {
 # Sources are snapshotted before synthesis; later edits cannot change this run.
 file delete -force "$build/source"
 file mkdir "$build/source/fabric"
+file mkdir "$build/source/constraints"
+foreach name {arty.xdc mig_clocking.xdc mig_tempmon.xdc} {file copy -force "$here/$name" "$build/source/constraints/$name"}
 file copy -force "$repo/rtl" "$build/source/rtl"
 set fabric_names {axi_word_bridge.sv physical_l1_cache.sv ordered_write_buffer.sv fpga_perf_counters.sv sv32_bus_port.sv instruction_fetch_queue.sv uart_boot_loader.sv synapse_ddr3_system.sv arty_ddr3_top.sv arty_linux_top.sv}
 foreach name $fabric_names {file copy -force "$here/$name" "$build/source/fabric/$name"}
@@ -39,10 +41,18 @@ if {[info exists ::env(SOURCE_HEAD)]} {set source_head $::env(SOURCE_HEAD)}
 if {$source_head eq "unavailable" && ![catch {exec git -C $repo rev-parse HEAD} revision]} {set source_head $revision}
 puts $manifest "source HEAD: $source_head"
 puts $manifest [exec sha256sum {*}$rtl {*}$fabric {*}[glob "$build/source/rtl/include/*.vh"]]
+puts $manifest [exec sha256sum {*}[glob "$build/source/constraints/*.xdc"]]
 close $manifest
 set_param general.maxThreads 4
 open_project $original
 save_project_as -include_local_ip_cache -force synapse32_performance "$build/project"
+source "$here/add_mig_clocking.tcl"
+# Use this run's frozen board constraints, including when cloning an old project.
+foreach constraint [get_files -of_objects [get_filesets constrs_1]] {
+    if {[file tail $constraint] in {arty.xdc mig_clocking.xdc mig_tempmon.xdc}} {remove_files $constraint}
+}
+add_files -fileset constrs_1 -norecurse "$build/source/constraints/arty.xdc"
+add_mig_clocking_constraints "$build/source/constraints"
 set old_sources {}
 foreach source [get_files -of_objects [get_filesets sources_1]] {
     set path [file normalize $source]
@@ -72,6 +82,7 @@ wait_on_run impl_1
 if {[get_property PROGRESS [get_runs impl_1]] ne "100%"} {error "Implementation failed"}
 open_run impl_1
 report_utilization -file "$build/utilization.rpt"
+check_mig_clocking "$build/methodology.rpt"
 report_timing_summary -report_unconstrained -file "$build/timing.rpt"
 report_drc -file "$build/drc.rpt"
 report_cdc -details -file "$build/cdc.rpt"

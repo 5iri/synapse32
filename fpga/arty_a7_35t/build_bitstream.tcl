@@ -35,7 +35,7 @@ if {[info exists ::env($name)]} {
     lappend generics "$name=$lines"
 }
 }
-foreach name {FAST_L1 FAST_MULTIPLY FETCH_QUEUE} {
+foreach name {FAST_L1 FAST_MULTIPLY FETCH_QUEUE LOAD_FORWARDING FAST_STORE_ACK} {
     if {[info exists ::env($name)]} {
         if {$::env($name) ni {0 1}} {error "$name must be 0 or 1"}
         lappend generics "$name=$::env($name)"
@@ -49,6 +49,8 @@ if {[info exists ::env(STORE_BUFFER_DEPTH)]} {
 }
 if {[llength $generics]} {set_property generic $generics [get_filesets sources_1]}
 add_files -fileset constrs_1 -norecurse "$here/arty.xdc"
+source "$here/add_mig_clocking.tcl"
+add_mig_clocking_constraints $here
 update_compile_order -fileset sources_1
 launch_runs synth_1 -jobs 4
 wait_on_run synth_1
@@ -58,6 +60,7 @@ wait_on_run impl_1
 if {[get_property PROGRESS [get_runs impl_1]] ne "100%"} {error "Implementation failed"}
 open_run impl_1
 report_utilization -file "$build/utilization.rpt"
+check_mig_clocking "$build/methodology.rpt"
 report_timing_summary -report_unconstrained -file "$build/timing.rpt"
 report_drc -file "$build/drc.rpt"
 report_cdc -details -file "$build/cdc.rpt"
