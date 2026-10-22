@@ -19,6 +19,8 @@ module tb_frontend_cache_transactions;
     reg [31:0] snoop_addr=0,snoop_data=0;
     reg [3:0] snoop_be=0;
     integer responses=0,bus_accepts=0,cases=0;
+    reg returned_token=0,returned_page_fault=0,returned_access_fault=0;
+    reg [31:0] returned_data=0;
     sv32_bus_port #(.FETCH(1),.CACHE_LINES(4),.PIPELINED_FETCH(1)) dut (
         .clk(clk),.rst(rst),.flush_tlb(flush_tlb),.fetch_cancel(fetch_cancel),
         .req(req),.we(1'b0),.write_intent(1'b0),.translate(translate),
@@ -44,6 +46,7 @@ module tb_frontend_cache_transactions;
     endtask
     task automatic reset_port;
         begin
+            if(returned_token) $fatal(1,"reset discarded an unchecked response");
             rst=1;req=0;flush_tlb=0;fetch_cancel=0;translate=0;satp=0;privilege=3;
             bus_gnt=0;bus_done=0;bus_error=0;snoop=0;snoop_error=0;
             tick();tick();rst=0;tick();
@@ -52,13 +55,14 @@ module tb_frontend_cache_transactions;
     task automatic issue(input [31:0] address);
         integer n;
         begin
+            if(returned_token) $fatal(1,"new request before checking completed response");
             va=address;req=1;#1;n=0;
             while(!gnt&&n<40) begin tick();n=n+1;end
             if(!gnt) $fatal(1,"grant timeout for %h",address);
             tick();req=0;va=address+4;
         end
     endtask
-    task automatic grant_read(input [31:0] expected);
+    task automatic grant_read(input [31:0] expected,input bit fetch=1);
         integer n;
         begin
             #1;n=0;
@@ -66,7 +70,7 @@ module tb_frontend_cache_transactions;
                 if(rvalid) $fatal(1,"expected cache miss at %h, got cached response %h",expected,rdata);
                 tick();n=n+1;
             end
-            if(!bus_req||bus_addr!==expected||!bus_fetch)
+            if(!bus_req||bus_addr!==expected||bus_fetch!==fetch)
                 $fatal(1,"lower read expected %h got req=%b address=%h fetch=%b",expected,bus_req,bus_addr,bus_fetch);
             bus_gnt=1;tick();bus_gnt=0;
             if(bus_req) $fatal(1,"lower request repeated after grant");
@@ -75,21 +79,36 @@ module tb_frontend_cache_transactions;
     task automatic return_line(input [31:0] value,input bit error=0);
         begin
             bus_line={32'hffeeddcc,32'hbbaa9988,32'h77665544,value};
-            bus_rdata=value;bus_error=error;bus_done=1;
+            if(returned_token) $fatal(1,"lower return overwrote an unchecked response");
+            bus_rdata=value;bus_error=error;bus_done=1;#1;
+            if(rvalid) begin
+                returned_token=1;returned_data=rdata;
+                returned_page_fault=page_fault;returned_access_fault=access_fault;
+            end
             tick();bus_done=0;bus_error=0;
         end
     endtask
-    task automatic response(input [31:0] expected,input bit af=0);
+    task automatic response(input [31:0] expected,input bit af=0,input bit advance=1);
         integer n;
         begin
             #1;n=0;
-            while(!rvalid&&n<40) begin
-                if(bus_req) $fatal(1,"expected local response, lower read seen at %h",bus_addr);
-                tick();n=n+1;
+            if(returned_token) begin
+                if(returned_data!==expected||returned_page_fault||returned_access_fault!==af)
+                    $fatal(1,"completed response data=%h pf=%b af=%b expected=%h af=%b",
+                           returned_data,returned_page_fault,returned_access_fault,expected,af);
+                returned_token=0;
+                if(rvalid) $fatal(1,"completed response was replayed");
+                if(advance) tick();
+            end else begin
+                if(!advance) $fatal(1,"nonadvancing check requires an accepted response");
+                while(!rvalid&&n<40) begin
+                    if(bus_req) $fatal(1,"expected local response, lower read seen at %h",bus_addr);
+                    tick();n=n+1;
+                end
+                if(!rvalid||rdata!==expected||page_fault||access_fault!==af)
+                    $fatal(1,"response valid=%b data=%h pf=%b af=%b expected=%h af=%b",rvalid,rdata,page_fault,access_fault,expected,af);
+                tick();
             end
-            if(!rvalid||rdata!==expected||page_fault||access_fault!==af)
-                $fatal(1,"response valid=%b data=%h pf=%b af=%b expected=%h af=%b",rvalid,rdata,page_fault,access_fault,expected,af);
-            tick();
         end
     endtask
     task automatic fill_line(input [31:0] address,input [31:0] value);
@@ -108,7 +127,7 @@ module tb_frontend_cache_transactions;
                 0: fetch_cancel=1;
                 1: flush_tlb=1;
                 2: satp=32'h00400001;
-                3: translate=1;
+                3: translate=!translate;
                 4: privilege=1;
             endcase
         end
@@ -119,8 +138,8 @@ module tb_frontend_cache_transactions;
             tick();tick();tick();
         end
     endtask
-    // Cancellation at/before the returned read must drop the response, faults
-    // and allocation. Cancellation after acceptance may retain its cache fill.
+    // Cancellation drops CPU response/fault tokens. Successful normal RAM
+    // completions still warm the physical cache; failed reads never allocate.
     task automatic canceled_return(input integer kind,input integer lead,input bit error);
         integer before_responses;
         begin
@@ -132,8 +151,10 @@ module tb_frontend_cache_transactions;
             if(rvalid||page_fault||access_fault) $fatal(1,"canceled return exposed response/fault");
             restore_context();
             if(responses!=before_responses) $fatal(1,"canceled return delivered a token");
-            issue(32'h80000100);grant_read(32'h80000100);
-            return_line(32'hc001c0de);response(32'hc001c0de);
+            if(error) begin
+                issue(32'h80000100);grant_read(32'h80000100);
+                return_line(32'hc001c0de);response(32'hc001c0de);
+            end else hit(32'h80000100,32'h12345678);
             cases=cases+1;
         end
     endtask
@@ -141,7 +162,12 @@ module tb_frontend_cache_transactions;
         integer before_responses;
         begin
             reset_port();before_responses=responses;
-            issue(32'h80000100);grant_read(32'h80000100);return_line(0,1);
+            // Fetch data errors return on completion now. A failed page-table
+            // read still owns a registered DONE fault until the following edge.
+            translate=1;satp=32'h80080001;privilege=0;tick();tick();
+            issue(32'h40000000);grant_read(32'h80001400,0);return_line(0,1);
+            #1;if(!rvalid||!access_fault||page_fault||rdata!==32'h13)
+                $fatal(1,"page-table error did not produce a precise DONE token");
             cancel_context(kind);#1;
             if(rvalid||page_fault||access_fault) $fatal(1,"late cancellation exposed returned access fault");
             tick();restore_context();
@@ -220,8 +246,10 @@ module tb_frontend_cache_transactions;
         // A reset after a returned fill but before its delayed physical write
         // must clear validity and suppress the pending write transaction.
         reset_port();issue(32'h80000000);grant_read(32'h80000000);return_line(32'h33221100);
+        response(32'h33221100,0,0);
         reset_port();fill_line(32'h80000000,32'h87654321);cases=cases+1;
 
+        if(returned_token) $fatal(1,"unchecked completed response at test end");
         $display("PASS: frontend cache transactions %0d cases; cancel/flush/context return and fault races; ordered fill/snoops; collision forwarding/tags/error/reset",cases);
         $finish;
     end

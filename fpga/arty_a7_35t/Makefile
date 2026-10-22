@@ -68,6 +68,8 @@ test-fetch:
 	bash test_pipelined_fetch_port.sh
 	bash test_frontend_cache_transactions.sh
 	bash test_fetch_port_restart.sh
+	bash test_fetch_completion.sh
+	bash test_speculative_fetch_fill.sh
 	bash test_instruction_fetch_queue.sh
 	bash test_instr_access_fault.sh
 	bash test_fetch_access_fault.sh

@@ -16,6 +16,8 @@ module tb_fetch_port_restart;
     reg [31:0] bus_rdata=0;
     reg [127:0] bus_line=0;
     integer responses=0,bus_accepts=0,cases=0;
+    reg returned_token=0,returned_page_fault=0,returned_access_fault=0;
+    reg [31:0] returned_data=0;
     localparam [31:0] A=32'h80000000,B=32'h80000010,C=32'h80000040;
     localparam [31:0] V0=32'h40000000,V1=32'h40001000;
     sv32_bus_port #(.FETCH(1),.CACHE_LINES(16),.PIPELINED_FETCH(1),.RESTART_ON_CANCEL(1)) dut (
@@ -45,6 +47,7 @@ module tb_fetch_port_restart;
     endtask
     task automatic reset_port;
         begin
+            if(returned_token) $fatal(1,"reset discarded an unchecked response");
             rst=1;req=0;fetch_cancel=0;flush_tlb=0;translate=0;satp=0;privilege=3;
             bus_gnt=0;bus_done=0;bus_error=0;
             tick();tick();rst=0;tick();
@@ -53,6 +56,7 @@ module tb_fetch_port_restart;
     task automatic issue(input [31:0] address);
         integer n;
         begin
+            if(returned_token) $fatal(1,"new request before checking completed response");
             req=1;va=address;#1;n=0;
             while(!gnt&&n<50) begin tick();n=n+1;end
             if(!gnt) $fatal(1,"grant timeout at %h",address);
@@ -78,20 +82,35 @@ module tb_fetch_port_restart;
         integer n;
         begin
             for(n=0;n<4;n=n+1) bus_line[n*32+:32]=word_at((address&32'hfffffff0)+32'(n*4));
-            bus_rdata=value;bus_error=error;bus_done=1;tick();bus_done=0;bus_error=0;
+            if(returned_token) $fatal(1,"lower return overwrote an unchecked response");
+            bus_rdata=value;bus_error=error;bus_done=1;#1;
+            if(rvalid) begin
+                returned_token=1;returned_data=rdata;
+                returned_page_fault=page_fault;returned_access_fault=access_fault;
+            end
+            tick();bus_done=0;bus_error=0;
         end
     endtask
     task automatic response(input [31:0] expected);
         integer n;
         begin
             #1;n=0;
-            while(!rvalid&&n<50) begin
-                if(bus_req) $fatal(1,"unexpected lower transaction while awaiting hit");
-                tick();n=n+1;
+            if(returned_token) begin
+                if(returned_data!==expected||returned_page_fault||returned_access_fault)
+                    $fatal(1,"completed response data=%h pf=%b af=%b expected %h",
+                           returned_data,returned_page_fault,returned_access_fault,expected);
+                returned_token=0;
+                if(rvalid) $fatal(1,"completed response was replayed");
+                tick();
+            end else begin
+                while(!rvalid&&n<50) begin
+                    if(bus_req) $fatal(1,"unexpected lower transaction while awaiting hit");
+                    tick();n=n+1;
+                end
+                if(!rvalid||rdata!==expected||page_fault||access_fault)
+                    $fatal(1,"response got valid=%b data=%h pf=%b af=%b expected %h",rvalid,rdata,page_fault,access_fault,expected);
+                tick();
             end
-            if(!rvalid||rdata!==expected||page_fault||access_fault)
-                $fatal(1,"response got valid=%b data=%h pf=%b af=%b expected %h",rvalid,rdata,page_fault,access_fault,expected);
-            tick();
         end
     endtask
     task automatic fill_line(input [31:0] address);
@@ -111,6 +130,14 @@ module tb_fetch_port_restart;
     task automatic assert_uncached(input [31:0] address);
         begin issue(address);grant_bus(address);return_bus(address,word_at(address));response(word_at(address));end
     endtask
+    task automatic assert_cached(input [31:0] address);
+        integer before_bus;
+        begin
+            before_bus=bus_accepts;issue(address);response(word_at(address));
+            if(bus_req||bus_accepts!=before_bus)
+                $fatal(1,"canceled successful RAM read did not retain physical line %h",address);
+        end
+    endtask
     task automatic warm_translation;
         begin
             warm();translate=1;privilege=0;satp=32'h80080001;tick();tick();
@@ -124,12 +151,12 @@ module tb_fetch_port_restart;
     initial begin
         @(negedge clk);
         // A target can replace idle work, a returning hit, a cache miss before
-        // its request, an ungranted access, and an accepted read in DONE.
+        // its request, an ungranted access, and a completed read.
         warm();restart_hit(A,word_at(A));
         issue(A);restart_hit(B,word_at(B));
         issue(C);restart_hit(A,word_at(A));
         issue(C);expect_bus(C);restart_hit(B,word_at(B));
-        issue(C);grant_bus(C);return_bus(C,word_at(C));restart_hit(A,word_at(A));
+        issue(C);grant_bus(C);return_bus(C,word_at(C));response(word_at(C));restart_hit(A,word_at(A));
 
         // The new target itself can miss or fault. Its fresh response class
         // must replace the canceled hit/fault payload precisely.
@@ -146,7 +173,8 @@ module tb_fetch_port_restart;
         issue(32'h20000000);restart_hit(A,word_at(A));
 
         // Cancellation during WAIT may restart on the actual completion edge.
-        // Neither success nor error from the abandoned read may allocate C.
+        // The abandoned CPU token never escapes. A successful normal RAM
+        // completion still warms C; a failed completion never allocates it.
         for(error=0;error<2;error=error+1) begin
             warm();issue(C);grant_bus(C);before_responses=responses;
             req=1;va=A;fetch_cancel=1;bus_done=1;bus_error=1'(error);
@@ -155,7 +183,8 @@ module tb_fetch_port_restart;
             tick();req=0;fetch_cancel=0;bus_done=0;bus_error=0;va=A+4;
             response(word_at(A));
             if(responses!=before_responses+1) $fatal(1,"abandoned WAIT response delivered");
-            assert_uncached(C);cases=cases+1;
+            if(error) assert_uncached(C);else assert_cached(C);
+            cases=cases+1;
         end
 
         // A registered cancellation reaches the port before an old ungranted
@@ -179,7 +208,7 @@ module tb_fetch_port_restart;
         tick();fetch_cancel=0;tick();
         if(gnt||rvalid) $fatal(1,"canceled WAIT accepted target early");
         return_bus(C,word_at(C));#1;if(!gnt||rvalid) $fatal(1,"drain did not release target");
-        tick();req=0;va=B+4;response(word_at(B));assert_uncached(C);cases=cases+1;
+        tick();req=0;va=B+4;response(word_at(B));assert_cached(C);cases=cases+1;
 
         // Repeated registered cancellations replace their preceding target;
         // only the final target produces an architectural response.
@@ -240,6 +269,7 @@ module tb_fetch_port_restart;
         if(bus_accepts!=before_bus) $fatal(1,"canceled page-table request consumed lower bandwidth");
         cases=cases+1;
 
+        if(returned_token) $fatal(1,"unchecked completed response at test end");
         $display("PASS: fetch port registered restart %0d cases, warm targets, misses, DONE, completion errors, old-grant drains and canceled TLB fills",cases);
         $finish;
     end

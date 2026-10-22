@@ -13,6 +13,10 @@ module tb_pipelined_fetch_port;
     reg [31:0] bus_rdata=0;
     reg [127:0] bus_line=0;
     integer accepted=0,responses=0,bus_accepts=0;
+    // Only a lower-read helper may accept a response before response() runs.
+    // Keep that single owned token until its exact payload/fault oracle checks it.
+    reg returned_token=0,returned_page_fault=0,returned_access_fault=0;
+    reg [31:0] returned_data=0;
     sv32_bus_port #(.FETCH(1),.CACHE_LINES(16),.PIPELINED_FETCH(1)) dut (
         .clk(clk),.rst(rst),.flush_tlb(flush_tlb),.fetch_cancel(fetch_cancel),
         .req(req),.we(1'b0),.write_intent(1'b0),.translate(translate),
@@ -59,6 +63,7 @@ module tb_pipelined_fetch_port;
     task automatic issue(input [31:0] address);
         integer n;
         begin
+            if(returned_token) $fatal(1,"new request before checking completed response");
             req=1;va=address;#1;n=0;
             while(!gnt&&n<40) begin tick();n=n+1;end
             if(!gnt) $fatal(1,"request grant timeout");
@@ -80,18 +85,33 @@ module tb_pipelined_fetch_port;
         integer n;
         begin
             for(n=0;n<4;n=n+1) bus_line[n*32+:32]=word_at((address&32'hfffffff0)+32'(n*4));
-            bus_rdata=value;bus_error=error;bus_done=1;tick();bus_done=0;bus_error=0;#1;
+            if(returned_token) $fatal(1,"lower return overwrote an unchecked response");
+            bus_rdata=value;bus_error=error;bus_done=1;#1;
+            if(rvalid) begin
+                returned_token=1;returned_data=rdata;
+                returned_page_fault=page_fault;returned_access_fault=access_fault;
+            end
+            tick();bus_done=0;bus_error=0;#1;
         end
     endtask
     task automatic response(input [31:0] expected,input bit pf=0,input bit af=0);
         integer n;
         begin
             n=0;#1;
-            while(!rvalid&&n<40) begin tick();n=n+1;end
-            if(!rvalid||page_fault!==pf||access_fault!==af)
-                $fatal(1,"response fault mismatch valid=%b pf=%b af=%b",rvalid,page_fault,access_fault);
-            if(rdata!==expected) $fatal(1,"response %h expected %h",rdata,expected);
-            tick();
+            if(returned_token) begin
+                if(returned_page_fault!==pf||returned_access_fault!==af||returned_data!==expected)
+                    $fatal(1,"completed response data=%h pf=%b af=%b expected=%h pf=%b af=%b",
+                           returned_data,returned_page_fault,returned_access_fault,expected,pf,af);
+                returned_token=0;
+                if(rvalid) $fatal(1,"completed response was replayed");
+                tick();
+            end else begin
+                while(!rvalid&&n<40) begin tick();n=n+1;end
+                if(!rvalid||page_fault!==pf||access_fault!==af)
+                    $fatal(1,"response fault mismatch valid=%b pf=%b af=%b",rvalid,page_fault,access_fault);
+                if(rdata!==expected) $fatal(1,"response %h expected %h",rdata,expected);
+                tick();
+            end
         end
     endtask
     task automatic cancel_now;
@@ -193,9 +213,9 @@ module tb_pipelined_fetch_port;
         idle_context(0,0,3);issue(32'h800000d0);wait_state(3);
         cancel_with_grant(32'h800000d0,4);
         issue(32'h800000e0);wait_state(3);cancel_with_grant(32'h800000e0,4,0,0);
-        issue(32'h800000e0);
-        if(rvalid) $fatal(1,"canceled successful read allocated an instruction cache line");
-        grant_bus(32'h800000e0);respond_bus(32'h800000e0,word_at(32'h800000e0));response(word_at(32'h800000e0));
+        before_bus=bus_accepts;issue(32'h800000e0);response(word_at(32'h800000e0));
+        if(bus_req||bus_accepts!=before_bus)
+            $fatal(1,"canceled successful RAM read did not retain its exact physical line");
         idle_context(1,32'h80080001,0);flush_context();issue(32'h40000000);wait_state(1);
         cancel_with_grant(32'h80001400,2);
         issue(32'h40000000);wait_state(1);cancel_with_grant(32'h80001400,2,1);
@@ -223,8 +243,12 @@ module tb_pipelined_fetch_port;
         flush_context();issue(32'h40000000);grant_bus(32'h80001400);
         satp=32'h80480001;tick();respond_bus(32'h80001400,32'h20000801);wait_state(0);
         idle_context(0,0,3);issue(32'h800000c0);grant_bus(32'h800000c0);
-        respond_bus(32'h800000c0,word_at(32'h800000c0));wait_state(5);cancel_now();wait_state(0);
+        respond_bus(32'h800000c0,word_at(32'h800000c0));response(word_at(32'h800000c0));
+        // Successful reads now return on completion. A rejected MMIO fetch
+        // still owns a DONE token, which cancellation must suppress before its edge.
+        issue(32'h20000000);wait_state(5);cancel_now();wait_state(0);
         issue(32'h80000000);response(word_at(32'h80000000));
+        if(returned_token) $fatal(1,"unchecked completed response at test end");
         $display("PASS: pipelined fetch hits, misses, walks, permissions, precise access faults, MMIO rejection and cancellation");
         $finish;
     end
