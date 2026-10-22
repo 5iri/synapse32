@@ -104,14 +104,20 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
                                              {tlb_pte[29:10],va[11:0]});
     wire direct_cache=(CACHE_LINES>0)&&!we&&fast_translation&&
                       (`IS_INSTR_MEM(hit_physical)||`IS_DATA_MEM(hit_physical));
-    wire cache_lookup=(gnt&&direct_cache)||(state==CACHE_REQUEST);
+    // A speculative BRAM read has no architectural side effects. On the
+    // pipelined instruction port, read every available lookup slot rather
+    // than gating its RAM enable with the late EX redirect/flush or queue
+    // backpressure. Only gnt captures a transaction and only !stale returns
+    // its token; unused reads cannot issue a bus access, fill, or fault.
+    wire cache_read_slot=(state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit);
+    wire cache_lookup=((PIPE_FETCH ? cache_read_slot : gnt)&&direct_cache)||(state==CACHE_REQUEST);
     wire [31:0] cache_addr=(state==CACHE_REQUEST) ? bus_addr : hit_physical;
     wire cache_hit;
     wire [31:0] cache_word;
     wire cache_fill=(CACHE_LINES>0)&&(state==ACCESS_WAIT)&&bus_done&&!bus_error&&!we_q&&
                     !(PIPE_FETCH&&stale)&&
                     (`IS_INSTR_MEM(bus_addr)||`IS_DATA_MEM(bus_addr));
-    physical_l1_cache #(.LINES(CACHE_LINES)) l1 (
+    physical_l1_cache #(.LINES(CACHE_LINES),.REGISTER_WRITES(PIPE_FETCH)) l1 (
         .clk(clk),.rst(rst),.lookup(cache_lookup),.lookup_addr(cache_addr),
         .hit(cache_hit),.word_data(cache_word),
         .fill(cache_fill),.fill_addr(bus_addr),.fill_data(bus_line),

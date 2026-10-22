@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 `default_nettype none
-module tb_l1_bank #(parameter LINES=4);
+module tb_l1_bank #(parameter LINES=4, REGISTER_WRITES=0);
     reg clk=0,rst=1,lookup=0,fill=0,snoop=0,snoop_error=0;
     always #5 clk=~clk;
     reg [31:0] lookup_addr=0,fill_addr=0,snoop_addr=0,snoop_data=0;
@@ -8,7 +8,7 @@ module tb_l1_bank #(parameter LINES=4);
     reg [3:0] snoop_be=0;
     wire hit;
     wire [31:0] word_data;
-    physical_l1_cache #(.LINES(LINES)) dut(.*);
+    physical_l1_cache #(.LINES(LINES),.REGISTER_WRITES(REGISTER_WRITES)) dut(.*);
     task automatic check(input [31:0] address,input bit expected_hit,input [31:0] expected);
         begin
             @(negedge clk);lookup=1;lookup_addr=address;
@@ -68,7 +68,7 @@ module tb_l1_bank #(parameter LINES=4);
         @(negedge clk);rst=1;
         @(negedge clk);rst=0;
         check(CONFLICT,0,0);
-        $display("PASS: L1 bank lines=%0d fill/tags/byte snoops/collision forwarding/error/reset",LINES);
+        $display("PASS: L1 bank lines=%0d registered_writes=%0d fill/tags/byte snoops/collision forwarding/error/reset",LINES,REGISTER_WRITES);
         $finish;
     end
     initial begin #10000;$fatal(1,"timeout");end
