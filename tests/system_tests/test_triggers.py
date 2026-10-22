@@ -4,6 +4,7 @@ A matching instruction traps with cause 3 before it executes: epc is the instruc
 matched address, and the access does not happen. tdata1 is write-any-read-legal, so unsupported bits
 read back 0 and a write of 0 disables the trigger. A trigger does not fire while its mode's interrupts
 are disabled, so a handler cannot retrigger on itself (Sdtrig "Native Triggers").
+TRIGGERS_LOAD_FORWARDING=1 also checks the CPU's early-control interlocks.
 """
 
 import os
@@ -16,6 +17,10 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, ReadOnly, RisingEdge
 from cocotb_test.simulator import run
+
+LOAD_FORWARDING = int(os.environ.get("TRIGGERS_LOAD_FORWARDING", "0"))
+if LOAD_FORWARDING not in (0, 1):
+    raise ValueError("TRIGGERS_LOAD_FORWARDING must be 0 or 1")
 
 INSTR_MEM_BASE = 0x8000_0000
 INSTR_MEM_SIZE = 0x0400_0000
@@ -268,7 +273,8 @@ def _find_repo_root() -> Path:
 
 
 def _build_dir() -> Path:
-    return Path(os.environ.get("TRIGGERS_BUILD", Path.cwd() / "build" / "triggers"))
+    name = "triggers_load_forwarding" if LOAD_FORWARDING else "triggers"
+    return Path(os.environ.get("TRIGGERS_BUILD", Path.cwd() / "build" / name))
 
 
 def assemble(build_dir: Path) -> None:
@@ -454,7 +460,8 @@ def runCocotbTests():
     build_dir = _build_dir()
     assemble(build_dir)
 
-    sim_build = Path.cwd() / "sim_build" / "sim_build_triggers"
+    variant = "_load_forwarding" if LOAD_FORWARDING else ""
+    sim_build = Path.cwd() / "sim_build" / f"sim_build_triggers{variant}"
     if sim_build.exists():
         shutil.rmtree(sim_build)
 
@@ -462,6 +469,7 @@ def runCocotbTests():
         verilog_sources=sources,
         toplevel="top",
         module="test_triggers",
+        parameters={"LOAD_FORWARDING": LOAD_FORWARDING},
         includes=[str(rtl_dir / "include")],
         simulator="verilator",
         timescale="1ns/1ps",
@@ -474,6 +482,7 @@ def runCocotbTests():
             "COCOTB_TOPLEVEL": "top",
             "COCOTB_TEST_MODULES": "test_triggers",
             "TRIGGERS_BUILD": str(build_dir.resolve()),
+            "TRIGGERS_LOAD_FORWARDING": str(LOAD_FORWARDING),
         },
     )
 

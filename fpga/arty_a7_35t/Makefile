@@ -85,6 +85,7 @@ test-memory-path:
 	bash test_load_response_contract.sh
 	bash test_trigger_base_compare.sh
 	bash test_atomic_trigger_forwarding.sh
+	bash test_early_control_cpu.sh
 	FETCH_QUEUE=1 LOAD_FORWARDING=1 FAST_STORE_ACK=1 POSTED_TEST_DEPTHS=4 POSTED_TEST_FAST_MUL=1 bash test_posted_stores.sh
 test-posted-stores:
 	bash test_posted_stores.sh
