@@ -1,6 +1,6 @@
 `default_nettype none
 `include "instr_defines.vh"
-module execution_unit #(parameter IMPLEMENT_M = 1) (
+module execution_unit #(parameter IMPLEMENT_M = 1, EARLY_CONTROL = 0) (
     input wire [31:0] rs1,
     input wire [31:0] rs2,
     input wire [31:0] imm,
@@ -76,7 +76,10 @@ module execution_unit #(parameter IMPLEMENT_M = 1) (
     output reg wfi_instruction,
     output reg breakpoint_trigger_exception,
     // An execute trigger fires before the instruction, so it wins over its fetch page fault.
-    output wire execute_trigger_hit
+    output wire execute_trigger_hit,
+    // Optional registered MEM result for control operands, excluding load data.
+    // Ignored unless EARLY_CONTROL is enabled with matching consumer interlocks.
+    input wire [31:0] early_mem_result
 );
 
 // Internal signals for forwarded values
@@ -92,6 +95,14 @@ assign rs2_value_out = rs2_value;
 localparam NO_FORWARDING = 2'b00;
 localparam FORWARD_FROM_MEM = 2'b01;
 localparam FORWARD_FROM_WB = 2'b10;
+// Data operations retain the completed-load bypass. Control operands use only
+// registered results; the CPU interlocks dependent load/control consumers.
+wire [31:0] control_rs1_value = !EARLY_CONTROL ? rs1_value :
+                               forward_a == FORWARD_FROM_MEM ? early_mem_result :
+                               forward_a == FORWARD_FROM_WB ? mem_wb_result : rs1;
+wire [31:0] control_rs2_value = !EARLY_CONTROL ? rs2_value :
+                               forward_b == FORWARD_FROM_MEM ? early_mem_result :
+                               forward_b == FORWARD_FROM_WB ? mem_wb_result : rs2;
 localparam PRIV_U = 2'b00;
 localparam PRIV_S = 2'b01;
 localparam PRIV_M = 2'b11;
@@ -188,7 +199,7 @@ wire is_atomic_rmw = (opcode == 7'b0101111) && !is_atomic_load && !is_atomic_sto
 // Atomic instructions always address rs1 with no immediate. Ordinary loads and
 // stores use trigger_base_match below; including their address here creates an
 // unnecessary effective-address carry chain in the atomic exception path.
-wire [31:0] trigger_data_addr = rs1_value;
+wire [31:0] trigger_data_addr = control_rs1_value;
 assign execute_trigger_hit = stage_enable && instr_valid &&
                              trigger_match(trigger_enabled, trigger_execute, pc_input, trigger_tdata2);
 wire load_trigger_hit = instr_valid && (is_atomic_load || is_atomic_rmw) &&
@@ -343,7 +354,7 @@ always @(*) begin
             effective_addr = rs1_value + imm;
             mem_addr = effective_addr;
             // A load/store trigger fires before the access, so above misalignment and page faults.
-            if (trigger_base_match(trigger_enabled, trigger_load, rs1_value, imm, trigger_tdata2)) begin
+            if (trigger_base_match(trigger_enabled, trigger_load, control_rs1_value, imm, trigger_tdata2)) begin
                 jump_signal = 1;
                 trap_to_supervisor = delegate_breakpoint;
                 jump_addr = trap_to_supervisor ? stvec : mtvec;
@@ -362,7 +373,7 @@ always @(*) begin
             7'b0100011: begin // Store instructions
             effective_addr = rs1_value + imm;
             mem_addr = effective_addr;
-            if (trigger_base_match(trigger_enabled, trigger_store, rs1_value, imm, trigger_tdata2)) begin
+            if (trigger_base_match(trigger_enabled, trigger_store, control_rs1_value, imm, trigger_tdata2)) begin
                 jump_signal = 1;
                 trap_to_supervisor = delegate_breakpoint;
                 jump_addr = trap_to_supervisor ? stvec : mtvec;
@@ -379,7 +390,7 @@ always @(*) begin
             end
             end
             7'b0101111: begin // AMO/LR/SC instructions
-            effective_addr = rs1_value;
+            effective_addr = control_rs1_value;
             mem_addr = effective_addr;
             if (atomic_trigger_hit) begin
                 jump_signal = 1;
@@ -407,7 +418,7 @@ always @(*) begin
             7'b1100011: begin // Branch instructions
             case (instr_id)
                 INSTR_BEQ: begin
-                    if (rs1_value == rs2_value) begin
+                    if (control_rs1_value == control_rs2_value) begin
                         target_addr = pc_input + imm;
                         jump_signal = 1;
                         jump_addr = (target_addr[1:0] != 2'b00) ? mtvec : target_addr;
@@ -421,7 +432,7 @@ always @(*) begin
                     end
                 end
                 INSTR_BNE: begin
-                    if (rs1_value != rs2_value) begin
+                    if (control_rs1_value != control_rs2_value) begin
                         target_addr = pc_input + imm;
                         jump_signal = 1;
                         jump_addr = target_addr;
@@ -435,7 +446,7 @@ always @(*) begin
                     end
                 end
                 INSTR_BLT: begin
-                    if ($signed(rs1_value) < $signed(rs2_value)) begin
+                    if ($signed(control_rs1_value) < $signed(control_rs2_value)) begin
                         target_addr = pc_input + imm;
                         jump_signal = 1;
                         jump_addr = target_addr;
@@ -449,7 +460,7 @@ always @(*) begin
                     end
                 end
                 INSTR_BGE: begin
-                    if ($signed(rs1_value) >= $signed(rs2_value)) begin
+                    if ($signed(control_rs1_value) >= $signed(control_rs2_value)) begin
                         target_addr = pc_input + imm;
                         jump_signal = 1;
                         jump_addr = target_addr;
@@ -463,7 +474,7 @@ always @(*) begin
                     end
                 end
                 INSTR_BLTU: begin
-                    if (rs1_value < rs2_value) begin
+                    if (control_rs1_value < control_rs2_value) begin
                         target_addr = pc_input + imm;
                         jump_signal = 1;
                         jump_addr = target_addr;
@@ -477,7 +488,7 @@ always @(*) begin
                     end
                 end
                 INSTR_BGEU: begin
-                    if (rs1_value >= rs2_value) begin
+                    if (control_rs1_value >= control_rs2_value) begin
                         target_addr = pc_input + imm;
                         jump_signal = 1;
                         jump_addr = target_addr;
@@ -508,7 +519,7 @@ always @(*) begin
             end
             end
             7'b1100111: begin // JALR
-            target_addr = (rs1_value + imm) & 32'hFFFFFFFE;
+            target_addr = (control_rs1_value + imm) & 32'hFFFFFFFE;
             jump_signal = 1;
             jump_addr = target_addr;
             exec_output = pc_input + 4;

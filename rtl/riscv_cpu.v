@@ -154,7 +154,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
     );
     
     // MEM holds EX until a load response arrives. With load forwarding enabled,
-    // a dependent ordinary instruction can wait in EX and use that response on
+    // a dependent data instruction can wait in EX and use that response on
     // its completion cycle instead of inserting the traditional ID bubble.
     // Atomics retain their existing interlock and multi-phase result handling.
     wire load_use_interlock;
@@ -163,7 +163,27 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
                                (id_ex_inst0_instr_id_out == INSTR_LW) ||
                                (id_ex_inst0_instr_id_out == INSTR_LBU) ||
                                (id_ex_inst0_instr_id_out == INSTR_LHU);
-    assign hazard_stall = load_use_interlock && !(LOAD_FORWARDING && ordinary_load_in_ex);
+    // Branches, indirect jumps and atomics wait for a dependent load in WB.
+    // Active data watchpoints also need registered address operands. Keep the
+    // completed MEM response off control/exception logic while arithmetic,
+    // ordinary memory addresses and store data retain their bypass.
+    wire early_data_trigger_enabled =
+        (trigger_enabled[0] && (trigger_control[0] || trigger_control[1])) ||
+        (trigger_enabled[1] && (trigger_control[7] || trigger_control[8])) ||
+        (trigger_enabled[2] && (trigger_control[14] || trigger_control[15])) ||
+        (trigger_enabled[3] && (trigger_control[21] || trigger_control[22]));
+    wire ordinary_address_dependency = decoder_inst0_rs1_valid_out &&
+        (id_ex_inst0_rd_addr_out != 0) &&
+        (id_ex_inst0_rd_addr_out == decoder_inst0_rs1_out);
+    wire early_control_consumer =
+        (decoder_inst0_opcode_out == 7'b1100011) ||
+        (decoder_inst0_opcode_out == 7'b1100111) ||
+        (decoder_inst0_opcode_out == 7'b0101111) ||
+        (early_data_trigger_enabled && ordinary_address_dependency &&
+         ((decoder_inst0_opcode_out == 7'b0000011) ||
+          (decoder_inst0_opcode_out == 7'b0100011)));
+    assign hazard_stall = load_use_interlock &&
+        !(LOAD_FORWARDING && ordinary_load_in_ex && !early_control_consumer);
 
     // Instantiate Load-Use Hazard Detector
     load_use_detector load_use_detector_inst0 (
@@ -659,7 +679,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
                                                                   mem_read_data_effective) :
                                        (is_sc_w ? sc_result : ex_mem_inst0_exec_output_out);
 
-    execution_unit #(.IMPLEMENT_M(!ITERATIVE_MULDIV)) ex_unit_inst0 (
+    execution_unit #(.IMPLEMENT_M(!ITERATIVE_MULDIV), .EARLY_CONTROL(LOAD_FORWARDING)) ex_unit_inst0 (
         .rs1(id_ex_inst0_rs1_value_out),
         .rs2(id_ex_inst0_rs2_value_out),
         .imm(id_ex_inst0_imm_out),
@@ -676,6 +696,7 @@ module riscv_cpu #(parameter ITERATIVE_MULDIV = 0, FAST_MULTIPLY = 0,
         .forward_a(forward_a),
         .forward_b(forward_b),
         .ex_mem_result(ex_mem_forward_result),
+        .early_mem_result(is_sc_w ? sc_result : ex_mem_inst0_exec_output_out),
         .mem_wb_result(wb_inst0_rd_value_out),
         
         // CSR interface connections
