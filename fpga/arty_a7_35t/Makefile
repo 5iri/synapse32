@@ -6,7 +6,13 @@ BOOT_BAUD ?= 1000000
 IMAGE ?= build/linux-image/fw_payload.bin
 UART_LOG ?= build/hardware-uart.log
 
-.PHONY: bitstream performance-bitstream linux llvm-toolchain program upload test-board test test-fetch test-memory-path memory-bench test-phy test-linux test-core test-l1 test-store-buffer test-posted-stores test-perf-counters test-bram-coremark test-coremark-axi triangulator deploy-triangulator visualizer test-triangulator coremark coremark-baremetal coremark-profile coremark-linux-profiler
+.PHONY: bitstream performance-bitstream linux llvm-toolchain program upload test-board test test-fetch test-memory-path memory-bench test-phy test-linux test-core test-l1 test-store-buffer test-posted-stores test-perf-counters test-bram-coremark test-coremark-axi triangulator deploy-triangulator visualizer test-triangulator coremark coremark-baremetal coremark-profile coremark-linux-profiler workloads test-workloads deploy-workloads
+workloads:
+	$(PYTHON_RUN) workloads/build.py
+test-workloads:
+	$(PYTHON_RUN) -m unittest discover -s workloads -p 'test_*.py'
+deploy-workloads: workloads
+	$(PYTHON_RUN) workloads/deploy.py $(PORT) --log $(UART_LOG)
 triangulator:
 	bash triangulator/build.sh
 deploy-triangulator: triangulator
@@ -59,6 +65,8 @@ test-l1:
 	bash test_fast_l1.sh
 test-fetch:
 	bash test_pipelined_fetch_port.sh
+	bash test_frontend_cache_transactions.sh
+	bash test_fetch_port_restart.sh
 	bash test_instruction_fetch_queue.sh
 	bash test_instr_access_fault.sh
 	bash test_fetch_access_fault.sh

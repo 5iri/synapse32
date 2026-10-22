@@ -9,6 +9,10 @@ The [triangulation visualizer](triangulator/README.md) runs a moving 2D mesh
 workload under FPGA Linux and displays its results and timing in a laptop
 browser. The Linux image includes `/bin/triangulator`; an uploader can also
 install the small executable into a Linux session already running.
+The [Linux workload suite](workloads/README.md) adds checked zlib compression,
+decompression and SQLite operations, with pinned sources and repeatable reports.
+Build its static executable with `make workloads`; set `BUILD_WORKLOADS=1` when
+building Linux to include `/bin/workloads` in the initramfs.
 The [CoreMark workflow](coremark/README.md) builds the official integer
 benchmark for FPGA Linux; [physical performance results](coremark/RESULTS.md)
 record validated scores and the TLB comparison.
@@ -238,6 +242,20 @@ enters the queue; the queued write remains pending until its AXI response.
 Misses, page walks, MMIO, fences and atomic operations wait for older stores.
 A failed write latches the fabric fault and halts the CPU. There is no dirty
 write-back cache state.
+
+The pipelined instruction port registers its complete fill/snoop write stream
+before committing to cache BRAM. Lookup forwarding merges the committing write
+and newer incoming bytes, preserving store ordering without relying on BRAM
+read-during-write behavior. Harmless reads run in available lookup slots;
+architectural grants, responses and faults still honor immediate cancellation.
+This separates the RAM controls from the late EX redirect without adding a
+cache-hit cycle. `make test-fetch` covers canceled returns, ordered writes,
+subword collisions, errors and reset in addition to the normal fetch tests.
+The queue hides wrong-path instructions immediately, then sends a registered
+cancellation and target to the port. A canceled local lookup can accept the
+new target on that edge; an already granted lower read must first drain.
+Instruction TLB flushes cross the same control boundary. This keeps late CPU
+redirects out of fetch arbitration while retaining precise fault/PC tags.
 
 The experimental `LOAD_FORWARDING=1` forwards completed ordinary load data from MEM to a dependent
 EX instruction. EX waits for the response; atomics retain their existing

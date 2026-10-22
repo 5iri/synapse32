@@ -27,9 +27,32 @@ if [ "${LLVM:-}" = 1 ]; then
     export OPENSBI_CROSS_COMPILE="$KERNEL_CROSS_COMPILE"
     test -x "${KERNEL_CROSS_COMPILE}gcc" || { echo 'Run prepare_llvm.sh first.' >&2; exit 1; }
 fi
+extra_lists=()
+if [ -n "${INITRAMFS_EXTRA_LIST:-}" ]; then
+    test -r "$INITRAMFS_EXTRA_LIST" && test -f "$INITRAMFS_EXTRA_LIST" || {
+        echo 'INITRAMFS_EXTRA_LIST must name a readable regular file.' >&2; exit 1;
+    }
+    extra_lists+=("$INITRAMFS_EXTRA_LIST")
+fi
 if [ "${BUILD_TRIANGULATOR:-1}" = 1 ]; then
     TRIANGULATOR_CC="${KERNEL_CROSS_COMPILE:-riscv32-unknown-linux-gnu-}gcc" \
         bash "$here/triangulator/build.sh"
-    export INITRAMFS_EXTRA_LIST="$here/build/triangulator/initramfs.list"
+    extra_lists+=("$here/build/triangulator/initramfs.list")
+fi
+if [ "${BUILD_WORKLOADS:-0}" = 1 ]; then
+    WORKLOAD_CC="${WORKLOAD_CC:-${KERNEL_CROSS_COMPILE:-riscv32-unknown-linux-gnu-}gcc}" \
+        "${PYTHON:-python3}" "$here/workloads/build.py"
+    extra_lists+=("$here/build/workloads/initramfs.list")
+fi
+if [ "${#extra_lists[@]}" -gt 0 ]; then
+    mkdir -p "$LINUX_OUT_DIR"
+    extra_tmp=$(mktemp "$LINUX_OUT_DIR/board-initramfs-extra.XXXXXX")
+    trap 'rm -f "$extra_tmp"' EXIT
+    for extra in "${extra_lists[@]}"; do
+        cat "$extra" >> "$extra_tmp"
+        printf '\n' >> "$extra_tmp"
+    done
+    export INITRAMFS_EXTRA_LIST="$LINUX_OUT_DIR/board-initramfs-extra.list"
+    mv "$extra_tmp" "$INITRAMFS_EXTRA_LIST"
 fi
 exec bash "$here/../../sim/build_linux.sh"

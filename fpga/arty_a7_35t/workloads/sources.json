@@ -1,0 +1,21 @@
+{
+  "zlib": {
+    "version": "1.3.2",
+    "url": "https://zlib.net/fossils/zlib-1.3.2.tar.gz",
+    "archive": "zlib-1.3.2.tar.gz",
+    "directory": "zlib-1.3.2",
+    "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+    "license": "zlib license; archive LICENSE copied beside binary",
+    "upstream": "https://zlib.net/"
+  },
+  "sqlite": {
+    "version": "3.54.1",
+    "url": "https://www.sqlite.org/2026/sqlite-amalgamation-3540100.zip",
+    "archive": "sqlite-amalgamation-3540100.zip",
+    "directory": "sqlite-amalgamation-3540100",
+    "sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
+    "sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
+    "license": "public domain; dedication in sqlite3.c header",
+    "upstream": "https://www.sqlite.org/copyright.html"
+  }
+}
