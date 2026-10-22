@@ -31,7 +31,7 @@ module iterative_muldiv #(parameter FAST_MULTIPLY = 0) (
     wire [31:0] signed_quotient=negative ? (~quotient_next+1'b1) : quotient_next;
     wire [31:0] signed_remainder=remainder_negative ? (~remainder_next[31:0]+1'b1) : remainder_next[31:0];
     always @(posedge clk) begin
-        if(rst||cancel) begin
+        if(rst) begin
             busy<=0; done<=0; result<=0; count<=0; division<=0;
             high_half<=0; remainder_result<=0; negative<=0; remainder_negative<=0;
             product<=0; multiplicand<=0; multiplier<=0; quotient<=0; divisor<=0; remainder<=0;
@@ -70,6 +70,13 @@ module iterative_muldiv #(parameter FAST_MULTIPLY = 0) (
                 result<=division ? (remainder_result ? signed_remainder : signed_quotient) :
                                    (high_half ? signed_product[63:32] : signed_product[31:0]);
             end
+        end
+        // A flush invalidates the operation immediately. Its private datapath
+        // may finish this edge's work: every accepted start initializes it,
+        // and fast_product is overwritten before being read. Keeping cancel
+        // off those wide reset/enable trees avoids a late EX redirect path.
+        if(!rst && cancel) begin
+            busy<=0; done<=0; result<=0;
         end
     end
 endmodule
