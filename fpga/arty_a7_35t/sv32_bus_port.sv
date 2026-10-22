@@ -75,11 +75,14 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
     assign page_fault=rvalid&&fault_q;
     assign access_fault=PIPE_FETCH&&rvalid&&access_fault_q;
     // Lower-bus arbitration must not depend on the EX-stage redirect path.
-    // A late cancel may coincide with a grant of this registered RAM read;
-    // preserve that transaction below and discard its eventual response.
+    // RESTART_ON_CANCEL receives the queue's registered cancellation. Stop an
+    // ungranted old read before arbitration so a redirect need not drain an
+    // unnecessary DDR access. An earlier grant is already in WAIT and retains
+    // ownership below. Legacy ports with live EX cancellation still allow the
+    // same-edge grant and drain it without a response or fill.
     assign bus_req=(((state==PTE_REQ)&&ram_pte)||
                     ((state==ACCESS_REQ)&&(!PIPE_FETCH||ram_pte)))&&
-                   !(PIPE_FETCH&&walk_discard);
+                   !(PIPE_FETCH&&(walk_discard||(RESTART_ON_CANCEL&&fetch_cancel)));
     assign bus_we=(state==ACCESS_REQ)&&we_q;
     assign bus_fetch=FETCH&&(state==ACCESS_REQ);
     assign bus_wdata=data_q;

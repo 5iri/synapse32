@@ -158,20 +158,17 @@ module tb_fetch_port_restart;
             assert_uncached(C);cases=cases+1;
         end
 
-        // A canceled operation granted on the same edge cannot be overwritten
-        // by a target request: retain ownership, drain once, then accept A.
+        // A registered cancellation reaches the port before an old ungranted
+        // read is accepted. Even an available lower bus must not take that
+        // unnecessary request and delay the fresh warmed target.
         for(error=0;error<2;error=error+1) begin
             warm();issue(C);expect_bus(C);before_bus=bus_accepts;before_responses=responses;
-            req=1;va=A;fetch_cancel=1;bus_gnt=1;#1;
-            if(gnt||!bus_req||rvalid) $fatal(1,"old grant was overwritten by restart");
-            tick();fetch_cancel=0;bus_gnt=0;#1;
-            if(gnt||rvalid||bus_req||bus_accepts!=before_bus+1) $fatal(1,"old grant lost ownership");
-            tick();tick();
-            if(gnt||rvalid) $fatal(1,"new target accepted before old response");
-            return_bus(C,word_at(C),1'(error));#1;
-            if(rvalid||!gnt) $fatal(1,"old response did not drain before fresh target");
-            tick();req=0;va=A+4;response(word_at(A));
-            if(responses!=before_responses+1) $fatal(1,"drained response escaped");
+            req=1;va=error ? B : A;fetch_cancel=1;bus_gnt=1;#1;
+            if(!gnt||bus_req||rvalid) $fatal(1,"registered cancel launched an unnecessary old lower read instead of restarting");
+            tick();req=0;fetch_cancel=0;bus_gnt=0;va=(error ? B : A)+4;
+            response(word_at(error ? B : A));
+            if(bus_accepts!=before_bus||responses!=before_responses+1)
+                $fatal(1,"registered cancel consumed lower bandwidth or leaked a response");
             assert_uncached(C);cases=cases+1;
         end
 
@@ -234,15 +231,14 @@ module tb_fetch_port_restart;
             $fatal(1,"restart bypassed fresh-target TLB permissions");
         tick();cases=cases+1;
 
-        // A same-edge page-table grant must also be drained before restart.
-        warm_translation();issue(V1);expect_bus(32'h80001400,0);
+        // Registered cancellation also suppresses an ungranted page-table
+        // request, allowing the existing TLB-hit target to restart immediately.
+        warm_translation();issue(V1);expect_bus(32'h80001400,0);before_bus=bus_accepts;
         req=1;va=V0;fetch_cancel=1;bus_gnt=1;#1;
-        if(gnt||!bus_req) $fatal(1,"old page-table grant overwritten");
-        tick();bus_gnt=0;fetch_cancel=0;tick();
-        if(gnt||rvalid) $fatal(1,"page-table drain accepted target early");
-        return_bus(32'h80001400,32'h20000801);#1;
-        if(rvalid||!gnt) $fatal(1,"page-table drain failed to release target");
-        tick();req=0;va=V0+4;response(word_at(A));cases=cases+1;
+        if(!gnt||bus_req||rvalid) $fatal(1,"registered cancel launched an unnecessary page-table read");
+        tick();req=0;bus_gnt=0;fetch_cancel=0;va=V0+4;response(word_at(A));
+        if(bus_accepts!=before_bus) $fatal(1,"canceled page-table request consumed lower bandwidth");
+        cases=cases+1;
 
         $display("PASS: fetch port registered restart %0d cases, warm targets, misses, DONE, completion errors, old-grant drains and canceled TLB fills",cases);
         $finish;
