@@ -58,6 +58,7 @@ test:
 	$(MAKE) test-memory-path
 	bash test_axi.sh
 	for fast in 0 1; do verilator --binary --timing -Wno-fatal -j 4 -I../../rtl/include --top-module tb_muldiv -GFAST_MULTIPLY=$$fast --Mdir build/obj_muldiv_fast$$fast tests/tb_muldiv.sv ../../rtl/core_modules/iterative_muldiv.v > build/muldiv-fast$$fast-compile.log 2>&1 && build/obj_muldiv_fast$$fast/Vtb_muldiv || exit $$?; done
+	bash test_muldiv_cancel.sh
 	$(PYTHON_RUN) tests/test_sv32_bus.py
 	$(PYTHON_RUN) tests/test_tlb_bus.py
 	$(PYTHON_RUN) tests/test_uart_loader.py
