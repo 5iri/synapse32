@@ -185,7 +185,10 @@ wire [3:0] trigger_load = {trigger_control[21], trigger_control[14], trigger_con
 wire is_atomic_load = (instr_id == INSTR_LR_W);
 wire is_atomic_store = (instr_id == INSTR_SC_W);
 wire is_atomic_rmw = (opcode == 7'b0101111) && !is_atomic_load && !is_atomic_store;
-wire [31:0] trigger_data_addr = (opcode == 7'b0101111) ? rs1_value : (rs1_value + imm);
+// Atomic instructions always address rs1 with no immediate. Ordinary loads and
+// stores use trigger_base_match below; including their address here creates an
+// unnecessary effective-address carry chain in the atomic exception path.
+wire [31:0] trigger_data_addr = rs1_value;
 assign execute_trigger_hit = stage_enable && instr_valid &&
                              trigger_match(trigger_enabled, trigger_execute, pc_input, trigger_tdata2);
 wire load_trigger_hit = instr_valid && (is_atomic_load || is_atomic_rmw) &&
