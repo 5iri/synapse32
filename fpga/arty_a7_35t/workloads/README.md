@@ -96,7 +96,28 @@ suite. Keep the same bitstream, DTB, executable, iterations and background load
 for comparisons. Every process starts afresh; samples are retained in order and
 no warm-up sample is silently discarded.
 
-## Measured FPGA baseline
+## Current measured FPGA profile
+
+The tested `cache-cancel-div16` profile runs at **62.5 MHz**, with Linux
+**6.6.32-dirty / HZ=25**, 4 KiB I/D caches and load forwarding with selective
+control interlocks. The application executable is byte-identical to the
+58.823529 MHz baseline below. Three runs at three iterations each pass all
+output checks:
+
+| Case | Median throughput | Gain over previous profile |
+|---|---:|---:|
+| zlib compression | 128,206 input bytes/s | 2.13% |
+| zlib decompression | 1,511,857 input bytes/s | 2.79% |
+| SQLite insert | 1,111.336 rows/s | 2.06% |
+| SQLite query mix | 88.608 SQL statements/s | 2.13% |
+
+These are total throughput gains at a 6.25% higher CPU clock, not per-MHz
+improvements. Full records, binary identities, timing gates and frozen UART
+evidence are in [the measured profile](../coremark/results/cache-cancel-performance.json).
+Run `/bin/workloads 3` in the included FPGA Linux image. Use `--cpu-mhz 62.5`
+with the host runner for this profile.
+
+## Previous measured FPGA baseline
 
 The accepted store-path bitstream runs this suite on the **Arty A7-35T at
 58.823529 MHz**, with Linux **6.6.32-dirty / HZ=25**, 4 KiB instruction and data
@@ -118,8 +139,8 @@ combines statements with different costs; its statements/s figure applies to
 that exact mix. The complete build manifest, every raw sample/output, and
 bitstream/Linux payload/frozen UART capture hashes are preserved in
 [results/store-path-baseline.json](results/store-path-baseline.json). This is
-the previous accepted hardware baseline; it makes no performance claim about
-the new RTL until that configuration passes timing and is measured on the board.
+the previous accepted hardware baseline, retained for comparison with the
+current profile above.
 
 A transcript captured manually can also be validated:
 

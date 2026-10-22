@@ -6,6 +6,44 @@ RV32IMA, static allocation, one context, valid CRCs, and runs lasting at least
 10 seconds. Scores are medians of three performance runs; a validation-seed run
 also passes. `FAST_MULTIPLY=0` means iterative multiplication and division.
 
+## Current tested profile
+
+The board is running `cache-cancel-div16`, built from `099154d`, at **62.5 MHz**.
+It has 4 KiB instruction/data caches, an eight-entry store queue, fast multiply,
+queued instruction fetch, early store acknowledgement and completed-load data
+forwarding. Load-dependent control operations use selective interlocks. The
+registered fetch cancellation also suppresses ungranted wrong-path lower reads.
+Setup **+0.160 ns**, hold **+0.008 ns** and pulse-width **+0.206 ns** pass, as do
+the clock-methodology, DRC, critical CDC and bus-skew gates. Linux boots and
+executes shell commands on the physical board.
+
+| Physical profile | CPU MHz | Bare-metal CoreMark | Bare-metal /MHz | Linux CoreMark | Linux /MHz |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Previous store-path baseline | 58.823529 | 106.809701 | 1.815765 | 101.347927 | 1.722915 |
+| Current control-interlock/cancel profile | 62.5 | 112.407494 | 1.798520 | 100.877635 | 1.614042 |
+
+These are complete profile comparisons at different clocks. Bare-metal
+throughput improves **5.24%**, while Linux CoreMark decreases **0.46%**; the
+new profile does not improve every workload or normalized score. The same
+application executables run in both Linux images, at HZ=25. Compression,
+decompression, SQLite inserts and the fixed query mix improve **2.13%, 2.79%,
+2.06% and 2.13%**, respectively. Mesh medians are **4.605 / 25.2795 / 193.056 ms**
+for 16 / 32 / 64 points. All 60 frames pass geometry validation and exactly
+match the baseline's points and triangles.
+
+A bounded 8 KiB instruction-cache model experiment gains only **1.35% / 1.03%**
+for performance/validation seeds over the current 4 KiB model. It was not built
+for the board. The tested 4 KiB configuration remains selected.
+
+[Complete results, source/artifact hashes and validation evidence](results/cache-cancel-performance.json)
+include the preceding mixed-result build and the software-image differences.
+The matching bitstream and Linux image were copied to
+`siriboi:~/synapse32-cache-cancel-div16.bit` and
+`siriboi:~/synapse32-linux-25hz-cpu62.bin`, with remote SHA-256 verification.
+See the [board build commands](../README.md#cpu-clock-profiles) and
+[Linux workload instructions](../workloads/README.md). The sections below
+preserve earlier stages and their measurements.
+
 ## Accepted physical results
 
 | CPU MHz | Environment and memory path | CoreMark | CoreMark/MHz | CPI |
@@ -156,7 +194,7 @@ This wrapper measures the **whole CPU during the command**, including kernel,
 background tasks, process startup and reporting. Its counters are not restricted
 to CoreMark's internally timed loop. Do not label them userspace-only CPI.
 
-## Current verified profile
+## Earlier verified profiles
 
 ### Data-path latency
 
