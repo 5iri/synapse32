@@ -12,7 +12,7 @@ module instruction_fetch_queue (
     input wire [31:0] satp,
     output wire valid, page_fault, access_fault,
     output wire [31:0] instruction, head_pc,
-    output wire req, cancel,
+    output wire req, cancel, port_cancel,
     output wire [31:0] request_pc,
     input wire gnt, rvalid, response_page_fault, response_access_fault,
     input wire [31:0] response_data
@@ -30,19 +30,34 @@ module instruction_fetch_queue (
     wire context_change=(translate!=translate_seen)||(privilege!=privilege_seen)||
                         (satp!=satp_seen);
     assign cancel=!rst&&(redirect||flush_tlb||context_change);
+    reg cancel_q, redirect_q;
+    reg [31:0] redirect_pc_q, cpu_pc_q;
+    // Snapshot both possible PCs unconditionally. A live EX redirect may kill
+    // CPU visibility, but must not enable a wide PC register or arbitrate the
+    // cache port combinationally. The registered transaction owns that work.
+    always @(posedge clk) begin
+        cancel_q<=!rst&&cancel;
+        redirect_q<=redirect;
+        redirect_pc_q<=redirect_pc;
+        cpu_pc_q<=cpu_pc;
+    end
+    assign port_cancel=cancel_q;
+    wire [31:0] restart_pc=redirect_q ? redirect_pc_q : cpu_pc_q;
     wire stored_head=(count!=0);
-    wire returned=rvalid&&pending&&!cancel;
+    wire returned=rvalid&&pending&&!port_cancel;
     // Forward the first reply directly when empty: a redirect or miss does
     // not pay an extra FIFO clock. A stalled reply is retained in the queue.
-    assign valid=!rst&&!cancel&&(stored_head||returned);
+    assign valid=!rst&&!cancel&&!port_cancel&&(stored_head||returned);
     assign instruction=stored_head ? words[rd_ptr] : response_data;
     assign head_pc=stored_head ? pcs[rd_ptr] : pending_pc;
     assign page_fault=valid&&(stored_head ? page_faults[rd_ptr] : response_page_fault);
     assign access_fault=valid&&(stored_head ? access_faults[rd_ptr] : response_access_fault);
-    assign request_pc=fetch_pc;
+    assign request_pc=port_cancel ? restart_pc : fetch_pc;
     // Every granted request reserves a slot until its response is consumed.
     // Conservative credits keep request timing independent of CPU backpressure.
-    assign req=!rst&&!cancel&&!fault_stop&&((count+{2'b0,pending})<4);
+    // Cancellation supplies a fresh credit and target. A port that can replace
+    // a canceled local lookup may grant this new transaction on the same edge.
+    assign req=!rst&&(port_cancel||(!fault_stop&&((count+{2'b0,pending})<4)));
     wire bypass=consume&&valid&&!stored_head;
     wire push=returned&&!bypass;
     wire pop=consume&&valid&&stored_head;
@@ -54,19 +69,23 @@ module instruction_fetch_queue (
             translate_seen<=0; privilege_seen<=3; satp_seen<=0;
         end else begin
             translate_seen<=translate; privilege_seen<=privilege; satp_seen<=satp;
-            if(cancel) begin
-                fetch_pc<=redirect ? redirect_pc : cpu_pc;
-                count<=0; rd_ptr<=0; wr_ptr<=0; pending<=0; fault_stop<=0;
+            if(port_cancel) begin
+                fetch_pc<=restart_pc+(gnt ? 32'd4 : 32'd0);
+                pending_pc<=restart_pc;
+                count<=0; rd_ptr<=0; wr_ptr<=0; pending<=gnt; fault_stop<=0;
             end else begin
                 if(gnt) begin fetch_pc<=fetch_pc+4; pending_pc<=fetch_pc; end
                 if(gnt||returned) pending<=gnt;
                 if(returned&&(response_page_fault||response_access_fault)) fault_stop<=1;
-                if(push) begin
+                // Even a bypassed reply may write the unused tail slot. Only
+                // its credit/pointer bookkeeping depends on CPU consumption;
+                // the wide payload/PC storage has no late consumer enable.
+                if(returned) begin
                     words[wr_ptr]<=response_data; pcs[wr_ptr]<=pending_pc;
                     page_faults[wr_ptr]<=response_page_fault;
                     access_faults[wr_ptr]<=response_access_fault;
-                    wr_ptr<=wr_ptr+1'b1;
                 end
+                if(push) wr_ptr<=wr_ptr+1'b1;
                 if(pop) rd_ptr<=rd_ptr+1'b1;
                 case({push,pop})
                     2'b10: count<=count+1'b1;
@@ -77,7 +96,7 @@ module instruction_fetch_queue (
         end
     end
 `ifndef SYNTHESIS
-    always @(posedge clk) if(!rst&&!cancel) begin
+    always @(posedge clk) if(!rst&&!cancel&&!port_cancel) begin
         if(count+{2'b0,pending}>4) $fatal(1,"Fetch queue credit overflow");
         if(gnt&&pending&&!returned) $fatal(1,"Fetch port granted behind a pending miss");
         if(consume&&valid&&head_pc!=cpu_pc) $fatal(1,"Fetch queue PC differs from CPU PC");

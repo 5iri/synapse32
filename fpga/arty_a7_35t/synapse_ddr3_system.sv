@@ -97,13 +97,15 @@ module synapse_ddr3_system #(
     wire [31:0] fetch_pc, fetch_word;
     wire port_valid, port_page_fault, port_access_fault;
     wire [31:0] port_word;
+    reg instr_tlb_flush_q;
+    always @(posedge clk) instr_tlb_flush_q<=!cpu_rst&&tlb_flush;
     instruction_fetch_queue fetch_queue (
         .clk(clk),.rst(cpu_rst||!FETCH_QUEUE),.consume(instr_consume),.redirect(instr_redirect),
         .redirect_pc(instr_redirect_pc),.cpu_pc(pc_debug),.flush_tlb(tlb_flush),
         .translate(immu),.privilege(ipriv),.satp(satp),
         .valid(fetch_valid),.instruction(fetch_word),.head_pc(),
         .page_fault(fetch_page_fault),.access_fault(fetch_access_fault),
-        .req(fetch_req),.request_pc(fetch_pc),.cancel(fetch_cancel),
+        .req(fetch_req),.request_pc(fetch_pc),.cancel(),.port_cancel(fetch_cancel),
         .gnt(ignt),.rvalid(port_valid),.response_data(port_word),
         .response_page_fault(port_page_fault),.response_access_fault(port_access_fault)
     );
@@ -112,8 +114,8 @@ module synapse_ddr3_system #(
     assign ifault=FETCH_QUEUE ? fetch_page_fault : port_page_fault;
     assign instr_access_fault=FETCH_QUEUE ? fetch_access_fault : 1'b0;
     sv32_bus_port #(.FETCH(1),.CACHE_LINES(FAST_L1 ? ICACHE_LINES : 0),
-                    .PIPELINED_FETCH(FETCH_QUEUE)) instr_port (
-        .clk(clk),.rst(cpu_rst),.flush_tlb(tlb_flush),
+                    .PIPELINED_FETCH(FETCH_QUEUE),.RESTART_ON_CANCEL(FETCH_QUEUE)) instr_port (
+        .clk(clk),.rst(cpu_rst),.flush_tlb(FETCH_QUEUE ? instr_tlb_flush_q : tlb_flush),
         .fetch_cancel(FETCH_QUEUE ? fetch_cancel : 1'b0),
         .req(FETCH_QUEUE ? fetch_req : !cpu_rst),.we(1'b0),.write_intent(1'b0),
         .translate(immu),.va(FETCH_QUEUE ? fetch_pc : pc_debug),.satp(satp),.wdata(32'b0),

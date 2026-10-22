@@ -4,7 +4,7 @@
 // Each port has eight entries; permissions are checked again on every hit.
 // Snapshot each access and return one response. Svade: A/D clear faults.
 module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
-                      EARLY_STORE_RESPONSE=0) (
+                      EARLY_STORE_RESPONSE=0, RESTART_ON_CANCEL=0) (
     input wire clk, rst, flush_tlb,
     input wire fetch_cancel,
     input wire req, we, write_intent, translate,
@@ -55,8 +55,16 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
     // while the previous hit returns, and redirects are canceled explicitly.
     wire stale=FETCH && (walk_discard||invalidate||(PIPE_FETCH ? fetch_cancel : (va_q!=va))||(satp_q!=satp)||
                        (translate_q!=translate)||(privilege_q!=privilege));
-    assign gnt=req&&!fatal_error&&!invalidate&&!(PIPE_FETCH&&fetch_cancel)&&
-               ((state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit&&!stale));
+    // The queued frontend supplies a registered cancellation together with a
+    // separately tagged new target. Replace a local transaction immediately,
+    // but retain ownership of any granted lower read until its response drains.
+    wire lower_pending=((state==PTE_WAIT)||(state==ACCESS_WAIT))&&!bus_done;
+    wire lower_granted=((state==PTE_REQ)||(state==ACCESS_REQ))&&bus_req&&bus_gnt;
+    wire restart_slot=PIPE_FETCH&&RESTART_ON_CANCEL&&fetch_cancel&&!lower_pending&&!lower_granted;
+    wire restart_gnt=req&&!fatal_error&&!invalidate&&restart_slot;
+    assign gnt=req&&!fatal_error&&!invalidate&&
+               (restart_slot||(!(PIPE_FETCH&&fetch_cancel)&&
+                ((state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit&&!stale))));
     // A write has no response data to register. Once its actual completion is
     // visible, acknowledge it directly and avoid a separate DONE cycle. This
     // never acknowledges a grant, a permission fault, or a failed transaction.
@@ -109,9 +117,9 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
     // than gating its RAM enable with the late EX redirect/flush or queue
     // backpressure. Only gnt captures a transaction and only !stale returns
     // its token; unused reads cannot issue a bus access, fill, or fault.
-    wire cache_read_slot=(state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit);
+    wire cache_read_slot=(state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit)||restart_slot;
     wire cache_lookup=((PIPE_FETCH ? cache_read_slot : gnt)&&direct_cache)||(state==CACHE_REQUEST);
-    wire [31:0] cache_addr=(state==CACHE_REQUEST) ? bus_addr : hit_physical;
+    wire [31:0] cache_addr=((state==CACHE_REQUEST)&&!restart_slot) ? bus_addr : hit_physical;
     wire cache_hit;
     wire [31:0] cache_word;
     wire cache_fill=(CACHE_LINES>0)&&(state==ACCESS_WAIT)&&bus_done&&!bus_error&&!we_q&&
@@ -188,7 +196,8 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
         if(rst) begin satp_seen<=0; walk_discard<=0; end
         else begin
             satp_seen<=satp;
-            if((invalidate||(PIPE_FETCH&&(fetch_cancel||context_changed)))&&state!=IDLE) walk_discard<=1;
+            if(restart_gnt) walk_discard<=0;
+            else if((invalidate||(PIPE_FETCH&&(fetch_cancel||context_changed)))&&state!=IDLE) walk_discard<=1;
             else if(state==IDLE) walk_discard<=0;
         end
     end
@@ -198,7 +207,8 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
             privilege_q<=3; translate_q<=0; we_q<=0; intent_q<=0;
             sum_q<=0; mxr_q<=0; be_q<=0; type_q<=2; level<=1;
             fault_q<=0; access_fault_q<=0; fatal_error<=0; response_q<=32'h13;
-        end else if(PIPE_FETCH&&state!=IDLE&&stale) begin
+        end else if(restart_gnt) capture_request();
+        else if(PIPE_FETCH&&state!=IDLE&&stale) begin
             // Granted bus operations cannot be withdrawn. Drain their response
             // without a CPU token or TLB/cache fill. A grant may occur on this
             // same cancel edge because bus_req deliberately uses only registers.
