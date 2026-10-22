@@ -418,3 +418,200 @@ run `/tmp/coremark-aligned-o3 0 0 0x66 1000 7 1` for the corrected benchmark.
 `build_trap_profile.sh` produces separate diagnostic firmware; do not use its
 instrumented timing as an accepted score. Hashes and full reports are preserved
 in the permanent result JSON files.
+
+## Registered frontend transactions and load forwarding, 23 October 2026
+
+The instruction cache now registers complete ordered data, byte-enable, tag and
+validity transactions, with pending metadata and byte forwarding covering the
+commit delay (`72b5b58`). The frontend also registers port cancellation and TLB
+flush, tracks queue generations, and can replace a canceled local fetch with a
+new target while granted lower-bus reads retain ownership until drained
+(`528c986`). Directed tests cover stale responses and faults, redirects to the
+same PC, consecutive redirects, translation changes, pending fills and snoops,
+FENCE.I, and atomic operations. The warm queued-fetch trace still completes
+exactly one instruction per cycle.
+
+Matched CoreMark uses the unchanged profiling payload, a nominal 1 MHz timer,
+20-cycle AXI responses, 4 KiB I/D caches, eight store entries, fast multiplication,
+fast store acknowledgement, and the fetch queue. Both seed sets validate CRCs
+over more than 29 simulated seconds:
+
+| RTL | Load forwarding | Performance CoreMark/MHz | Validation CoreMark/MHz | Performance CPI |
+| --- | ---: | ---: | ---: | ---: |
+| `528c986` | 0 | 1.629567 | 1.625488 | 2.406536 |
+| `528c986` | 1 | 1.708059 | 1.713326 | 2.295926 |
+| `6ec10fa`, atomic trigger simplification | 1 | 1.708059 | 1.713326 | 2.295926 |
+| `42ae42a`, private muldiv cancellation state | 1 | 1.708059 | 1.713326 | 2.295926 |
+
+Load forwarding improves the matched performance-seed result **4.82%** and the
+validation-seed result **5.40%** in this model. These are individual simulated
+seed runs, not physical FPGA scores or medians. The atomic-trigger change keeps
+both timed cycle and instruction counts identical to `528c986`; total model
+completion remains **62,594,823 cycles**. Profiling counters overlap and cannot
+be added into a CPI breakdown. Counted instructions use the EX-completion event;
+Linux profiling additionally includes kernel and background activity.
+
+Five completed normal routes at **58.823529 MHz** have been rejected by the setup
+gate:
+
+| Build tag | Frozen source | Setup WNS | Setup TNS | Failing endpoints | Hold WNS |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `fetch-boundary-upstream-div17` | `ce5da4b` plus intermediate registered writes | −2.838 ns | −6254.854 ns | 3,715 | +0.019 ns |
+| `fetch-metadata-div17` | `72b5b58` | −3.347 ns | −6732.946 ns | 3,271 | +0.006 ns |
+| `fetch-control-div17` | `528c986` | −2.346 ns | −2843.648 ns | 2,004 | +0.032 ns |
+| `atomic-trigger-div17` | `6ec10fa` | −0.502 ns | −108.076 ns | 631 | +0.012 ns |
+| `muldiv-cancel-div17` | `42ae42a` | −0.933 ns | −366.537 ns | 811 | +0.026 ns |
+
+All five have pulse-width slack +0.206 ns and no critical CDC or bus-skew gate
+failure; inherited noncritical warnings remain. None produced an accepted or
+programmed bitstream. An earlier premerge `fetch-boundary-div17` build was
+terminated during synthesis for upstream synchronization and has no timing
+result.
+
+The routed `fetch-control-div17` path runs from D-cache BRAM through forwarded
+EX operands and trigger/exception logic to `instret` control: **18.856 ns**, 23
+logic levels. A mapped-netlist audit identified an unnecessary atomic-trigger
+address mux admitting the ordinary effective-address carry chain. Atomic
+trigger hits are consumed only for opcode `0x2f`, where the mux already selects
+`rs1`; `6ec10fa` therefore connects that operand directly. It preserves ordinary
+load/store trigger matching and architectural addresses. A dedicated regression
+adds **11,088 atomic/forwarding cases**, including distinct RF/MEM/WB values and
+all four trigger slots. This source's normal route reduces the worst path to
+**17.134 ns**, 20 levels, ending at a CSR write enable, but still fails setup.
+The bounded postroute refinement also fails: **setup −0.138 ns / TNS −6.515 ns,
+91 failing endpoints**, hold +0.012 ns and pulse-width +0.206 ns. Clock
+methodology, critical CDC and bus-skew gates pass; no bitstream is written.
+Its remaining worst path runs from D-cache data through the branch decision and
+pipeline flush to the iterative multiply/divide unit's private remainder
+register reset input: **16.547 ns**, 16 levels. The next candidate (`42ae42a`)
+separates cancellation of busy/done/result validity from clearing private
+arithmetic state. Its normal route still fails setup, with a **17.489 ns**,
+20-level path from D-cache BRAM to the `instret` counter enable. Its bounded
+postroute refinement also fails: **WNS −0.428 ns / TNS −27.026 ns / 318 failing
+endpoints**, hold +0.026 ns. An explicit incremental timing-closure route,
+reusing **99.47% of cells and 86.72% of nets**, fails at **WNS −0.186 ns / TNS
+−8.012 ns / 107 endpoints**, hold +0.012 ns. Both retain pulse-width slack
++0.206 ns and pass the required clock, critical CDC and bus-skew gates. No
+full-forwarding bitstream is accepted from these attempts.
+
+The cancellation change passes **1,633 normal RV32M cases in each multiply
+mode**, plus **472 cancellation/restart positions** across both modes. A cycle
+miter compares **200,083 edges per mode** against the previous implementation
+with zero busy/done/result mismatches, covering all reset/cancel/start/consume
+combinations. CoreMark's two timed intervals and total model completion are
+unchanged. These checks validate behavior; they do not establish timing closure.
+
+Functional checks pass for queued fetch, registered cache transactions, local
+restart/drain races, raw/formatted load responses, older fault priority,
+triggers, pending CSR updates, fences and atomics. Linux boots and executes a
+UART shell command in **262,187,278 simulated cycles** on `528c986`, `6ec10fa`
+and `42ae42a`. The new source's memory-wait coverage passes latency 0/1/2/4 and
+fast-fetch variants, including the **1,128-position interrupt sweep**. Coverage
+is assembled from separate completed variants: the initial launcher received
+external SIGTERM 15 during latency-4 compilation after latency 0/1/2 passed; a
+partial relaunch had a host import-path error; the corrected relaunch passed
+latency 4 and fast fetch. The interrupted and import-error launches are retained
+as such and are not labeled fully passed invocations.
+
+The reference is the previously accepted `f0d2f83` store-path bitstream with
+load forwarding disabled. Refreshed measurements give **106.809701 bare-metal
+CoreMark / 1.815765 per MHz** and **101.347927 aligned Linux CoreMark / 1.722915
+per MHz**, each with three performance runs and one validation run. The newly
+packaged 25 Hz Linux image also passes all 12 zlib/SQLite samples and validates
+all 60 mesh frames; 16/32/64-point mesh medians are **4.705 / 26.7655 / 200.502
+ms**. These measurements establish the accepted-hardware baseline for subsequent
+comparison. SQLite data and journals are in memory; query throughput uses a
+fixed mix of statements with different costs and does not measure disk I/O.
+
+Full source labels, routed reports and hashes, model outputs and counter
+snapshots, functional checks, mapped-netlist excerpts, and refreshed physical
+baseline evidence are preserved in
+[fetch-boundary-performance.json](results/fetch-boundary-performance.json).
+The application suite's complete three-run evidence and build manifest are in
+[store-path-baseline.json](../workloads/results/store-path-baseline.json).
+
+## Early control operands with data forwarding
+
+`b207eb2` keeps completed-load data forwarding for arithmetic, ordinary address
+computation and store data, while branches, JALR and atomics wait for dependent
+loads to reach WB. Dependent ordinary load/store addresses also wait when data
+watchpoints are active. The execution unit's optional `EARLY_CONTROL` operands
+exclude completed-load data from branch and trigger decisions; the CPU enables
+this path with `LOAD_FORWARDING` and supplies the matching consumer interlocks.
+Standalone execution-unit users retain the previous behavior by default.
+
+The dependent-pointer trace retains exactly **two cycles per load** across 64
+grants, responses and counted instructions. Matched 20-cycle AXI CoreMark gives:
+
+| Configuration | Source | Performance CoreMark/MHz | Validation CoreMark/MHz |
+| --- | --- | ---: | ---: |
+| Forwarding disabled reference | `528c986` | 1.629567 | 1.625488 |
+| Full completed-load forwarding | `42ae42a` | 1.708059 | 1.713326 |
+| Data forwarding with early control interlocks | `b207eb2` | 1.676053 | 1.678923 |
+
+The early-control version costs **1.87% / 2.01%** versus full forwarding for
+performance/validation seeds and retains **2.85% / 3.29%** over the disabled
+reference. Timed instruction counts are identical. The isolated experiment and
+adopted source produce exactly the same timed results. These are simulated
+single-seed runs with the fixed 1 MHz profiling payload, not physical FPGA
+scores or median physical measurements.
+
+Basic memory-path checks pass. A focused CPU regression covers **179 cases in
+each of four combinations** of raw/formatted load responses and fixed/variable
+latency, including data triggers in all four slots, wrapped/signed offsets,
+all 11 atomics, trigger CSR transitions, branches/JALR, data-only stores and
+older faults. Existing trigger and CSR tests pass with load forwarding enabled;
+their tested precommit RTL hashes exactly match `b207eb2`. The full managed
+memory-wait run passes all five variants, including the **1,128-position IRQ
+sweep**, with exit status zero. Linux with the prepared 62.5 MHz DTB boots and
+executes the UART shell command in **267,789,726 simulated cycles**.
+
+The physical candidate is `early-control-div16`, **62.5 MHz**, with 4 KiB I/D
+caches, fetch queue, fast multiplication, eight store entries, fast store
+acknowledgement and load forwarding. It passes setup **+0.175 ns / TNS 0 ns**,
+hold **+0.024 ns** and pulse width **+0.206 ns**, with zero setup/hold failing
+endpoints. Required clock methodology, critical CDC and bus-skew gates pass;
+inherited noncritical warnings remain. The bitstream was programmed and passes
+the board benchmarks below. It is an intermediate result with mixed performance,
+rather than an overall performance winner.
+
+| Environment | Median CoreMark | CoreMark/MHz | Change in absolute throughput versus 58.823529 MHz baseline |
+| --- | ---: | ---: | ---: |
+| Bare metal | 111.969112 | 1.791506 | +4.83% |
+| Aligned Linux, HZ=25 | 98.217355 | 1.571478 | −3.09% |
+
+Both environments pass three performance runs and one validation run, all at
+least 14.9 seconds. Bare-metal timer validation measures **2.000169 host seconds
+/ 125,000,028 cycles**. The 62.5 MHz bare-metal normalized score is lower than
+the baseline's 1.815765 per MHz despite higher absolute throughput. Linux also
+regresses in absolute throughput, so the new clock alone does not resolve its
+fetch/memory overhead. Application bytes match the baseline, but kernel Image,
+configuration and initramfs archives differ after clock/DTB/license regeneration;
+this is an end-to-end comparison, not a strict clock-only Linux experiment.
+
+All 12 zlib/SQLite workload samples validate. Median throughput is **127,528
+input bytes/s compression**, **1,496,518 input bytes/s decompression**, **1,080.818
+SQLite rows/s**, and **86.660 SQL statements/s** for the defined query mix.
+Compared with the baseline, these change **+1.592% / +1.747% / −0.741% /
+−0.115%**, respectively. SQLite remains entirely in memory and the mixed
+statements have different costs; these are not disk benchmarks. All 60 mesh
+frames validate and exactly match the baseline geometry; 16/32/64-point compute
+medians are **4.6725 / 25.6325 / 194.0145 ms**.
+
+The corrected CPU regression explicitly adds a response cycle to its first
+producer load and passes all **716 cases** (`5afba00`, tests only). It supersedes
+the earlier schedule's held-producer coverage. The intermediate measurements
+above precede the subsequent cache-cancel correction; a separate build tag
+preserves this bitstream and its complete evidence.
+
+Tested bitstream SHA256:
+`8869ec10e29ee15c61fe4bc30c10462f7d59411d18b79bdede47819cf2ab7845`.
+The prepared 62,500,000 Hz bare-metal profiling binary is byte-identical to the
+historical clock-matched binary (SHA256
+`46744b0a07b645fabd2e4b97ab3d56ae04efbdcaec31300ffe1ca73b28752bd2`).
+The prepared Linux workload payload has SHA256
+`66d45d0d9fb1b165eae69b8425686e3d248238262419d809a55bc8a50bcb3472`.
+Source and build settings, complete model outputs/counters, functional evidence,
+firmware/bitstream hashes, every physical CoreMark/workload sample and the frozen
+UART capture are preserved in
+[early-control-performance.json](results/early-control-performance.json).

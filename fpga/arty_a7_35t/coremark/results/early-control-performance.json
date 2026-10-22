@@ -1,0 +1,1489 @@
+{
+  "schema": 1,
+  "description": "Early control operand forwarding with consumer interlocks: timing-accepted intermediate b207eb2 hardware and complete board measurements, before the subsequent cache-cancel correction.",
+  "source_commit": "b207eb2058ee18bf92ba3453b9ecfa3e854921f2",
+  "evidence_date_local": "2026-10-23",
+  "architecture": {
+    "execution_unit_parameter": "EARLY_CONTROL defaults to 0; the CPU selects LOAD_FORWARDING.",
+    "ordinary_data_path": "Completed ordinary loads can forward to data arithmetic, ordinary address computation and store data.",
+    "control_path": "Branch, JALR, atomics, and dependent ordinary addresses while data triggers are enabled interlock behind loads and use the early control operands; MEM control forwarding excludes completed load data.",
+    "unchanged_control_contract": "Older faults and trigger/trap priority remain precise; standalone execution-unit users default to the previous operand selection unless EARLY_CONTROL is enabled with the matching CPU interlocks."
+  },
+  "model": {
+    "nominal_cpu_hz": 1000000,
+    "axi_response_cycles": 20,
+    "uart_divisor_scale": 16,
+    "iterations_per_seed": 50,
+    "parameters": {
+      "FAST_L1": 1,
+      "ICACHE_LINES": 256,
+      "DCACHE_LINES": 256,
+      "CACHE_LINE_BYTES": 16,
+      "STORE_BUFFER_DEPTH": 8,
+      "FAST_MULTIPLY": 1,
+      "FETCH_QUEUE": 1,
+      "LOAD_FORWARDING": 1,
+      "FAST_STORE_ACK": 1
+    },
+    "payload": {
+      "path": "fpga/arty_a7_35t/build/coremark-profile-1000000/coremark.bin",
+      "sha256": "c24f90706277b9c76dfea090d6cfd5fc852c068f045c920dacdd033401a7f7fe",
+      "bytes": 37384
+    },
+    "records": [
+      {
+        "mode": "performance",
+        "iterations": 50,
+        "seconds": 29.832,
+        "iterations_per_second": 1.676053,
+        "compiler": "Clang 23.1.1",
+        "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+        "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+        "validated": true,
+        "cpu_mhz": 1.0,
+        "coremark_per_mhz": 1.676053,
+        "cycles": 29832020,
+        "retired_instructions": 12749965,
+        "cpi": 2.3397726974152477
+      },
+      {
+        "mode": "validation",
+        "iterations": 50,
+        "seconds": 29.781,
+        "iterations_per_second": 1.678923,
+        "compiler": "Clang 23.1.1",
+        "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+        "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+        "validated": true,
+        "cpu_mhz": 1.0,
+        "coremark_per_mhz": 1.678923,
+        "cycles": 29781761,
+        "retired_instructions": 12722679,
+        "cpi": 2.340840400044676
+      }
+    ],
+    "profiling_snapshots": [
+      {
+        "clock": 29834034,
+        "retired": 12750100,
+        "fetch_wait": 4338298,
+        "data_wait": 9061804,
+        "muldiv_wait": 1744383,
+        "fence_wait": 0,
+        "icache_hit": 19135330,
+        "icache_miss": 78012,
+        "dcache_hit": 2696467,
+        "dcache_miss": 10404,
+        "itlb_miss": 0,
+        "dtlb_miss": 0,
+        "axi_read_wait": 1003845,
+        "axi_write_wait": 17538932,
+        "store_queue_stall": 4267578,
+        "store_enqueued": 678884
+      },
+      {
+        "clock": 29783781,
+        "retired": 12722814,
+        "fetch_wait": 4228869,
+        "data_wait": 9136712,
+        "muldiv_wait": 1744150,
+        "fence_wait": 0,
+        "icache_hit": 19127926,
+        "icache_miss": 72189,
+        "dcache_hit": 2712703,
+        "dcache_miss": 15842,
+        "itlb_miss": 0,
+        "dtlb_miss": 0,
+        "axi_read_wait": 1007081,
+        "axi_write_wait": 17381119,
+        "store_queue_stall": 4170865,
+        "store_enqueued": 673296
+      }
+    ],
+    "raw_output": "COREMARK_AXI_CONFIG nominal_cpu_hz=1000000 fast_l1=1 store_buffer_depth=8 fast_multiply=1 fetch_queue=1 load_forwarding=1 fast_store_ack=1 dcache_lines=256 icache_lines=256 iterations=50 response_cycles=20\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e8493\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29832\nTotal time (secs): 29.832000\nIterations/Sec   : 1.676053\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 1.676053 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000001c73b32\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x000000000042327a\nS32_PERF data_wait: 0x00000000008a45ac\nS32_PERF muldiv_wait: 0x00000000001a9dff\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x000000000123fb62\nS32_PERF icache_miss: 0x00000000000130bc\nS32_PERF dcache_hit: 0x0000000000292513\nS32_PERF dcache_miss: 0x00000000000028a4\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000f5145\nS32_PERF axi_write_wait: 0x00000000010b9f74\nS32_PERF store_queue_stall: 0x0000000000411e3a\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001c73354\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29781\nTotal time (secs): 29.781000\nIterations/Sec   : 1.678923\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x0000000001c676e5\nS32_PERF retired: 0x0000000000c2227e\nS32_PERF fetch_wait: 0x0000000000408705\nS32_PERF data_wait: 0x00000000008b6a48\nS32_PERF muldiv_wait: 0x00000000001a9d16\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x000000000123de76\nS32_PERF icache_miss: 0x00000000000119fd\nS32_PERF dcache_hit: 0x000000000029647f\nS32_PERF dcache_miss: 0x0000000000003de2\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000f5de9\nS32_PERF axi_write_wait: 0x00000000010936ff\nS32_PERF store_queue_stall: 0x00000000003fa471\nS32_PERF store_enqueued: 0x00000000000a4610\nTimed CPU cycles: 0x0000000001c66f01\nTimed retired instructions: 0x0000000000c221f7\nS32_BAREMETAL_DONE:0\n\nCOREMARK_AXI_SUMMARY cycles=63737399 reads=160778 writes=1375218 response_cycles=20 completed=2\n",
+    "completion": {
+      "cycles": 63737399,
+      "reads": 160778,
+      "writes": 1375218,
+      "response_cycles": 20,
+      "completed": 2
+    },
+    "artifacts": {
+      "report": {
+        "path": "fpga/arty_a7_35t/build/early-control-coremark-axi20.json",
+        "sha256": "c97d6f3d42c3b5d2ab4df55957c7c619a2b5a6bc3efe4c230579adb7ce948077",
+        "bytes": 1351
+      },
+      "run_log": {
+        "path": "fpga/arty_a7_35t/build/early-control-evidence/fpga__arty_a7_35t__build__early-control-coremark-axi20.log",
+        "sha256": "91421f7eec15f21a114f18a418285ac5da9847a5953da1f8a68a2cc94b34cfed",
+        "bytes": 3971
+      }
+    },
+    "comparison": [
+      {
+        "mode": "performance",
+        "early_control_coremark_per_mhz": 1.676053,
+        "full_forwarding_coremark_per_mhz": 1.708059,
+        "forwarding_disabled_coremark_per_mhz": 1.629567,
+        "versus_full_forwarding_percent": -1.8738228597489859,
+        "versus_forwarding_disabled_percent": 2.852659632896337,
+        "extra_cycles_vs_full_forwarding": 559038,
+        "timed_instruction_count_identical": true
+      },
+      {
+        "mode": "validation",
+        "early_control_coremark_per_mhz": 1.678923,
+        "full_forwarding_coremark_per_mhz": 1.713326,
+        "forwarding_disabled_coremark_per_mhz": 1.625488,
+        "versus_full_forwarding_percent": -2.0079657928496975,
+        "versus_forwarding_disabled_percent": 3.287320484679057,
+        "extra_cycles_vs_full_forwarding": 598407,
+        "timed_instruction_count_identical": true
+      }
+    ]
+  },
+  "isolated_experiment": {
+    "manifest": {
+      "source_head": "5a127b68af502aa873070c5f928573aadfc281cc",
+      "baseline_rtl_source": "42ae42a",
+      "description": "Isolated early control operand interlocks; no main-worktree RTL changes",
+      "flags": {
+        "LOAD_FORWARDING": 1,
+        "FAST_STORE_ACK": 1,
+        "STORE_BUFFER_DEPTH": 8,
+        "FETCH_QUEUE": 1,
+        "FAST_MULTIPLY": 1,
+        "FAST_L1": 1,
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "AXI_RESPONSE_CYCLES": 20,
+        "COREMARK_ITERATIONS": 50,
+        "nominal_cpu_hz": 1000000
+      },
+      "payload": "/home/lazybanana/github/synapse32/fpga/arty_a7_35t/build/coremark-profile-1000000/coremark.bin",
+      "payload_sha256": "c24f90706277b9c76dfea090d6cfd5fc852c068f045c920dacdd033401a7f7fe",
+      "changed_files": {
+        "rtl/riscv_cpu.v": "4acbbfd9430d88f848d6064860c416967cb2ed074cebce900e77a891da1e7b64",
+        "rtl/execution_unit.v": "cbb007d836cf90bde0694d73ace106919fd933b23b8181864580158580085ae5"
+      },
+      "patch_sha256": "054957b57f7f4da2472bdbcee868124923d0fb9bb57dc03701a949a7cb47d713",
+      "pointer_regression": {
+        "passed": true,
+        "ordinary_dependent_load_interval": 2,
+        "instructions": 64
+      },
+      "baseline_report": "fpga/arty_a7_35t/build/muldiv-cancel-coremark-axi20.json",
+      "comparison": [
+        {
+          "mode": "performance",
+          "baseline_coremark_per_mhz": 1.708059,
+          "fallback_coremark_per_mhz": 1.676053,
+          "baseline_cpi": 2.295926459405967,
+          "fallback_cpi": 2.3397726974152477,
+          "extra_cycles": 559038,
+          "cycle_ratio": 1.0190974052455606,
+          "score_ratio": 0.9812617714025101,
+          "minimum_clock_gain_percent_to_break_even": 1.9097405245560584
+        },
+        {
+          "mode": "validation",
+          "baseline_coremark_per_mhz": 1.713326,
+          "fallback_coremark_per_mhz": 1.678923,
+          "baseline_cpi": 2.2938057306955555,
+          "fallback_cpi": 2.340840400044676,
+          "extra_cycles": 598407,
+          "cycle_ratio": 1.0205050797108517,
+          "score_ratio": 0.979920342071503,
+          "minimum_clock_gain_percent_to_break_even": 2.0505079710851692
+        }
+      ],
+      "artifacts_sha256": {
+        "coremark-report.json": "c97d6f3d42c3b5d2ab4df55957c7c619a2b5a6bc3efe4c230579adb7ce948077",
+        "coremark-run.log": "91421f7eec15f21a114f18a418285ac5da9847a5953da1f8a68a2cc94b34cfed",
+        "pointer-regression.log": "2cb4105f987cfeaa038d368d96a41e503ef6db4d00ceebb9ebd51de83d7bcec5",
+        "experiment.patch": "054957b57f7f4da2472bdbcee868124923d0fb9bb57dc03701a949a7cb47d713"
+      }
+    },
+    "manifest_artifact": {
+      "path": "build/early-control-fallback/manifest.json",
+      "sha256": "8b41622351e5094000fe7b97f2b691c030892908fe0ab696baafb125542514cd",
+      "bytes": 2409
+    },
+    "patch": {
+      "path": "build/early-control-fallback/experiment.patch",
+      "sha256": "054957b57f7f4da2472bdbcee868124923d0fb9bb57dc03701a949a7cb47d713",
+      "bytes": 8422
+    },
+    "pointer_regression": {
+      "path": "build/early-control-fallback/pointer-regression.log",
+      "sha256": "2cb4105f987cfeaa038d368d96a41e503ef6db4d00ceebb9ebd51de83d7bcec5",
+      "bytes": 9188
+    },
+    "clone_records_exactly_match_adopted_source": true,
+    "note": "The isolated clone has earlier source labels/hashes; the adopted source is b207eb2. Both produce identical timed CoreMark records."
+  },
+  "functional_checks": [
+    {
+      "name": "memory_path",
+      "source_commit": "b207eb2058ee18bf92ba3453b9ecfa3e854921f2",
+      "status": "pass",
+      "description": "Basic test-memory-path passes with load forwarding and the early control interlocks.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/early-control-evidence/fpga__arty_a7_35t__build__early-control-directed.log",
+        "sha256": "cf4176891c54a9f26d5ed039e92d699cb59e56b81ede735c9032b79cdcf38479",
+        "bytes": 23132
+      },
+      "pass_lines": [
+        "PASS: early store response mode=0 responses=11 grants=15 commits=5",
+        "PASS: early store response mode=1 responses=11 grants=15 commits=5",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_alu",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_store",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_csr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_jalr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_mul",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=mret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=sret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=wfi",
+        "LOAD_FAULT_PRIORITY_PASS",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_alu",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_store",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_csr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_jalr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_mul",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=mret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=sret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=wfi",
+        "LOAD_FAULT_PRIORITY_PASS",
+        "LOAD_RESPONSE_CONTRACT_PASS formatted=0 loads=202 stores=17",
+        "LOAD_RESPONSE_CONTRACT_PASS formatted=1 loads=202 stores=17",
+        "PASS: trigger base comparison 10804 cases; loadhits=3441 storehits=3437 exechits=4; all4 slots, wrap/negative offsets, disabled/wrong kind, forwarding and atomic/priority cases",
+        "PASS: atomic trigger forwarding 11088 cases hits=2248; all11 operations/all4 slots, distinct MEM/WB bases, ignored immediate, kinds/enable/hold/valid and misalignment/execute/interrupt priority",
+        "PASS posted stores depth=4 fastmul=1 cycles=55947 post=11 hit=1 miss=101 fence=209 fi=104 lr=103 sc=208 amo=104 failedsc=104 successsc=104 md=69"
+      ]
+    },
+    {
+      "name": "early_control_cpu",
+      "source_commit": "b207eb2058ee18bf92ba3453b9ecfa3e854921f2",
+      "status": "pass",
+      "description": "Four combinations of raw/formatted load response and fixed/variable latency, 179 cases each: all four data trigger slots, dependent positive/negative/wrapped accesses, all 11 atomics, trigger CSR transition flushes, branches/JALR, data-only stores and older faults.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/early-control-evidence/build__early-control-cpu-final.log",
+        "sha256": "8ec8f31ab1b67a0d30e2c64b28d00ab96826fe1d999dc1af8d0275b92df39c96",
+        "bytes": 1704
+      },
+      "pass_lines": [
+        "PASS: early control CPU formatted=0 variable_latency=0 cases=179; all4 trigger slots/dependent +/- wrap accesses/all11 atomics/CSR transition flush/branch/JALR/data-only store/older faults",
+        "PASS: early control CPU formatted=0 variable_latency=1 cases=179; all4 trigger slots/dependent +/- wrap accesses/all11 atomics/CSR transition flush/branch/JALR/data-only store/older faults",
+        "PASS: early control CPU formatted=1 variable_latency=0 cases=179; all4 trigger slots/dependent +/- wrap accesses/all11 atomics/CSR transition flush/branch/JALR/data-only store/older faults",
+        "PASS: early control CPU formatted=1 variable_latency=1 cases=179; all4 trigger slots/dependent +/- wrap accesses/all11 atomics/CSR transition flush/branch/JALR/data-only store/older faults"
+      ],
+      "coverage_note": "Original schedule later found to let the first producer finish without an added response cycle; retain as historical run. Corrected delayed-producer regression below supersedes that held-producer coverage."
+    },
+    {
+      "name": "linux_shell",
+      "source_commit": "b207eb2058ee18bf92ba3453b9ecfa3e854921f2",
+      "status": "pass",
+      "description": "Full Linux simulation with the 62.5 MHz DTB boots and executes a UART shell command in 267,789,726 cycles.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/early-control-evidence/fpga__arty_a7_35t__build__early-control-linux.log",
+        "sha256": "3cfd3e54a91314dbc292f47635e7649e4e0ae546c8ce06b7efed8e0eab531369",
+        "bytes": 7649
+      },
+      "pass_lines": [
+        "PASS: Linux BusyBox shell executed a UART command through FPGA AXI/Sv32/PLIC fabric in 267789726 cycles"
+      ]
+    },
+    {
+      "name": "memory_wait",
+      "source_commit": "b207eb2058ee18bf92ba3453b9ecfa3e854921f2",
+      "status": "pass",
+      "description": "Full managed memory-wait run passes latency 0/1/2/4 and fast fetch, including 1,128 interrupt positions with no failures.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/early-control-evidence/build__early-control-memory-wait.log",
+        "sha256": "80731b6192d84a4fcc0f2ada27bcf6baa0b99c8fbb0b445a93d2f5867557e603",
+        "bytes": 94883
+      },
+      "pass_lines": [
+        "INFO     cocotb:simulator.py:266   2970.00ns INFO     cocotb.regression                  test_program_is_latency_independent passed",
+        "INFO     cocotb:simulator.py:266   2970.00ns INFO     cocotb.regression                  test_interrupt_during_wait_is_transparent passed",
+        "INFO     cocotb:simulator.py:266   2970.00ns INFO     cocotb.regression                  test_held_store_keeps_forwarded_operand passed",
+        "INFO     cocotb:simulator.py:266   6450.00ns INFO     cocotb.regression                  test_uart_read_pops_one_byte passed",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_program_is_latency_independent         PASS        2970.00           0.04      81908.72  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_interrupt_during_wait_is_transparent   PASS           0.00           0.00         18.72  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_held_store_keeps_forwarded_operand     PASS           0.00           0.00         26.72  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_uart_read_pops_one_byte                PASS        3480.00           0.02     146105.00  **",
+        "INFO     cocotb:simulator.py:266                                                         ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                             6450.00           0.11      57783.18  **",
+        "INFO     cocotb:simulator.py:266   6540.00ns INFO     cocotb.regression                  test_program_is_latency_independent passed",
+        "INFO     cocotb:simulator.py:266   6540.00ns INFO     cocotb.regression                  test_interrupt_during_wait_is_transparent passed",
+        "INFO     cocotb:simulator.py:266   6540.00ns INFO     cocotb.regression                  test_held_store_keeps_forwarded_operand passed",
+        "INFO     cocotb:simulator.py:266  10160.00ns INFO     cocotb.regression                  test_uart_read_pops_one_byte passed",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_program_is_latency_independent         PASS        6540.00           0.07      88576.30  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_interrupt_during_wait_is_transparent   PASS           0.00           0.00         17.92  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_held_store_keeps_forwarded_operand     PASS           0.00           0.00         25.27  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_uart_read_pops_one_byte                PASS        3620.00           0.03     132052.40  **",
+        "INFO     cocotb:simulator.py:266                                                         ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                            10160.00           0.15      65694.85  **",
+        "INFO     cocotb:simulator.py:266  11300.00ns INFO     cocotb.regression                  test_program_is_latency_independent passed",
+        "INFO     cocotb:simulator.py:266 13398680.00ns INFO     cocotb.top                         latency 2: swept 1128 interrupt cycles, 0 failures",
+        "INFO     cocotb:simulator.py:266 13398680.00ns INFO     cocotb.regression                  test_interrupt_during_wait_is_transparent passed",
+        "INFO     cocotb:simulator.py:266 13398680.00ns INFO     cocotb.regression                  test_held_store_keeps_forwarded_operand passed",
+        "INFO     cocotb:simulator.py:266 13402620.00ns INFO     cocotb.regression                  test_uart_read_pops_one_byte passed",
+        "INFO     cocotb:simulator.py:266                                                           ** test_memory_wait.test_program_is_latency_independent         PASS       11300.00           0.12      93038.25  **",
+        "INFO     cocotb:simulator.py:266                                                           ** test_memory_wait.test_interrupt_during_wait_is_transparent   PASS    13387380.00         134.98      99180.39  **",
+        "INFO     cocotb:simulator.py:266                                                           ** test_memory_wait.test_held_store_keeps_forwarded_operand     PASS           0.00           0.00         24.82  **",
+        "INFO     cocotb:simulator.py:266                                                           ** test_memory_wait.test_uart_read_pops_one_byte                PASS        3940.00           0.03     144439.06  **",
+        "INFO     cocotb:simulator.py:266                                                           ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                         13402620.00         135.18      99147.16  **",
+        "INFO     cocotb:simulator.py:266  18820.00ns INFO     cocotb.regression                  test_program_is_latency_independent passed",
+        "INFO     cocotb:simulator.py:266  18820.00ns INFO     cocotb.regression                  test_interrupt_during_wait_is_transparent passed",
+        "INFO     cocotb:simulator.py:266  18820.00ns INFO     cocotb.regression                  test_held_store_keeps_forwarded_operand passed",
+        "INFO     cocotb:simulator.py:266  23160.00ns INFO     cocotb.regression                  test_uart_read_pops_one_byte passed",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_program_is_latency_independent         PASS       18820.00           0.21      91424.26  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_interrupt_during_wait_is_transparent   PASS           0.00           0.00         19.42  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_held_store_keeps_forwarded_operand     PASS           0.00           0.00         25.58  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_uart_read_pops_one_byte                PASS        4340.00           0.03     136121.71  **",
+        "INFO     cocotb:simulator.py:266                                                         ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                            23160.00           0.29      78874.31  **",
+        "INFO     cocotb:simulator.py:266      0.00ns INFO     cocotb.regression                  test_program_is_latency_independent passed",
+        "INFO     cocotb:simulator.py:266      0.00ns INFO     cocotb.regression                  test_interrupt_during_wait_is_transparent passed",
+        "INFO     cocotb:simulator.py:266   5480.00ns INFO     cocotb.regression                  test_held_store_keeps_forwarded_operand passed",
+        "INFO     cocotb:simulator.py:266   9110.00ns INFO     cocotb.regression                  test_uart_read_pops_one_byte passed",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_program_is_latency_independent         PASS           0.00           0.00          1.67  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_interrupt_during_wait_is_transparent   PASS           0.00           0.00         17.40  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_held_store_keeps_forwarded_operand     PASS        5480.00           0.07      84036.99  **",
+        "INFO     cocotb:simulator.py:266                                                         ** test_memory_wait.test_uart_read_pops_one_byte                PASS        3630.00           0.03     134010.44  **",
+        "INFO     cocotb:simulator.py:266                                                         ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                             9110.00           0.15      61280.92  **",
+        "PASSED",
+        "======================== 1 passed in 194.64s (0:03:14) ========================="
+      ],
+      "exit_status": {
+        "exit_code": 0
+      },
+      "exit_status_artifact": {
+        "path": "fpga/arty_a7_35t/build/early-control-evidence/build__early-control-memory-wait-exit.json",
+        "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+        "bytes": 17
+      }
+    },
+    {
+      "name": "early_control_cpu_delayed_producer",
+      "test_commit": "5afba00915855a0163b052fbe530a712840dad3d",
+      "rtl_source_commit": "b207eb2058ee18bf92ba3453b9ecfa3e854921f2",
+      "status": "pass",
+      "cases_per_configuration": 179,
+      "configurations": 4,
+      "total_cases": 716,
+      "description": "Corrected response schedule explicitly delays the first producer by an extra cycle. Raw/formatted and fixed/variable latency configurations cover watched load dependencies, branch/JALR/atomic interlocks, data-only stores, trigger CSR transitions and older faults.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/early-control-evidence/build__early-control-cpu-delayed-producer.log",
+        "sha256": "84c36314c2a89f279088ac58eb9f42adff7a55b6c4ec82b2e288f0529eb69b58",
+        "bytes": 1704
+      },
+      "pass_lines": [
+        "PASS: early control CPU formatted=0 variable_latency=0 cases=179; all4 trigger slots/dependent +/- wrap accesses/all11 atomics/CSR transition flush/branch/JALR/data-only store/older faults",
+        "PASS: early control CPU formatted=0 variable_latency=1 cases=179; all4 trigger slots/dependent +/- wrap accesses/all11 atomics/CSR transition flush/branch/JALR/data-only store/older faults",
+        "PASS: early control CPU formatted=1 variable_latency=0 cases=179; all4 trigger slots/dependent +/- wrap accesses/all11 atomics/CSR transition flush/branch/JALR/data-only store/older faults",
+        "PASS: early control CPU formatted=1 variable_latency=1 cases=179; all4 trigger slots/dependent +/- wrap accesses/all11 atomics/CSR transition flush/branch/JALR/data-only store/older faults"
+      ]
+    }
+  ],
+  "physical_target": {
+    "board": "Digilent Arty A7-35T",
+    "part": "xc7a35ticsg324-1L",
+    "cpu_hz": 62500000,
+    "kernel_hz": 25,
+    "parameters": {
+      "CPU_DIVIDE": 16,
+      "BOOT_BAUD": 2000000,
+      "FAST_L1": 1,
+      "ICACHE_LINES": 256,
+      "DCACHE_LINES": 256,
+      "CACHE_LINE_BYTES": 16,
+      "STORE_BUFFER_DEPTH": 8,
+      "FAST_MULTIPLY": 1,
+      "FETCH_QUEUE": 1,
+      "LOAD_FORWARDING": 1,
+      "FAST_STORE_ACK": 1
+    },
+    "tag": "early-control-div16",
+    "source_commit": "b207eb2058ee18bf92ba3453b9ecfa3e854921f2",
+    "status": "timing_accepted_programmed_all_benchmarks_validated_intermediate",
+    "accepted": true,
+    "programmed": true,
+    "source_manifest": {
+      "path": "fpga/arty_a7_35t/build/performance/early-control-div16/source-manifest.txt",
+      "sha256": "25329da221fe7271b86936c65b570acd3ad5436b2c54ce8302d36788b6fd2803",
+      "bytes": 9079
+    },
+    "timing_accepted": true,
+    "performance_winner": false,
+    "setup_wns_ns": 0.175,
+    "setup_tns_ns": 0.0,
+    "setup_failing_endpoints": 0,
+    "hold_wns_ns": 0.024,
+    "hold_tns_ns": 0.0,
+    "hold_failing_endpoints": 0,
+    "pulse_wns_ns": 0.206,
+    "required_clock_methodology_gate": "pass",
+    "critical_cdc_gate": "pass",
+    "bus_skew_gate": "pass",
+    "inherited_noncritical_warnings_remain": true,
+    "bitstream": {
+      "path": "fpga/arty_a7_35t/build/performance/early-control-div16/synapse32_early-control-div16.bit",
+      "sha256": "8869ec10e29ee15c61fe4bc30c10462f7d59411d18b79bdede47819cf2ab7845",
+      "bytes": 1508133
+    },
+    "reports": {
+      "source-manifest.txt": {
+        "path": "fpga/arty_a7_35t/build/performance/early-control-div16/source-manifest.txt",
+        "sha256": "25329da221fe7271b86936c65b570acd3ad5436b2c54ce8302d36788b6fd2803",
+        "bytes": 9079
+      },
+      "timing.rpt": {
+        "path": "fpga/arty_a7_35t/build/performance/early-control-div16/timing.rpt",
+        "sha256": "b8899c1cffb68c18f0faf155c5bc34e71391d5cb493a4549cda98d713fc99820",
+        "bytes": 531341
+      },
+      "methodology.rpt": {
+        "path": "fpga/arty_a7_35t/build/performance/early-control-div16/methodology.rpt",
+        "sha256": "88128f5a6df779e54b1fb8aae16ef022807388b1a0a2262e9e70ea6754c6c8a0",
+        "bytes": 20575
+      },
+      "cdc.rpt": {
+        "path": "fpga/arty_a7_35t/build/performance/early-control-div16/cdc.rpt",
+        "sha256": "8db1b09f2820e00586b56e12a08377186e8fe7fdbfd42545aa482a86f2e4a3ea",
+        "bytes": 11818
+      },
+      "bus-skew.rpt": {
+        "path": "fpga/arty_a7_35t/build/performance/early-control-div16/bus-skew.rpt",
+        "sha256": "7ab79044d9f593ed8210947f40ffaa49789fab4ad170d7153e769934a613cf41",
+        "bytes": 134980
+      },
+      "utilization.rpt": {
+        "path": "fpga/arty_a7_35t/build/performance/early-control-div16/utilization.rpt",
+        "sha256": "a1740b75c13e4f879bcc295f3aa2298d169f5d15b840460f50eb09feb904cf92",
+        "bytes": 13913
+      },
+      "synthesis-utilization.rpt": {
+        "path": "fpga/arty_a7_35t/build/performance/early-control-div16/synthesis-utilization.rpt",
+        "sha256": "8628d23864060b25fb43906a62f23702fa4bdc5de02fdbb26d352dd7a2f12017",
+        "bytes": 11504
+      },
+      "drc.rpt": {
+        "path": "fpga/arty_a7_35t/build/performance/early-control-div16/drc.rpt",
+        "sha256": "800563e22e082e150bbdc10bdbbffff40a3e3c83f099ee7327b1050dc5615372",
+        "bytes": 32826
+      }
+    },
+    "program_log": {
+      "path": "fpga/arty_a7_35t/build/early-control-evidence/fpga__arty_a7_35t__build__early-control-board-program.log",
+      "sha256": "128bdff4c8847cb44767f5681ace895399a64a4a92f1dd36f1f992ad60812488",
+      "bytes": 2150
+    },
+    "program_vivado_log": {
+      "path": "fpga/arty_a7_35t/build/early-control-evidence/fpga__arty_a7_35t__build__early-control-board-program.vivado.log",
+      "sha256": "e1cb50058f9b4074941c267b9f5bd93ff0515ee39c7b9dd67b4988521b452f87",
+      "bytes": 3000
+    }
+  },
+  "physical_measurements": [
+    {
+      "role": "intermediate b207eb2 physical candidate before cache-cancel correction",
+      "cpu_mhz": 62.5,
+      "kernel_hz": 25,
+      "kernel": "6.6.32-dirty",
+      "baremetal": {
+        "report": {
+          "metadata": {
+            "cpu_mhz": 62.5,
+            "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+            "payload_sha256": "46744b0a07b645fabd2e4b97ab3d56ae04efbdcaec31300ffe1ca73b28752bd2",
+            "timer_selftest_host_seconds": 2.00016938499175,
+            "timer_selftest_cycles": 125000028
+          },
+          "pilots": [
+            {
+              "mode": "performance",
+              "seconds": 0.446,
+              "iterations": 50,
+              "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 446\nTotal time (secs): 0.446000\nIterations/Sec   : 112.107623\nERROR! Must execute for at least 10 secs for a valid result!\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nErrors detected\nS32_PERF clock: 0x0000000001aa3e44\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x000000000048265e\nS32_PERF data_wait: 0x0000000000679203\nS32_PERF muldiv_wait: 0x00000000001a9e64\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x000000000123fb38\nS32_PERF icache_miss: 0x00000000000130ac\nS32_PERF dcache_hit: 0x000000000028fba7\nS32_PERF dcache_miss: 0x0000000000005210\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000001dfd2e\nS32_PERF axi_write_wait: 0x0000000000b9eced\nS32_PERF store_queue_stall: 0x00000000001a1fd6\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001aa35f3\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0"
+            }
+          ],
+          "results": [
+            {
+              "mode": "performance",
+              "repeat": 0,
+              "iterations": 1682,
+              "seconds": 15.022,
+              "iterations_per_second": 111.969112,
+              "cpu_mhz": 62.5,
+              "cycles": 938921453,
+              "retired_instructions": 428901367,
+              "cpi": 2.1891314069884977,
+              "validated": true,
+              "output": "S32_BAREMETAL_RUN: p 1682\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15022\nTotal time (secs): 15.022000\nIterations/Sec   : 111.969112\nIterations       : 1682\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x600f\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 111.969112 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000037f6d632\nS32_PERF retired: 0x000000001990847e\nS32_PERF fetch_wait: 0x0000000009717521\nS32_PERF data_wait: 0x000000000d9857c1\nS32_PERF muldiv_wait: 0x00000000037f4836\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x00000000265e9ac2\nS32_PERF icache_miss: 0x000000000027c608\nS32_PERF dcache_hit: 0x000000000562a70f\nS32_PERF dcache_miss: 0x00000000000aba92\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x0000000003e6baf5\nS32_PERF axi_write_wait: 0x00000000186dcea9\nS32_PERF store_queue_stall: 0x00000000036f54d1\nS32_PERF store_enqueued: 0x00000000015c6fa6\nTimed CPU cycles: 0x0000000037f6cded\nTimed retired instructions: 0x00000000199083f7\nS32_BAREMETAL_DONE:0",
+              "profiling": {
+                "clock": 938923570,
+                "retired": 428901502,
+                "fetch_wait": 158430497,
+                "data_wait": 228087745,
+                "muldiv_wait": 58673206,
+                "fence_wait": 0,
+                "icache_hit": 643734210,
+                "icache_miss": 2606600,
+                "dcache_hit": 90351375,
+                "dcache_miss": 703122,
+                "itlb_miss": 0,
+                "dtlb_miss": 0,
+                "axi_read_wait": 65452789,
+                "axi_write_wait": 409849513,
+                "store_queue_stall": 57627857,
+                "store_enqueued": 22835110
+              }
+            },
+            {
+              "mode": "performance",
+              "repeat": 1,
+              "iterations": 1682,
+              "seconds": 15.022,
+              "iterations_per_second": 111.969112,
+              "cpu_mhz": 62.5,
+              "cycles": 938919631,
+              "retired_instructions": 428901367,
+              "cpi": 2.1891271589255625,
+              "validated": true,
+              "output": "S32_BAREMETAL_RUN: p 1682\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15022\nTotal time (secs): 15.022000\nIterations/Sec   : 111.969112\nIterations       : 1682\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x600f\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 111.969112 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000037f6cf24\nS32_PERF retired: 0x000000001990847e\nS32_PERF fetch_wait: 0x000000000971771c\nS32_PERF data_wait: 0x000000000d984d4e\nS32_PERF muldiv_wait: 0x00000000037f4836\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x00000000265e9ac2\nS32_PERF icache_miss: 0x000000000027c608\nS32_PERF dcache_hit: 0x000000000562a712\nS32_PERF dcache_miss: 0x00000000000aba8f\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x0000000003e6b606\nS32_PERF axi_write_wait: 0x00000000186dce96\nS32_PERF store_queue_stall: 0x00000000036f5677\nS32_PERF store_enqueued: 0x00000000015c6fa6\nTimed CPU cycles: 0x0000000037f6c6cf\nTimed retired instructions: 0x00000000199083f7\nS32_BAREMETAL_DONE:0",
+              "profiling": {
+                "clock": 938921764,
+                "retired": 428901502,
+                "fetch_wait": 158431004,
+                "data_wait": 228085070,
+                "muldiv_wait": 58673206,
+                "fence_wait": 0,
+                "icache_hit": 643734210,
+                "icache_miss": 2606600,
+                "dcache_hit": 90351378,
+                "dcache_miss": 703119,
+                "itlb_miss": 0,
+                "dtlb_miss": 0,
+                "axi_read_wait": 65451526,
+                "axi_write_wait": 409849494,
+                "store_queue_stall": 57628279,
+                "store_enqueued": 22835110
+              }
+            },
+            {
+              "mode": "performance",
+              "repeat": 2,
+              "iterations": 1682,
+              "seconds": 15.022,
+              "iterations_per_second": 111.969112,
+              "cpu_mhz": 62.5,
+              "cycles": 938922660,
+              "retired_instructions": 428901367,
+              "cpi": 2.1891342211553266,
+              "validated": true,
+              "output": "S32_BAREMETAL_RUN: p 1682\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15022\nTotal time (secs): 15.022000\nIterations/Sec   : 111.969112\nIterations       : 1682\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x600f\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 111.969112 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000037f6dafd\nS32_PERF retired: 0x000000001990847e\nS32_PERF fetch_wait: 0x0000000009717f33\nS32_PERF data_wait: 0x000000000d985202\nS32_PERF muldiv_wait: 0x00000000037f4836\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x00000000265e9ac2\nS32_PERF icache_miss: 0x000000000027c608\nS32_PERF dcache_hit: 0x000000000562a712\nS32_PERF dcache_miss: 0x00000000000aba8f\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x0000000003e6c186\nS32_PERF axi_write_wait: 0x00000000186dca50\nS32_PERF store_queue_stall: 0x00000000036f5502\nS32_PERF store_enqueued: 0x00000000015c6fa6\nTimed CPU cycles: 0x0000000037f6d2a4\nTimed retired instructions: 0x00000000199083f7\nS32_BAREMETAL_DONE:0",
+              "profiling": {
+                "clock": 938924797,
+                "retired": 428901502,
+                "fetch_wait": 158433075,
+                "data_wait": 228086274,
+                "muldiv_wait": 58673206,
+                "fence_wait": 0,
+                "icache_hit": 643734210,
+                "icache_miss": 2606600,
+                "dcache_hit": 90351378,
+                "dcache_miss": 703119,
+                "itlb_miss": 0,
+                "dtlb_miss": 0,
+                "axi_read_wait": 65454470,
+                "axi_write_wait": 409848400,
+                "store_queue_stall": 57627906,
+                "store_enqueued": 22835110
+              }
+            },
+            {
+              "mode": "validation",
+              "repeat": 3,
+              "iterations": 1682,
+              "seconds": 14.954,
+              "iterations_per_second": 112.478267,
+              "cpu_mhz": 62.5,
+              "cycles": 934636211,
+              "retired_instructions": 427990720,
+              "cpi": 2.1837768141327922,
+              "validated": true,
+              "output": "S32_BAREMETAL_RUN: v 1682\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 14954\nTotal time (secs): 14.954000\nIterations/Sec   : 112.478267\nIterations       : 1682\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x5f30\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x0000000037b572f8\nS32_PERF retired: 0x0000000019829f47\nS32_PERF fetch_wait: 0x00000000091c337c\nS32_PERF data_wait: 0x000000000db3eb8d\nS32_PERF muldiv_wait: 0x00000000037f4836\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x00000000265ad10a\nS32_PERF icache_miss: 0x000000000024c7f5\nS32_PERF dcache_hit: 0x00000000056d017e\nS32_PERF dcache_miss: 0x00000000000b99f3\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x0000000003ac0305\nS32_PERF axi_write_wait: 0x00000000183a2f7c\nS32_PERF store_queue_stall: 0x0000000003573551\nS32_PERF store_enqueued: 0x0000000001599920\nTimed CPU cycles: 0x0000000037b56ab3\nTimed retired instructions: 0x0000000019829ec0\nS32_BAREMETAL_DONE:0",
+              "profiling": {
+                "clock": 934638328,
+                "retired": 427990855,
+                "fetch_wait": 152843132,
+                "data_wait": 229895053,
+                "muldiv_wait": 58673206,
+                "fence_wait": 0,
+                "icache_hit": 643485962,
+                "icache_miss": 2410485,
+                "dcache_hit": 91029886,
+                "dcache_miss": 760307,
+                "itlb_miss": 0,
+                "dtlb_miss": 0,
+                "axi_read_wait": 61604613,
+                "axi_write_wait": 406466428,
+                "store_queue_stall": 56046929,
+                "store_enqueued": 22649120
+              }
+            }
+          ]
+        },
+        "median_coremark": 111.969112,
+        "median_coremark_per_mhz": 1.791505792,
+        "median_cpi": 2.1891314069884977,
+        "versus_accepted_baseline_absolute_percent": 4.830470408301202,
+        "versus_accepted_baseline_per_mhz_percent": -1.3360285416584405,
+        "report_artifact": {
+          "path": "fpga/arty_a7_35t/build/early-control-baremetal.json",
+          "sha256": "a6df999fb28e89c4f9221ec31469411658be354bfd5afca7c5f98390673f0047",
+          "bytes": 12724
+        },
+        "uart_capture": {
+          "path": "fpga/arty_a7_35t/build/early-control-baremetal.uart.log",
+          "sha256": "051e959769479fa4fe94dbd5270b7bc6faa043b9dc1b773fb18cae106833e203",
+          "bytes": 8968
+        },
+        "driver_log": {
+          "path": "fpga/arty_a7_35t/build/early-control-evidence/fpga__arty_a7_35t__build__early-control-baremetal-driver.log",
+          "sha256": "fa6286f1155b45cbabb25ff6a54945dc418a41b82bcd5858c280ad76abad6df1",
+          "bytes": 11602
+        }
+      },
+      "linux": {
+        "report": [
+          {
+            "optimization": "o3",
+            "mode": "performance",
+            "repeat": 0,
+            "binary": "/tmp/coremark-aligned-o3",
+            "seconds": 20.355,
+            "iterations_per_second": 98.255957,
+            "iterations": 2000,
+            "cpu_mhz": 62.5,
+            "coremark_per_mhz": 1.5720953119999999,
+            "validated": true,
+            "output": "/bin/profile /tmp/coremark-aligned-o3 0 0 0x66 2000 7 1; echo S32_COREMARK_D\nONE_0:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 20355\nTotal time (secs): 20.355000\nIterations/Sec   : 98.255957\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x4983\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 98.255957 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x000000004c5d2684\nS32_PERF retired: 0x000000001e6dbddf\nS32_PERF fetch_wait: 0x0000000016678cc1\nS32_PERF data_wait: 0x000000000f3879cf\nS32_PERF muldiv_wait: 0x00000000042b916f\nS32_PERF fence_wait: 0x00000000000011ff\nS32_PERF icache_hit: 0x000000002c628329\nS32_PERF icache_miss: 0x0000000000ae326a\nS32_PERF dcache_hit: 0x000000000679d55f\nS32_PERF dcache_miss: 0x0000000000056e7c\nS32_PERF itlb_miss: 0x00000000000000ee\nS32_PERF dtlb_miss: 0x000000000000030a\nS32_PERF axi_read_wait: 0x000000000e7acee3\nS32_PERF axi_write_wait: 0x000000001d9ea4e3\nS32_PERF store_queue_stall: 0x0000000003f4faf1\nS32_PERF store_enqueued: 0x0000000001a68569\nS32_COREMARK_DONE_0:0",
+            "profiling": {
+              "clock": 1281173124,
+              "retired": 510508511,
+              "fetch_wait": 375884993,
+              "data_wait": 255359439,
+              "muldiv_wait": 69964143,
+              "fence_wait": 4607,
+              "icache_hit": 744653609,
+              "icache_miss": 11416170,
+              "dcache_hit": 108647775,
+              "dcache_miss": 355964,
+              "itlb_miss": 238,
+              "dtlb_miss": 778,
+              "axi_read_wait": 242929379,
+              "axi_write_wait": 496936163,
+              "store_queue_stall": 66386673,
+              "store_enqueued": 27690345
+            },
+            "profiling_scope": "whole CPU during command, including kernel/background activity"
+          },
+          {
+            "optimization": "o3",
+            "mode": "performance",
+            "repeat": 1,
+            "binary": "/tmp/coremark-aligned-o3",
+            "seconds": 20.367,
+            "iterations_per_second": 98.198065,
+            "iterations": 2000,
+            "cpu_mhz": 62.5,
+            "coremark_per_mhz": 1.57116904,
+            "validated": true,
+            "output": "/bin/profile /tmp/coremark-aligned-o3 0 0 0x66 2000 7 1; echo S32_COREMARK_D\nONE_1:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 20367\nTotal time (secs): 20.367000\nIterations/Sec   : 98.198065\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x4983\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 98.198065 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x000000004c67113a\nS32_PERF retired: 0x000000001e6dcd51\nS32_PERF fetch_wait: 0x0000000016712dc7\nS32_PERF data_wait: 0x000000000f388094\nS32_PERF muldiv_wait: 0x00000000042b97f6\nS32_PERF fence_wait: 0x00000000000011d3\nS32_PERF icache_hit: 0x000000002c613282\nS32_PERF icache_miss: 0x0000000000aea78a\nS32_PERF dcache_hit: 0x000000000679cd89\nS32_PERF dcache_miss: 0x0000000000056dba\nS32_PERF itlb_miss: 0x00000000000000f1\nS32_PERF dtlb_miss: 0x00000000000002ff\nS32_PERF axi_read_wait: 0x000000000e85e9c9\nS32_PERF axi_write_wait: 0x000000001d9e8d2a\nS32_PERF store_queue_stall: 0x0000000003f539f0\nS32_PERF store_enqueued: 0x0000000001a6861f\nS32_COREMARK_DONE_1:0",
+            "profiling": {
+              "clock": 1281823034,
+              "retired": 510512465,
+              "fetch_wait": 376516039,
+              "data_wait": 255361172,
+              "muldiv_wait": 69965814,
+              "fence_wait": 4563,
+              "icache_hit": 744567426,
+              "icache_miss": 11446154,
+              "dcache_hit": 108645769,
+              "dcache_miss": 355770,
+              "itlb_miss": 241,
+              "dtlb_miss": 767,
+              "axi_read_wait": 243657161,
+              "axi_write_wait": 496930090,
+              "store_queue_stall": 66402800,
+              "store_enqueued": 27690527
+            },
+            "profiling_scope": "whole CPU during command, including kernel/background activity"
+          },
+          {
+            "optimization": "o3",
+            "mode": "performance",
+            "repeat": 2,
+            "binary": "/tmp/coremark-aligned-o3",
+            "seconds": 20.363,
+            "iterations_per_second": 98.217355,
+            "iterations": 2000,
+            "cpu_mhz": 62.5,
+            "coremark_per_mhz": 1.5714776799999999,
+            "validated": true,
+            "output": "/bin/profile /tmp/coremark-aligned-o3 0 0 0x66 2000 7 1; echo S32_COREMARK_D\nONE_2:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 20363\nTotal time (secs): 20.363000\nIterations/Sec   : 98.217355\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x4983\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 98.217355 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x000000004c62b21c\nS32_PERF retired: 0x000000001e6d803e\nS32_PERF fetch_wait: 0x00000000166d6988\nS32_PERF data_wait: 0x000000000f3831ea\nS32_PERF muldiv_wait: 0x00000000042ba6b4\nS32_PERF fence_wait: 0x00000000000011d8\nS32_PERF icache_hit: 0x000000002c61ba2c\nS32_PERF icache_miss: 0x0000000000ae5a04\nS32_PERF dcache_hit: 0x000000000679c6f4\nS32_PERF dcache_miss: 0x0000000000056e57\nS32_PERF itlb_miss: 0x00000000000000fa\nS32_PERF dtlb_miss: 0x00000000000002ff\nS32_PERF axi_read_wait: 0x000000000e825ba5\nS32_PERF axi_write_wait: 0x000000001d9def81\nS32_PERF store_queue_stall: 0x0000000003f4de71\nS32_PERF store_enqueued: 0x0000000001a67da6\nS32_COREMARK_DONE_2:0",
+            "profiling": {
+              "clock": 1281536540,
+              "retired": 510492734,
+              "fetch_wait": 376269192,
+              "data_wait": 255341034,
+              "muldiv_wait": 69969588,
+              "fence_wait": 4568,
+              "icache_hit": 744602156,
+              "icache_miss": 11426308,
+              "dcache_hit": 108644084,
+              "dcache_miss": 355927,
+              "itlb_miss": 250,
+              "dtlb_miss": 767,
+              "axi_read_wait": 243424165,
+              "axi_write_wait": 496889729,
+              "store_queue_stall": 66379377,
+              "store_enqueued": 27688358
+            },
+            "profiling_scope": "whole CPU during command, including kernel/background activity"
+          },
+          {
+            "optimization": "o3",
+            "mode": "validation",
+            "repeat": 0,
+            "binary": "/tmp/coremark-aligned-o3",
+            "seconds": 20.19,
+            "iterations_per_second": 99.05894,
+            "iterations": 2000,
+            "cpu_mhz": 62.5,
+            "coremark_per_mhz": 1.5849430400000002,
+            "validated": true,
+            "output": "/bin/profile /tmp/coremark-aligned-o3 0x3415 0x3415 0x66 2000 7 1; echo S32_\nCOREMARK_DONE_3:$?\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 20190\nTotal time (secs): 20.190000\nIterations/Sec   : 99.058940\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x0cac\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x000000004bb00be2\nS32_PERF retired: 0x000000001e5c9ef2\nS32_PERF fetch_wait: 0x0000000015e4cb91\nS32_PERF data_wait: 0x000000000f142d6b\nS32_PERF muldiv_wait: 0x00000000042b7b5b\nS32_PERF fence_wait: 0x0000000000000f8a\nS32_PERF icache_hit: 0x000000002c61864e\nS32_PERF icache_miss: 0x0000000000aafa67\nS32_PERF dcache_hit: 0x00000000068701e7\nS32_PERF dcache_miss: 0x0000000000053558\nS32_PERF itlb_miss: 0x00000000000000bf\nS32_PERF dtlb_miss: 0x00000000000002ba\nS32_PERF axi_read_wait: 0x000000000dfd154f\nS32_PERF axi_write_wait: 0x000000001d5c06e9\nS32_PERF store_queue_stall: 0x0000000003d3c36f\nS32_PERF store_enqueued: 0x0000000001a2e4ac\nS32_COREMARK_DONE_3:0",
+            "profiling": {
+              "clock": 1269828578,
+              "retired": 509386482,
+              "fetch_wait": 367315857,
+              "data_wait": 252980587,
+              "muldiv_wait": 69958491,
+              "fence_wait": 3978,
+              "icache_hit": 744588878,
+              "icache_miss": 11205223,
+              "dcache_hit": 109511143,
+              "dcache_miss": 341336,
+              "itlb_miss": 191,
+              "dtlb_miss": 698,
+              "axi_read_wait": 234689871,
+              "axi_write_wait": 492570345,
+              "store_queue_stall": 64209775,
+              "store_enqueued": 27452588
+            },
+            "profiling_scope": "whole CPU during command, including kernel/background activity"
+          }
+        ],
+        "median_coremark": 98.217355,
+        "median_coremark_per_mhz": 1.5714776799999999,
+        "versus_accepted_baseline_absolute_percent": -3.0889354056546248,
+        "versus_accepted_baseline_per_mhz_percent": -8.78958690261843,
+        "profiling_scope": "Whole CPU during command, including kernel/background work; not userspace-only CPI.",
+        "report_artifact": {
+          "path": "fpga/arty_a7_35t/build/early-control-linux-coremark.json",
+          "sha256": "82f7b10f136f79fdef2d45f597d3089e14e798495ce35567a059f78017748912",
+          "bytes": 10959
+        },
+        "driver_log": {
+          "path": "fpga/arty_a7_35t/build/early-control-evidence/fpga__arty_a7_35t__build__early-control-linux-coremark-driver.log",
+          "sha256": "d02327bd3e4340991888f9bf648dc9f2a3c36cff1aa056e25a27be2b0d7e024d",
+          "bytes": 10214
+        }
+      },
+      "workloads": {
+        "report": {
+          "schema": 1,
+          "started_utc": "2026-10-22T22:23:30.066021+00:00",
+          "cpu_mhz": 62.5,
+          "kernel_hz": 25,
+          "clock_configuration_source": "host command-line; match the programmed bitstream and DTB",
+          "binary": "/bin/workloads",
+          "manifest": {
+            "schema": 1,
+            "target": "riscv32-linux-ilp32",
+            "sources": {
+              "zlib": {
+                "version": "1.3.2",
+                "url": "https://zlib.net/fossils/zlib-1.3.2.tar.gz",
+                "archive": "zlib-1.3.2.tar.gz",
+                "directory": "zlib-1.3.2",
+                "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+                "license": "zlib license; archive LICENSE copied beside binary",
+                "upstream": "https://zlib.net/"
+              },
+              "sqlite": {
+                "version": "3.54.1",
+                "url": "https://www.sqlite.org/2026/sqlite-amalgamation-3540100.zip",
+                "archive": "sqlite-amalgamation-3540100.zip",
+                "directory": "sqlite-amalgamation-3540100",
+                "sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
+                "sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
+                "license": "public domain; dedication in sqlite3.c header",
+                "upstream": "https://www.sqlite.org/copyright.html"
+              }
+            },
+            "harness_sha256": "10714b9eafb4dcf9b0b638d6e81297ec6289d820200ab5cbd56fc594b154dc5c",
+            "compiler": "/home/lazybanana/github/synapse32/fpga/arty_a7_35t/build/llvm-toolchain/riscv32-linux-gnu-gcc",
+            "compiler_version": "clang version 23.1.1\nTarget: riscv32-unknown-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+            "compiler_flags": [
+              "-O2",
+              "-std=c11",
+              "-fno-pie",
+              "-fno-pic",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-D_FILE_OFFSET_BITS=64",
+              "-march=rv32ima_zicsr_zifencei",
+              "-mabi=ilp32",
+              "-msmall-data-limit=0"
+            ],
+            "sqlite_flags": [
+              "-DSQLITE_THREADSAFE=0",
+              "-DSQLITE_OMIT_LOAD_EXTENSION",
+              "-DSQLITE_DEFAULT_MEMSTATUS=0",
+              "-DSQLITE_TEMP_STORE=3",
+              "-DSQLITE_DEFAULT_CACHE_SIZE=-256",
+              "-DSQLITE_DQS=0",
+              "-DSQLITE_OMIT_DEPRECATED",
+              "-DSQLITE_LIKE_DOESNT_MATCH_BLOBS"
+            ],
+            "linker_flags": [
+              "-static",
+              "-no-pie",
+              "-Wl,--gc-sections",
+              "-Wl,--build-id=none",
+              "-s"
+            ],
+            "build_id": "bf13107e1c7035d8",
+            "binary_sha256": "c3c9313d24adc7224106eb1bef5fc6ef53709b10af2e9b97987a7cb1d2438e30",
+            "binary_bytes": 1330992
+          },
+          "manifest_sha256": "41f0fd820ab8563bb787b3809da3e6adcaf1c8c0de6a3c989e8909fa796654fc",
+          "retained_uart_log": "/home/lazybanana/github/synapse32/fpga/arty_a7_35t/build/early-control-linux.uart.log",
+          "runs": [
+            {
+              "configuration": {
+                "schema": 1,
+                "build_id": "bf13107e1c7035d8",
+                "zlib": "1.3.2",
+                "sqlite": "3.54.1",
+                "sqlite_source_id": "2026-10-16 14:45:20 555e07ef33f69a0957d24d8e555b702464a131d6f1607f4c3c1e4551e8e6ca76",
+                "kernel": "6.6.32-dirty",
+                "machine": "riscv32",
+                "iterations": 3,
+                "input_bytes": 65536,
+                "compression_level": 6,
+                "rows": 1024,
+                "database": "memory",
+                "clock": "CLOCK_MONOTONIC"
+              },
+              "cases": [
+                {
+                  "schema": 1,
+                  "case": "zlib_compress",
+                  "iterations": 3,
+                  "elapsed_ns": 1547307312,
+                  "units": 196608,
+                  "checksum": 2298676357,
+                  "output_bytes": 9629,
+                  "validated": true,
+                  "units_per_second": 127064.60990342687,
+                  "unit": "input_bytes"
+                },
+                {
+                  "schema": 1,
+                  "case": "zlib_decompress",
+                  "iterations": 48,
+                  "elapsed_ns": 2106098288,
+                  "units": 3145728,
+                  "checksum": 2298676357,
+                  "output_bytes": 65536,
+                  "validated": true,
+                  "units_per_second": 1493628.2973703267,
+                  "unit": "input_bytes"
+                },
+                {
+                  "schema": 1,
+                  "case": "sqlite_insert",
+                  "iterations": 3,
+                  "elapsed_ns": 2839258528,
+                  "units": 3072,
+                  "checksum": 509976,
+                  "output_bytes": 0,
+                  "validated": true,
+                  "units_per_second": 1081.9726240864532,
+                  "unit": "inserted_rows"
+                },
+                {
+                  "schema": 1,
+                  "case": "sqlite_queries",
+                  "iterations": 3,
+                  "elapsed_ns": 4500204032,
+                  "units": 390,
+                  "checksum": 964087464,
+                  "output_bytes": 0,
+                  "validated": true,
+                  "units_per_second": 86.66273733963891,
+                  "unit": "SQL_statements"
+                }
+              ],
+              "repeat": 0,
+              "raw_output": [
+                "/bin/workloads 3; echo S32_WORKLOAD_EXIT_0:$?",
+                "S32_WORKLOAD_CONFIG {\"schema\":1,\"build_id\":\"bf13107e1c7035d8\",\"zlib\":\"1.3.2\",\"sqlite\":\"3.54.1\",\"sqlite_source_id\":\"2026-10-16 14:45:20 555e07ef33f69a0957d24d8e555b702464a131d6f1607f4c3c1e4551e8e6ca76\",\"kernel\":\"6.6.32-dirty\",\"machine\":\"riscv32\",\"iterations\":3,\"input_bytes\":65536,\"compression_level\":6,\"rows\":1024,\"database\":\"memory\",\"clock\":\"CLOCK_MONOTONIC\"}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"zlib_compress\",\"iterations\":3,\"elapsed_ns\":1547307312,\"units\":196608,\"checksum\":2298676357,\"output_bytes\":9629,\"validated\":true}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"zlib_decompress\",\"iterations\":48,\"elapsed_ns\":2106098288,\"units\":3145728,\"checksum\":2298676357,\"output_bytes\":65536,\"validated\":true}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"sqlite_insert\",\"iterations\":3,\"elapsed_ns\":2839258528,\"units\":3072,\"checksum\":509976,\"output_bytes\":0,\"validated\":true}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"sqlite_queries\",\"iterations\":3,\"elapsed_ns\":4500204032,\"units\":390,\"checksum\":964087464,\"output_bytes\":0,\"validated\":true}",
+                "S32_WORKLOAD_DONE 0",
+                "S32_WORKLOAD_EXIT_0:0"
+              ]
+            },
+            {
+              "configuration": {
+                "schema": 1,
+                "build_id": "bf13107e1c7035d8",
+                "zlib": "1.3.2",
+                "sqlite": "3.54.1",
+                "sqlite_source_id": "2026-10-16 14:45:20 555e07ef33f69a0957d24d8e555b702464a131d6f1607f4c3c1e4551e8e6ca76",
+                "kernel": "6.6.32-dirty",
+                "machine": "riscv32",
+                "iterations": 3,
+                "input_bytes": 65536,
+                "compression_level": 6,
+                "rows": 1024,
+                "database": "memory",
+                "clock": "CLOCK_MONOTONIC"
+              },
+              "cases": [
+                {
+                  "schema": 1,
+                  "case": "zlib_compress",
+                  "iterations": 3,
+                  "elapsed_ns": 1541684176,
+                  "units": 196608,
+                  "checksum": 2298676357,
+                  "output_bytes": 9629,
+                  "validated": true,
+                  "units_per_second": 127528.06512557731,
+                  "unit": "input_bytes"
+                },
+                {
+                  "schema": 1,
+                  "case": "zlib_decompress",
+                  "iterations": 48,
+                  "elapsed_ns": 2102031088,
+                  "units": 3145728,
+                  "checksum": 2298676357,
+                  "output_bytes": 65536,
+                  "validated": true,
+                  "units_per_second": 1496518.3045856075,
+                  "unit": "input_bytes"
+                },
+                {
+                  "schema": 1,
+                  "case": "sqlite_insert",
+                  "iterations": 3,
+                  "elapsed_ns": 2842939872,
+                  "units": 3072,
+                  "checksum": 509976,
+                  "output_bytes": 0,
+                  "validated": true,
+                  "units_per_second": 1080.571569682498,
+                  "unit": "inserted_rows"
+                },
+                {
+                  "schema": 1,
+                  "case": "sqlite_queries",
+                  "iterations": 3,
+                  "elapsed_ns": 4500619088,
+                  "units": 390,
+                  "checksum": 964087464,
+                  "output_bytes": 0,
+                  "validated": true,
+                  "units_per_second": 86.65474513047704,
+                  "unit": "SQL_statements"
+                }
+              ],
+              "repeat": 1,
+              "raw_output": [
+                "/bin/workloads 3; echo S32_WORKLOAD_EXIT_1:$?",
+                "S32_WORKLOAD_CONFIG {\"schema\":1,\"build_id\":\"bf13107e1c7035d8\",\"zlib\":\"1.3.2\",\"sqlite\":\"3.54.1\",\"sqlite_source_id\":\"2026-10-16 14:45:20 555e07ef33f69a0957d24d8e555b702464a131d6f1607f4c3c1e4551e8e6ca76\",\"kernel\":\"6.6.32-dirty\",\"machine\":\"riscv32\",\"iterations\":3,\"input_bytes\":65536,\"compression_level\":6,\"rows\":1024,\"database\":\"memory\",\"clock\":\"CLOCK_MONOTONIC\"}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"zlib_compress\",\"iterations\":3,\"elapsed_ns\":1541684176,\"units\":196608,\"checksum\":2298676357,\"output_bytes\":9629,\"validated\":true}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"zlib_decompress\",\"iterations\":48,\"elapsed_ns\":2102031088,\"units\":3145728,\"checksum\":2298676357,\"output_bytes\":65536,\"validated\":true}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"sqlite_insert\",\"iterations\":3,\"elapsed_ns\":2842939872,\"units\":3072,\"checksum\":509976,\"output_bytes\":0,\"validated\":true}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"sqlite_queries\",\"iterations\":3,\"elapsed_ns\":4500619088,\"units\":390,\"checksum\":964087464,\"output_bytes\":0,\"validated\":true}",
+                "S32_WORKLOAD_DONE 0",
+                "S32_WORKLOAD_EXIT_1:0"
+              ]
+            },
+            {
+              "configuration": {
+                "schema": 1,
+                "build_id": "bf13107e1c7035d8",
+                "zlib": "1.3.2",
+                "sqlite": "3.54.1",
+                "sqlite_source_id": "2026-10-16 14:45:20 555e07ef33f69a0957d24d8e555b702464a131d6f1607f4c3c1e4551e8e6ca76",
+                "kernel": "6.6.32-dirty",
+                "machine": "riscv32",
+                "iterations": 3,
+                "input_bytes": 65536,
+                "compression_level": 6,
+                "rows": 1024,
+                "database": "memory",
+                "clock": "CLOCK_MONOTONIC"
+              },
+              "cases": [
+                {
+                  "schema": 1,
+                  "case": "zlib_compress",
+                  "iterations": 3,
+                  "elapsed_ns": 1537988272,
+                  "units": 196608,
+                  "checksum": 2298676357,
+                  "output_bytes": 9629,
+                  "validated": true,
+                  "units_per_second": 127834.52486560964,
+                  "unit": "input_bytes"
+                },
+                {
+                  "schema": 1,
+                  "case": "zlib_decompress",
+                  "iterations": 48,
+                  "elapsed_ns": 2098228960,
+                  "units": 3145728,
+                  "checksum": 2298676357,
+                  "output_bytes": 65536,
+                  "validated": true,
+                  "units_per_second": 1499230.093554709,
+                  "unit": "input_bytes"
+                },
+                {
+                  "schema": 1,
+                  "case": "sqlite_insert",
+                  "iterations": 3,
+                  "elapsed_ns": 2842292064,
+                  "units": 3072,
+                  "checksum": 509976,
+                  "output_bytes": 0,
+                  "validated": true,
+                  "units_per_second": 1080.8178508146445,
+                  "unit": "inserted_rows"
+                },
+                {
+                  "schema": 1,
+                  "case": "sqlite_queries",
+                  "iterations": 3,
+                  "elapsed_ns": 4500356304,
+                  "units": 390,
+                  "checksum": 964087464,
+                  "output_bytes": 0,
+                  "validated": true,
+                  "units_per_second": 86.65980505884852,
+                  "unit": "SQL_statements"
+                }
+              ],
+              "repeat": 2,
+              "raw_output": [
+                "/bin/workloads 3; echo S32_WORKLOAD_EXIT_2:$?",
+                "S32_WORKLOAD_CONFIG {\"schema\":1,\"build_id\":\"bf13107e1c7035d8\",\"zlib\":\"1.3.2\",\"sqlite\":\"3.54.1\",\"sqlite_source_id\":\"2026-10-16 14:45:20 555e07ef33f69a0957d24d8e555b702464a131d6f1607f4c3c1e4551e8e6ca76\",\"kernel\":\"6.6.32-dirty\",\"machine\":\"riscv32\",\"iterations\":3,\"input_bytes\":65536,\"compression_level\":6,\"rows\":1024,\"database\":\"memory\",\"clock\":\"CLOCK_MONOTONIC\"}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"zlib_compress\",\"iterations\":3,\"elapsed_ns\":1537988272,\"units\":196608,\"checksum\":2298676357,\"output_bytes\":9629,\"validated\":true}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"zlib_decompress\",\"iterations\":48,\"elapsed_ns\":2098228960,\"units\":3145728,\"checksum\":2298676357,\"output_bytes\":65536,\"validated\":true}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"sqlite_insert\",\"iterations\":3,\"elapsed_ns\":2842292064,\"units\":3072,\"checksum\":509976,\"output_bytes\":0,\"validated\":true}",
+                "S32_WORKLOAD {\"schema\":1,\"case\":\"sqlite_queries\",\"iterations\":3,\"elapsed_ns\":4500356304,\"units\":390,\"checksum\":964087464,\"output_bytes\":0,\"validated\":true}",
+                "S32_WORKLOAD_DONE 0",
+                "S32_WORKLOAD_EXIT_2:0"
+              ]
+            }
+          ],
+          "completed": true,
+          "summary": {
+            "zlib_compress": {
+              "median_seconds": 1.541684176,
+              "median_units_per_second": 127528.06512557731,
+              "unit": "input_bytes"
+            },
+            "zlib_decompress": {
+              "median_seconds": 2.102031088,
+              "median_units_per_second": 1496518.3045856075,
+              "unit": "input_bytes"
+            },
+            "sqlite_insert": {
+              "median_seconds": 2.842292064,
+              "median_units_per_second": 1080.8178508146445,
+              "unit": "inserted_rows"
+            },
+            "sqlite_queries": {
+              "median_seconds": 4.500356304,
+              "median_units_per_second": 86.65980505884852,
+              "unit": "SQL_statements"
+            }
+          }
+        },
+        "report_artifact": {
+          "path": "fpga/arty_a7_35t/build/early-control-workloads.json",
+          "sha256": "b70234a1d14a500a16df67edc18a6d5cbfa36b1a3a9676b190526fd47a0ef45d",
+          "bytes": 13076
+        },
+        "comparison": {
+          "zlib_compress": {
+            "baseline_units_per_second": 125529.6644663476,
+            "candidate_units_per_second": 127528.06512557731,
+            "absolute_percent_change": 1.5919748274046075,
+            "unit": "input_bytes"
+          },
+          "zlib_decompress": {
+            "baseline_units_per_second": 1470822.0292238884,
+            "candidate_units_per_second": 1496518.3045856075,
+            "absolute_percent_change": 1.7470689757943303,
+            "unit": "input_bytes"
+          },
+          "sqlite_insert": {
+            "baseline_units_per_second": 1088.8863341255606,
+            "candidate_units_per_second": 1080.8178508146445,
+            "absolute_percent_change": -0.7409848997136592,
+            "unit": "inserted_rows"
+          },
+          "sqlite_queries": {
+            "baseline_units_per_second": 86.7595436836151,
+            "candidate_units_per_second": 86.65980505884852,
+            "absolute_percent_change": -0.11495983096718732,
+            "unit": "SQL_statements"
+          }
+        }
+      },
+      "mesh": {
+        "report_artifact": {
+          "path": "fpga/arty_a7_35t/build/early-control-mesh.json",
+          "sha256": "61e8d6dc09d793dedf5e854e439f1ef579bc76bf96a30bc8c76cd15396a0caf3",
+          "bytes": 320857
+        },
+        "summary": [
+          {
+            "points": 16,
+            "frames": 30,
+            "median_ms": 4.672499999999999,
+            "min_ms": 3.217,
+            "max_ms": 7.641,
+            "received_fps": 23.18297898336072
+          },
+          {
+            "points": 32,
+            "frames": 20,
+            "median_ms": 25.6325,
+            "min_ms": 16.741,
+            "max_ms": 32.833,
+            "received_fps": 11.08790195375274
+          },
+          {
+            "points": 64,
+            "frames": 10,
+            "median_ms": 194.0145,
+            "min_ms": 119.175,
+            "max_ms": 197.096,
+            "received_fps": 5.013733024160742
+          }
+        ],
+        "validated_frames": 60,
+        "geometry": {
+          "frames_validated": 60,
+          "checks": "Independent integer Delaunay/orientation/hull/manifold predicates; every frame points and triangle ordering matches the accepted baseline.",
+          "candidate": {
+            "path": "fpga/arty_a7_35t/build/early-control-mesh.json",
+            "sha256": "61e8d6dc09d793dedf5e854e439f1ef579bc76bf96a30bc8c76cd15396a0caf3",
+            "bytes": 320857
+          },
+          "baseline": {
+            "path": "fpga/arty_a7_35t/build/fetch-boundary-baseline-mesh.json",
+            "sha256": "60a735b5ced2fbce5a3976b327e03c34f264660dfc713ee068b463effcfdad07",
+            "bytes": 320856
+          }
+        },
+        "geometry_artifact": {
+          "path": "fpga/arty_a7_35t/build/early-control-evidence/geometry-validation.json",
+          "sha256": "5ea3bcdb1abf842051f0982d9c569dc4314e4ca895607c3d91ebb3257b42307e",
+          "bytes": 564
+        }
+      },
+      "frozen_uart_capture": {
+        "path": "fpga/arty_a7_35t/build/early-control-frozen.uart.log",
+        "sha256": "f2f3d727544ecb5fea842f43f7976fc0d19bdf1f4e04f585540431d0a469d8b3",
+        "bytes": 69561
+      },
+      "frozen_uart_metadata": {
+        "description": "Bounded through final 64-point mesh S32DONE; intermediate b207eb2 board candidate, all tests before fetch-cancel correction",
+        "source": "fpga/arty_a7_35t/build/early-control-linux.uart.log",
+        "path": "fpga/arty_a7_35t/build/early-control-frozen.uart.log",
+        "sha256": "f2f3d727544ecb5fea842f43f7976fc0d19bdf1f4e04f585540431d0a469d8b3",
+        "bytes": 69561
+      },
+      "frozen_uart_metadata_artifact": {
+        "path": "fpga/arty_a7_35t/build/early-control-uart-evidence.json",
+        "sha256": "d2cc1fa3d8e0c1d004f5ec6ac45beaa2bebb546bf60810212cd30d65b6ef8641",
+        "bytes": 378
+      },
+      "software_comparison": {
+        "user_binaries": {
+          "bin/workloads": {
+            "baseline_sha256": "c3c9313d24adc7224106eb1bef5fc6ef53709b10af2e9b97987a7cb1d2438e30",
+            "candidate_sha256": "c3c9313d24adc7224106eb1bef5fc6ef53709b10af2e9b97987a7cb1d2438e30",
+            "identical": true
+          },
+          "tmp/coremark-aligned-o3": {
+            "baseline_sha256": "7192d2ad734c4db1e31545e9d73ac12ce2c46af2d177dee050afd7ab015a1c20",
+            "candidate_sha256": "7192d2ad734c4db1e31545e9d73ac12ce2c46af2d177dee050afd7ab015a1c20",
+            "identical": true
+          },
+          "bin/profile": {
+            "baseline_sha256": "c54072652684edddc9fcba0c94d8a3e4de08906413f048f6904431865c23e37f",
+            "candidate_sha256": "c54072652684edddc9fcba0c94d8a3e4de08906413f048f6904431865c23e37f",
+            "identical": true
+          },
+          "bin/triangulator": {
+            "baseline_sha256": "1516c10212200a5eabb5775708f98dc66107c67448001121578cb3cc17b93434",
+            "candidate_sha256": "1516c10212200a5eabb5775708f98dc66107c67448001121578cb3cc17b93434",
+            "identical": true
+          }
+        },
+        "image_artifacts": {
+          "Image": {
+            "baseline": {
+              "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu59/Image",
+              "sha256": "198a59268994e74f65e20b3757410df76bd84760d56c5d5397ea234361bdc8d7",
+              "bytes": 17356004
+            },
+            "candidate": {
+              "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62/Image",
+              "sha256": "05b05ff5c3fda45d0def3eca46d3bf13e45103b9eae9b069864345974b045c3c",
+              "bytes": 17356004
+            },
+            "byte_identical": false
+          },
+          "kernel.config": {
+            "baseline": {
+              "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu59/kernel.config",
+              "sha256": "c53c907396b11a153f933de2d1fa379a9be00ae3c49f51cadbaa944210dc8d7b",
+              "bytes": 57316
+            },
+            "candidate": {
+              "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62/kernel.config",
+              "sha256": "c596ad36008f11d99f8c54ef1d44ca363369cf881a57e5a83ffaa80848e981d6",
+              "bytes": 57316
+            },
+            "byte_identical": false
+          },
+          "initramfs.cpio": {
+            "baseline": {
+              "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu59/initramfs.cpio",
+              "sha256": "2fca1dc3da04255979d2cbe933cd8c3b5411e007978167a94f4c8f75cd1e3254",
+              "bytes": 3200512
+            },
+            "candidate": {
+              "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62/initramfs.cpio",
+              "sha256": "c23707902d1f1f9f36b11ad46906c0074561add29f491022184999b122622079",
+              "bytes": 3200512
+            },
+            "byte_identical": false
+          },
+          "fw_payload.bin": {
+            "baseline": {
+              "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu59/fw_payload.bin",
+              "sha256": "8227fa608b21e2473aa32ee4fe739cd39a3cbaf940694c2783213a629219c1c4",
+              "bytes": 21550312
+            },
+            "candidate": {
+              "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62/fw_payload.bin",
+              "sha256": "66d45d0d9fb1b165eae69b8425686e3d248238262419d809a55bc8a50bcb3472",
+              "bytes": 21550312
+            },
+            "byte_identical": false
+          }
+        },
+        "interpretation": "User application bytes match. Kernel Image/config and initramfs archives differ after clock/DTB/license regeneration; this is an end-to-end comparison, not a strict clock-only Linux experiment."
+      }
+    }
+  ],
+  "previous_full_forwarding_evidence": {
+    "path": "fpga/arty_a7_35t/coremark/results/fetch-boundary-performance.json",
+    "sha256": "244868cbb1cb50fdd09314fa41de0d2f38d6d0a34be4632f0d3f2e134cdeab13",
+    "bytes": 140827
+  },
+  "notes": [
+    "These CoreMark results are simulated 50-iteration performance and validation seed runs at a nominal 1 MHz timer and 20-cycle AXI model. They are not FPGA scores or physical run medians.",
+    "Both seed sets validate CRCs and run for more than 29 simulated seconds. Counter events overlap and must not be added into a CPI decomposition.",
+    "CPU retirement counters use EX completion; Linux boot cycle counts describe the entire boot/test sequence rather than the timed CoreMark region.",
+    "The b207eb2 bitstream passes timing and board functional/benchmark validation, but is an intermediate result rather than an overall performance winner: bare-metal throughput improves while Linux CoreMark regresses.",
+    "Measurements precede the cache-cancel correction. Root cause investigation found that registered cancellation can still admit a same-edge old fallthrough DDR grant; a separate cache-cancel-div16 candidate will preserve these artifacts unchanged.",
+    "SQLite workload database, journal and temporary data are in memory; its mixed queries have different costs and do not measure disk I/O.",
+    "The complete growing Linux reader log is not hashed. The frozen capture ends after the final 64-point mesh completion and contains all benchmark/application output used here."
+  ],
+  "trigger_csr_regressions": {
+    "original_report": {
+      "load_forwarding": 1,
+      "early_control": "enabled automatically by LOAD_FORWARDING in CPU",
+      "source_head": "7f8ebde91b83589f7f21a1781549c948527f2596",
+      "source_sha256": {
+        "rtl/riscv_cpu.v": "4bc4c099f38ae157c9403ac583163a99965686bfd784d5b6ff257d672c0744bb",
+        "rtl/execution_unit.v": "916b384e93ffd236d89e04d74dd9d0bfdcd2fec93801f4c455575d349f531231",
+        "tests/system_tests/test_triggers.py": "442205274546d4e9d178841779e6e5d955fc9ccd8fdc92f4c270fb23efd8c4e4"
+      },
+      "logs": [
+        {
+          "name": "triggers",
+          "path": "build/early-control-triggers-load-forwarding.log",
+          "sha256": "c2b5dc975db2a328cdb0bc9193fa35b3c8b54690ac251d4b320db551936d68dd",
+          "tests": 2,
+          "failed": 0,
+          "passed_names": [
+            "test_trigger_matches",
+            "test_trigger_csrs_are_warl"
+          ]
+        },
+        {
+          "name": "csr",
+          "path": "build/early-control-csr-load-forwarding.log",
+          "sha256": "e97ed22a65d4758c061694d2980519edb5714417c0c37151a5d279652e379172",
+          "tests": 19,
+          "failed": 0,
+          "passed_names": [
+            "test_csr_basic_operations",
+            "test_csr_mstatus_operations",
+            "test_csr_cycle_counter",
+            "test_csr_machine_mode_same_reg_hazard",
+            "test_csr_machine_mode_riscv_tests_sequence",
+            "test_counteren_allows_user_cycle_read",
+            "test_sfence_vma_executes_without_trapping_in_machine_mode",
+            "test_mret_enters_supervisor_mode",
+            "test_supervisor_ecall_traps_to_machine_mode",
+            "test_supervisor_ecall_machine_mret_returns_to_supervisor",
+            "test_delegated_supervisor_timer_interrupt_sret",
+            "test_delegated_supervisor_ebreak_sret",
+            "test_delegated_user_ecall_sret",
+            "test_delegated_user_illegal_instruction_sret",
+            "test_delegated_user_timer_interrupt_sret",
+            "test_mpp_set_on_m_mode_illegal_instruction",
+            "test_m_mode_illegal_csr_probe_pattern",
+            "test_csr_invalid_access",
+            "test_csr_mret"
+          ]
+        }
+      ],
+      "validation": [
+        "Python syntax compile passes",
+        "TRIGGERS_LOAD_FORWARDING=2 raises ValueError before simulation",
+        "git diff --check passes"
+      ],
+      "csr_runner": "Temporary Python import of test_csr, wraps simulator run with parameters LOAD_FORWARDING=1 and unique sim_build/sim_build_csr_load_forwarding; no CSR test file changes"
+    },
+    "artifact": {
+      "path": "build/early-control-triggers-csr-evidence.json",
+      "sha256": "a49bce9975eeff40950a748230b46042925c3797ec61c25e2acc5d96877b2769",
+      "bytes": 2336
+    },
+    "tested_precommit_source_matches_b207eb2": true,
+    "source_proof": {
+      "rtl/riscv_cpu.v": {
+        "sha256": "4bc4c099f38ae157c9403ac583163a99965686bfd784d5b6ff257d672c0744bb",
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/performance/early-control-div16/source/rtl/riscv_cpu.v",
+          "sha256": "4bc4c099f38ae157c9403ac583163a99965686bfd784d5b6ff257d672c0744bb",
+          "bytes": 51403
+        }
+      },
+      "rtl/execution_unit.v": {
+        "sha256": "916b384e93ffd236d89e04d74dd9d0bfdcd2fec93801f4c455575d349f531231",
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/performance/early-control-div16/source/rtl/execution_unit.v",
+          "sha256": "916b384e93ffd236d89e04d74dd9d0bfdcd2fec93801f4c455575d349f531231",
+          "bytes": 29656
+        }
+      }
+    },
+    "note": "The test report source HEAD is 7f8ebde with uncommitted early-control RTL; both tested RTL hashes match committed b207eb2 exactly."
+  },
+  "prepared_firmware": {
+    "cpu_hz": 62500000,
+    "kernel_hz": 25,
+    "linux_payload": {
+      "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62/fw_payload.bin",
+      "sha256": "66d45d0d9fb1b165eae69b8425686e3d248238262419d809a55bc8a50bcb3472",
+      "bytes": 21550312
+    },
+    "linux_image_build_log": {
+      "path": "fpga/arty_a7_35t/build/early-control-evidence/fpga__arty_a7_35t__build__early-control-linux-image-cpu62.log",
+      "sha256": "b193c9a02050f8c0f548f671d414df4517b96b178a2b333c03537dcc2fe36932",
+      "bytes": 20194
+    },
+    "baremetal_payload": {
+      "path": "fpga/arty_a7_35t/build/coremark-profile-62500000-early-control/coremark.bin",
+      "sha256": "46744b0a07b645fabd2e4b97ab3d56ae04efbdcaec31300ffe1ca73b28752bd2",
+      "bytes": 37368
+    },
+    "historical_clock_matched_payload": {
+      "path": "fpga/arty_a7_35t/build/coremark-profile-62500000/coremark.bin",
+      "sha256": "46744b0a07b645fabd2e4b97ab3d56ae04efbdcaec31300ffe1ca73b28752bd2",
+      "bytes": 37368
+    },
+    "baremetal_byte_identical_to_historical_clock_matched_payload": true,
+    "baremetal_build_log": {
+      "path": "fpga/arty_a7_35t/build/early-control-evidence/fpga__arty_a7_35t__build__early-control-baremetal-cpu62-build.log",
+      "sha256": "51f70fc5c934056ba533eca561722a34099af390c0f0c00b5d6f934ab24c3ca2",
+      "bytes": 653
+    },
+    "baremetal_build_metadata": {
+      "cpu-clock-hz.txt": {
+        "text": "62500000\n",
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-62500000-early-control/cpu-clock-hz.txt",
+          "sha256": "72aa39850c2dbe755cefb0d963c232c26d75f924a215a0c2f9281b651bbae70c",
+          "bytes": 9
+        }
+      },
+      "source-revision.txt": {
+        "text": "b56889a7bd9d5624fbeff2a73ba69878e6a9c146\n",
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-62500000-early-control/source-revision.txt",
+          "sha256": "ff9094397200803d3249b3579df3856e00e26c20481e6fc8bc9579bc731eecfc",
+          "bytes": 41
+        }
+      },
+      "compiler-flags.txt": {
+        "text": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\n",
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-62500000-early-control/compiler-flags.txt",
+          "sha256": "3ead4856d98f2f87a3ef906e5c32960787adca31e53f28e09828444c1b6c524c",
+          "bytes": 247
+        }
+      },
+      "compiler-version.txt": {
+        "text": "clang version 23.1.1\nTarget: riscv32-unknown-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-62500000-early-control/compiler-version.txt",
+          "sha256": "f7e84af1d58bb2e5047e298599c2646ad4ce4e62376486963a99a12f765dd70e",
+          "bytes": 98
+        }
+      },
+      "object-code-check.txt": {
+        "text": "core_list_join: identical object instructions\ncore_matrix: identical object instructions\ncore_state: identical object instructions\niterate: identical object instruction bytes before link relocation\n",
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/coremark-profile-62500000-early-control/object-code-check.txt",
+          "sha256": "94f730f594094d2043c7d5ecf19bdfb4a12832a6b11c2c00b7f660861bc5dfa3",
+          "bytes": 198
+        }
+      }
+    },
+    "linux_image_is_not_physically_measured_yet": false
+  }
+}

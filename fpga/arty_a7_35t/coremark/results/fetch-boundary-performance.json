@@ -1,0 +1,2122 @@
+{
+  "schema": 1,
+  "description": "Registered instruction-cache transactions and frontend control: matched model results, rejected physical routes, and accepted-hardware baseline.",
+  "evidence_date_local": "2026-10-23",
+  "physical_target": {
+    "board": "Digilent Arty A7-35T",
+    "part": "xc7a35ticsg324-1L",
+    "clock_numerator_hz": 1000000000,
+    "cpu_divider": 17,
+    "cpu_mhz_rounded": 58.823529,
+    "vivado": "2024.2",
+    "parameters": {
+      "CPU_DIVIDE": 17,
+      "BOOT_BAUD": 2000000,
+      "FAST_L1": 1,
+      "ICACHE_LINES": 256,
+      "DCACHE_LINES": 256,
+      "CACHE_LINE_BYTES": 16,
+      "STORE_BUFFER_DEPTH": 8,
+      "FAST_MULTIPLY": 1,
+      "FETCH_QUEUE": 1,
+      "LOAD_FORWARDING": 1,
+      "FAST_STORE_ACK": 1
+    }
+  },
+  "source_commits": {
+    "ce5da4b": "ce5da4bce806d038988f5ef34ac507162e6f6738",
+    "72b5b58": "72b5b58fc3852744e7951e8755480067e2c99e48",
+    "528c986": "528c986f3e19747ff959b1d0ff5ade4bb207c58c",
+    "7916e34": "7916e342fd2c689f84d0592604e9379cfe180611",
+    "6ec10fa": "6ec10fa6e78d2439f74db95bac7fc50d445a4842",
+    "f0d2f83": "f0d2f83270b7de6fb22c5a363bc56b5736d34c3f",
+    "4e1a9f7": "4e1a9f77266a4324aff5e25d3c7ac2bd4a47aa19",
+    "42ae42a": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+    "5a127b6": "5a127b68af502aa873070c5f928573aadfc281cc",
+    "7f8ebde": "7f8ebde91b83589f7f21a1781549c948527f2596",
+    "b207eb2": "b207eb2058ee18bf92ba3453b9ecfa3e854921f2"
+  },
+  "source_notes": [
+    "ce5da4b merges upstream main 7b7af54 while retaining the FPGA memory-fault and multiplication paths.",
+    "fetch-boundary-upstream-div17 snapshots an uncommitted intermediate based on ce5da4b; its source HEAD label and file hashes are preserved in its manifest. It is not attributed to 72b5b58.",
+    "72b5b58 registers complete instruction-cache data/tag/valid write events and adds pending transaction forwarding.",
+    "528c986 registers port cancellation/flush, tags queue generations and supports atomic local-request replacement while lower bus transactions retain ownership until drained.",
+    "7916e34 adds checked Linux application workloads and documentation; it does not change528c986 RTL.",
+    "6ec10fa removes an unnecessary atomic-trigger operand mux/effective-address dependency, with matched simulation results unchanged. Both its normal route and bounded postroute refinement fail setup timing.",
+    "42ae42a separates multiply/divide cancellation validity from private datapath reset. Its normal, bounded postroute and incremental routes all fail setup. Arithmetic, cycle equivalence, cancellation/restart, matched CoreMark, memory-wait and Linux shell checks pass.",
+    "5a127b6 adds cancellation/restart regression coverage without changing 42ae42a RTL."
+  ],
+  "physical_attempts": [
+    {
+      "tag": "fetch-boundary-upstream-div17",
+      "source_head_label": "ce5da4b-plus-registered-cache-writes",
+      "accepted": false,
+      "programmed": false,
+      "bitstream_written": false,
+      "status": "rejected_setup_timing",
+      "wns_ns": -2.838,
+      "tns_ns": -6254.854,
+      "setup_failing_endpoints": 3715,
+      "setup_total_endpoints": 42970,
+      "hold_wns_ns": 0.019,
+      "hold_tns_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "pulse_wns_ns": 0.206,
+      "worst_path": {
+        "source": "system/system_inst/data_port/l1/data_ram_reg_0/CLKARDCLK",
+        "destination": "system/system_inst/instr_port/l1/tags_reg_r1_0_63_15_17/RAMA/WE",
+        "requirement_ns": 17.0,
+        "data_path_delay_ns": 19.207,
+        "logic_levels": 23
+      },
+      "artifacts": {
+        "source-manifest.txt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-boundary-upstream-div17/source-manifest.txt",
+          "sha256": "05de148916bd9d49f67235a1e522a0fef676890a357c2e0838e5645e283c9033",
+          "bytes": 9545
+        },
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-boundary-upstream-div17/timing.rpt",
+          "sha256": "c874bab1d7c1800431bb3891edce69a98e7c69e0d101ccbf221a1b547cec8b88",
+          "bytes": 527952
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-boundary-upstream-div17/methodology.rpt",
+          "sha256": "06284873ac26b6ae6d0c83a3a73aea3156d982916a499c5f095803d00fed2bba",
+          "bytes": 525915
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-boundary-upstream-div17/cdc.rpt",
+          "sha256": "63db4b0f11628213ce7f215a34f6a5cb5358d253fdbbb827f3ac2f07b9953d5d",
+          "bytes": 11846
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-boundary-upstream-div17/bus-skew.rpt",
+          "sha256": "f36483bc81bbcd7edf3b3cc1381e41289713bfb5052b798f8cb59edf8addc63a",
+          "bytes": 135010
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-boundary-upstream-div17/utilization.rpt",
+          "sha256": "a6bae2a2c00d055c79b6014d865f5ded6fe3fdc1a78a5ce719a2aeb4c1b27255",
+          "bytes": 13943
+        },
+        "synthesis-utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-boundary-upstream-div17/synthesis-utilization.rpt",
+          "sha256": "28d2e4bc2787ec133045da026ca0dde47c24ffdf06ddabcbd9d0432d414aed6a",
+          "bytes": 11534
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-boundary-upstream-div17/drc.rpt",
+          "sha256": "c029286080ceda1ecfeeb85db064d750a76ced68703d9133a15525fc4a904f23",
+          "bytes": 31076
+        }
+      },
+      "gate_result": "Critical CDC and bus-skew gates reached without rejection; setup timing gate rejected. Inherited noncritical warnings remain."
+    },
+    {
+      "tag": "fetch-metadata-div17",
+      "source_head_label": "72b5b58fc3852744e7951e8755480067e2c99e48",
+      "accepted": false,
+      "programmed": false,
+      "bitstream_written": false,
+      "status": "rejected_setup_timing",
+      "wns_ns": -3.347,
+      "tns_ns": -6732.946,
+      "setup_failing_endpoints": 3271,
+      "setup_total_endpoints": 42944,
+      "hold_wns_ns": 0.006,
+      "hold_tns_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "pulse_wns_ns": 0.206,
+      "worst_path": {
+        "source": "system/system_inst/data_port/l1/data_ram_reg_1/CLKARDCLK",
+        "destination": "system/system_inst/fetch_queue/fetch_pc_reg[26]/CE",
+        "requirement_ns": 17.0,
+        "data_path_delay_ns": 19.99,
+        "logic_levels": 24
+      },
+      "artifacts": {
+        "source-manifest.txt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-metadata-div17/source-manifest.txt",
+          "sha256": "5219285370faa45d2ab43e0517eacacad1e792f1886ef7817d242fed5c4081b6",
+          "bytes": 9126
+        },
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-metadata-div17/timing.rpt",
+          "sha256": "07c682034684ad6e3065301ff2261f6af7f930939bcc4174adb378d25191f13d",
+          "bytes": 531591
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-metadata-div17/methodology.rpt",
+          "sha256": "d967546e4235d0f64270998ab2bed9de53fa2d7f35b4ac519cf1a157cc096b44",
+          "bytes": 525354
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-metadata-div17/cdc.rpt",
+          "sha256": "a57252fe96828077ce96107a8bad2f0142a037983e8f01fda17e0c034c2ee86c",
+          "bytes": 11819
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-metadata-div17/bus-skew.rpt",
+          "sha256": "a4a53fc0f78a531f893da3574d110efac786c9868cde66554cf3ae0b864c5f4c",
+          "bytes": 134983
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-metadata-div17/utilization.rpt",
+          "sha256": "2b892fcc18ff2de97b6554f04e65cb62a647077a2301ede71d8e38f0fdc36124",
+          "bytes": 13916
+        },
+        "synthesis-utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-metadata-div17/synthesis-utilization.rpt",
+          "sha256": "45308e02e242608c252788ed09472d8fb4c563aff30d412b0cc27412f86e0d54",
+          "bytes": 11507
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-metadata-div17/drc.rpt",
+          "sha256": "800224c414a30ffc8daf31d3695efab31e135d948ec231b4e95af5feca06af73",
+          "bytes": 34141
+        }
+      },
+      "gate_result": "Critical CDC and bus-skew gates reached without rejection; setup timing gate rejected. Inherited noncritical warnings remain."
+    },
+    {
+      "tag": "fetch-control-div17",
+      "source_head_label": "528c986f3e19747ff959b1d0ff5ade4bb207c58c",
+      "accepted": false,
+      "programmed": false,
+      "bitstream_written": false,
+      "status": "rejected_setup_timing",
+      "wns_ns": -2.346,
+      "tns_ns": -2843.648,
+      "setup_failing_endpoints": 2004,
+      "setup_total_endpoints": 43017,
+      "hold_wns_ns": 0.032,
+      "hold_tns_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "pulse_wns_ns": 0.206,
+      "worst_path": {
+        "source": "system/system_inst/data_port/l1/data_ram_reg_1/CLKARDCLK",
+        "destination": "system/system_inst/cpu/csr_file_inst/instret_counter_reg[46]/D",
+        "requirement_ns": 17.0,
+        "data_path_delay_ns": 18.856,
+        "logic_levels": 23
+      },
+      "artifacts": {
+        "source-manifest.txt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-control-div17/source-manifest.txt",
+          "sha256": "1e87461072b50e58848acf2abc2410f0236b7c732ab8959f81c254d398f4d3b6",
+          "bytes": 9079
+        },
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-control-div17/timing.rpt",
+          "sha256": "bbbf8bed1117fcf97fa4593e62f9e14f76a0c6ad12bffab32c083067f2e0f99c",
+          "bytes": 533841
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-control-div17/methodology.rpt",
+          "sha256": "fdc19a7804355f475013907d3694f784416f4dbfece877c1f62d02d3b26b5c12",
+          "bytes": 525648
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-control-div17/cdc.rpt",
+          "sha256": "482abe0f995ea6914676bf8132031e5c97f522c54f45e92d8d0ea32821b30d89",
+          "bytes": 11818
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-control-div17/bus-skew.rpt",
+          "sha256": "f983e6c441c708c6a84bb558ef4570f805013997771520dd87154edcaf4c3420",
+          "bytes": 134980
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-control-div17/utilization.rpt",
+          "sha256": "4cee4c5421e269c069fe05447cd49bdce4adb6a25c54c56466690f9db3441c0a",
+          "bytes": 13913
+        },
+        "synthesis-utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-control-div17/synthesis-utilization.rpt",
+          "sha256": "19f76dcdc4227eb12a014f8c57e34b8082b8d5ae63916714fba00d1778b97db7",
+          "bytes": 11504
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-control-div17/drc.rpt",
+          "sha256": "f0a7181404a0e0ab0f79c4d2cd5bec45a0bdcc88df9cab57e02e41d2f5ac798e",
+          "bytes": 35119
+        }
+      },
+      "gate_result": "Critical CDC and bus-skew gates reached without rejection; setup timing gate rejected. Inherited noncritical warnings remain."
+    },
+    {
+      "tag": "atomic-trigger-div17",
+      "source_head_label": "6ec10fa6e78d2439f74db95bac7fc50d445a4842",
+      "accepted": false,
+      "programmed": false,
+      "bitstream_written": false,
+      "status": "rejected_setup_timing",
+      "wns_ns": -0.502,
+      "tns_ns": -108.076,
+      "setup_failing_endpoints": 631,
+      "setup_total_endpoints": 43014,
+      "hold_wns_ns": 0.012,
+      "hold_tns_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "pulse_wns_ns": 0.206,
+      "worst_path": {
+        "source": "system/system_inst/data_port/l1/data_ram_reg_0/CLKARDCLK",
+        "destination": "system/system_inst/cpu/csr_file_inst/sscratch_reg[11]/CE",
+        "requirement_ns": 17.0,
+        "data_path_delay_ns": 17.134,
+        "logic_levels": 20
+      },
+      "artifacts": {
+        "source-manifest.txt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/source-manifest.txt",
+          "sha256": "c5add3501f284e61d84ccd06851ba6b5d60e192b3b28dc47748a7728a8ef52fe",
+          "bytes": 9126
+        },
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/timing.rpt",
+          "sha256": "d60a3c5c53e0bb8ab0d7d19eace0e497f3b35367954dbd24ef2c4cbe71171e9e",
+          "bytes": 528026
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/methodology.rpt",
+          "sha256": "eaed7b5daf3ef50691ced903eed1721803734c708c05623579821f6e44f65f0f",
+          "bytes": 20600
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/cdc.rpt",
+          "sha256": "6180d619c32dda2035bd6822bcb258401aee9c9e5d3505ab592c86cdd61e9824",
+          "bytes": 11819
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/bus-skew.rpt",
+          "sha256": "e9b9d84d46318821b1875b7fb3b3d0f7aa417e012ef0c3d9b73d0ee9e752a190",
+          "bytes": 134983
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/utilization.rpt",
+          "sha256": "011b97ca76093a8543a81044fd36d7386fc55a7f5d28870280afb467404f59f5",
+          "bytes": 13916
+        },
+        "synthesis-utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/synthesis-utilization.rpt",
+          "sha256": "ff049c14bc258dd3ce5c04ffb2c458eef7728d55cfa56871f890709d3d3eea7e",
+          "bytes": 11507
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/drc.rpt",
+          "sha256": "40c702b196424ee6e6e422264d18c072ca2b60a02952197cfccbf0d662dd87ea",
+          "bytes": 33813
+        }
+      },
+      "gate_result": "Critical CDC and bus-skew gates reached without rejection; setup timing gate rejected. Inherited noncritical warnings remain."
+    },
+    {
+      "tag": "muldiv-cancel-div17",
+      "source_head_label": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+      "accepted": false,
+      "programmed": false,
+      "bitstream_written": false,
+      "status": "rejected_setup_timing",
+      "wns_ns": -0.933,
+      "tns_ns": -366.537,
+      "setup_failing_endpoints": 811,
+      "setup_total_endpoints": 43014,
+      "hold_wns_ns": 0.026,
+      "hold_tns_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "pulse_wns_ns": 0.206,
+      "worst_path": {
+        "source": "system/system_inst/data_port/l1/data_ram_reg_0/CLKARDCLK",
+        "destination": "system/system_inst/cpu/csr_file_inst/instret_counter_reg[39]/CE",
+        "requirement_ns": 17.0,
+        "data_path_delay_ns": 17.489,
+        "logic_levels": 20
+      },
+      "artifacts": {
+        "source-manifest.txt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/source-manifest.txt",
+          "sha256": "1b5350a8ca0784b26a891fc24a002fc09eb4f63cd276d86ad7200f611b5b0319",
+          "bytes": 9079
+        },
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/timing.rpt",
+          "sha256": "a204d5d1d98fefc84634bf46cf5cf81391f702df3985aeffebeb37b1a873af04",
+          "bytes": 531485
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/methodology.rpt",
+          "sha256": "8c08024253769f748029fdb2840834f626caea66562313412f2fb197741c791b",
+          "bytes": 20587
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/cdc.rpt",
+          "sha256": "8306c0151b31150b865757b0e94d1c5bd37f00f54fd4057ce3673bbfad35cad1",
+          "bytes": 11818
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/bus-skew.rpt",
+          "sha256": "25d14606ae5e2ff261e1e3edac51451de7ac09038a6f69e1fa4b857d0ae797ed",
+          "bytes": 134980
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/utilization.rpt",
+          "sha256": "e7f6f41ac25e290a947691775b3f51c968a2adb4398f21e27d66e4b4ba77bcc5",
+          "bytes": 13913
+        },
+        "synthesis-utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/synthesis-utilization.rpt",
+          "sha256": "ca7d180656a1c5fcc8c3e9678b8c253dc2f16e8d134d68feca63da1ac2e31123",
+          "bytes": 11504
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/drc.rpt",
+          "sha256": "f44166fbca804e53717d65c2dd4a0a5366b6be477e2327f6ac34b0e9a74e7951",
+          "bytes": 33818
+        }
+      },
+      "gate_result": "Clock methodology, critical CDC and bus-skew gates passed; setup timing gate rejected. Inherited noncritical warnings remain."
+    }
+  ],
+  "simulation": {
+    "model": {
+      "nominal_cpu_hz": 1000000,
+      "axi_response_cycles": 20,
+      "uart_divisor_scale": 16,
+      "iterations_per_seed": 50,
+      "seed_modes": [
+        "performance",
+        "validation"
+      ],
+      "baremetal": true,
+      "interrupts_enabled": false,
+      "parameters": {
+        "FAST_L1": 1,
+        "ICACHE_LINES": 256,
+        "DCACHE_LINES": 256,
+        "CACHE_LINE_BYTES": 16,
+        "STORE_BUFFER_DEPTH": 8,
+        "FAST_MULTIPLY": 1,
+        "FETCH_QUEUE": 1,
+        "LOAD_FORWARDING": 1,
+        "FAST_STORE_ACK": 1
+      },
+      "payload": {
+        "path": "fpga/arty_a7_35t/build/coremark-profile-1000000/coremark.bin",
+        "sha256": "c24f90706277b9c76dfea090d6cfd5fc852c068f045c920dacdd033401a7f7fe",
+        "bytes": 37384
+      }
+    },
+    "runs": [
+      {
+        "name": "fetch-boundary-coremark-axi20",
+        "source_head_label": "8d01f7d-plus-registered-cache-writes",
+        "load_forwarding": 1,
+        "records": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 29.2,
+            "iterations_per_second": 1.712329,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.712329,
+            "cycles": 29199872,
+            "retired_instructions": 12749965,
+            "cpi": 2.29019232601815
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 29.111,
+            "iterations_per_second": 1.717564,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.717564,
+            "cycles": 29111219,
+            "retired_instructions": 12722679,
+            "cpi": 2.2881359342635306
+          }
+        ],
+        "profiling_snapshots": [
+          {
+            "clock": 29201880,
+            "retired": 12750100,
+            "fetch_wait": 4263941,
+            "data_wait": 9188881,
+            "muldiv_wait": 1744382,
+            "fence_wait": 0,
+            "icache_hit": 18067207,
+            "icache_miss": 68743,
+            "dcache_hit": 2696467,
+            "dcache_miss": 10404,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 934424,
+            "axi_write_wait": 17519074,
+            "store_queue_stall": 4369642,
+            "store_enqueued": 678884
+          },
+          {
+            "clock": 29113230,
+            "retired": 12722814,
+            "fetch_wait": 4156132,
+            "data_wait": 9235106,
+            "muldiv_wait": 1744150,
+            "fence_wait": 0,
+            "icache_hit": 18056147,
+            "icache_miss": 62412,
+            "dcache_hit": 2712703,
+            "dcache_miss": 15842,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 936694,
+            "axi_write_wait": 17361479,
+            "store_queue_stall": 4250230,
+            "store_enqueued": 673296
+          }
+        ],
+        "model_completion": {
+          "cycles": 62434087,
+          "reads": 98886,
+          "writes": 1375471,
+          "response_cycles": 20,
+          "completed": 2
+        },
+        "raw_output": "COREMARK_AXI_CONFIG nominal_cpu_hz=1000000 fast_l1=1 store_buffer_depth=8 fast_multiply=1 fetch_queue=1 load_forwarding=1 fast_store_ack=1 dcache_lines=256 icache_lines=256 iterations=50 response_cycles=20\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e847b\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29200\nTotal time (secs): 29.200000\nIterations/Sec   : 1.712329\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 1.712329 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000001bd95d8\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x0000000000411005\nS32_PERF data_wait: 0x00000000008c3611\nS32_PERF muldiv_wait: 0x00000000001a9dfe\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x000000000113af07\nS32_PERF icache_miss: 0x0000000000010c87\nS32_PERF dcache_hit: 0x0000000000292513\nS32_PERF dcache_miss: 0x00000000000028a4\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000e4218\nS32_PERF axi_write_wait: 0x00000000010b51e2\nS32_PERF store_queue_stall: 0x000000000042acea\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001bd8e00\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29111\nTotal time (secs): 29.111000\nIterations/Sec   : 1.717564\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x0000000001bc3b8e\nS32_PERF retired: 0x0000000000c2227e\nS32_PERF fetch_wait: 0x00000000003f6ae4\nS32_PERF data_wait: 0x00000000008ceaa2\nS32_PERF muldiv_wait: 0x00000000001a9d16\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x00000000011383d3\nS32_PERF icache_miss: 0x000000000000f3cc\nS32_PERF dcache_hit: 0x000000000029647f\nS32_PERF dcache_miss: 0x0000000000003de2\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000e4af6\nS32_PERF axi_write_wait: 0x000000000108ea47\nS32_PERF store_queue_stall: 0x000000000040da76\nS32_PERF store_enqueued: 0x00000000000a4610\nTimed CPU cycles: 0x0000000001bc33b3\nTimed retired instructions: 0x0000000000c221f7\nS32_BAREMETAL_DONE:0\n\nCOREMARK_AXI_SUMMARY cycles=62434087 reads=98886 writes=1375471 response_cycles=20 completed=2\n",
+        "artifacts": {
+          "report": {
+            "path": "fpga/arty_a7_35t/build/fetch-boundary-coremark-axi20.json",
+            "sha256": "f51f619634cff34d49c2006d5f1bb8939006a1b3a3bcf61b38ddfd36f1f8d819",
+            "bytes": 1348
+          },
+          "log": {
+            "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-boundary-coremark-axi20.log",
+            "sha256": "9198b63f1a7cc65a2afefe309cf6e6063dab0b1ace602d8a46507723c8b8159b",
+            "bytes": 3970
+          }
+        }
+      },
+      {
+        "name": "fetch-boundary-upstream-coremark-axi20",
+        "source_head_label": "ce5da4b-plus-registered-cache-writes",
+        "load_forwarding": 1,
+        "records": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 29.2,
+            "iterations_per_second": 1.712329,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.712329,
+            "cycles": 29199872,
+            "retired_instructions": 12749965,
+            "cpi": 2.29019232601815
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 29.111,
+            "iterations_per_second": 1.717564,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.717564,
+            "cycles": 29111219,
+            "retired_instructions": 12722679,
+            "cpi": 2.2881359342635306
+          }
+        ],
+        "profiling_snapshots": [
+          {
+            "clock": 29201880,
+            "retired": 12750100,
+            "fetch_wait": 4263941,
+            "data_wait": 9188881,
+            "muldiv_wait": 1744382,
+            "fence_wait": 0,
+            "icache_hit": 18067207,
+            "icache_miss": 68743,
+            "dcache_hit": 2696467,
+            "dcache_miss": 10404,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 934424,
+            "axi_write_wait": 17519074,
+            "store_queue_stall": 4369642,
+            "store_enqueued": 678884
+          },
+          {
+            "clock": 29113230,
+            "retired": 12722814,
+            "fetch_wait": 4156132,
+            "data_wait": 9235106,
+            "muldiv_wait": 1744150,
+            "fence_wait": 0,
+            "icache_hit": 18056147,
+            "icache_miss": 62412,
+            "dcache_hit": 2712703,
+            "dcache_miss": 15842,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 936694,
+            "axi_write_wait": 17361479,
+            "store_queue_stall": 4250230,
+            "store_enqueued": 673296
+          }
+        ],
+        "model_completion": {
+          "cycles": 62434087,
+          "reads": 98886,
+          "writes": 1375471,
+          "response_cycles": 20,
+          "completed": 2
+        },
+        "raw_output": "COREMARK_AXI_CONFIG nominal_cpu_hz=1000000 fast_l1=1 store_buffer_depth=8 fast_multiply=1 fetch_queue=1 load_forwarding=1 fast_store_ack=1 dcache_lines=256 icache_lines=256 iterations=50 response_cycles=20\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e847b\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29200\nTotal time (secs): 29.200000\nIterations/Sec   : 1.712329\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 1.712329 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000001bd95d8\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x0000000000411005\nS32_PERF data_wait: 0x00000000008c3611\nS32_PERF muldiv_wait: 0x00000000001a9dfe\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x000000000113af07\nS32_PERF icache_miss: 0x0000000000010c87\nS32_PERF dcache_hit: 0x0000000000292513\nS32_PERF dcache_miss: 0x00000000000028a4\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000e4218\nS32_PERF axi_write_wait: 0x00000000010b51e2\nS32_PERF store_queue_stall: 0x000000000042acea\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001bd8e00\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29111\nTotal time (secs): 29.111000\nIterations/Sec   : 1.717564\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x0000000001bc3b8e\nS32_PERF retired: 0x0000000000c2227e\nS32_PERF fetch_wait: 0x00000000003f6ae4\nS32_PERF data_wait: 0x00000000008ceaa2\nS32_PERF muldiv_wait: 0x00000000001a9d16\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x00000000011383d3\nS32_PERF icache_miss: 0x000000000000f3cc\nS32_PERF dcache_hit: 0x000000000029647f\nS32_PERF dcache_miss: 0x0000000000003de2\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000e4af6\nS32_PERF axi_write_wait: 0x000000000108ea47\nS32_PERF store_queue_stall: 0x000000000040da76\nS32_PERF store_enqueued: 0x00000000000a4610\nTimed CPU cycles: 0x0000000001bc33b3\nTimed retired instructions: 0x0000000000c221f7\nS32_BAREMETAL_DONE:0\n\nCOREMARK_AXI_SUMMARY cycles=62434087 reads=98886 writes=1375471 response_cycles=20 completed=2\n",
+        "artifacts": {
+          "report": {
+            "path": "fpga/arty_a7_35t/build/fetch-boundary-upstream-coremark-axi20.json",
+            "sha256": "f51f619634cff34d49c2006d5f1bb8939006a1b3a3bcf61b38ddfd36f1f8d819",
+            "bytes": 1348
+          },
+          "log": {
+            "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-boundary-upstream-coremark-axi20.log",
+            "sha256": "9198b63f1a7cc65a2afefe309cf6e6063dab0b1ace602d8a46507723c8b8159b",
+            "bytes": 3970
+          }
+        }
+      },
+      {
+        "name": "fetch-control-lf0-coremark-axi20",
+        "source_head_label": "528c986f3e19747ff959b1d0ff5ade4bb207c58c",
+        "load_forwarding": 0,
+        "records": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 30.683,
+            "iterations_per_second": 1.629567,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.629567,
+            "cycles": 30683249,
+            "retired_instructions": 12749965,
+            "cpi": 2.406535939510422
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 30.76,
+            "iterations_per_second": 1.625488,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.625488,
+            "cycles": 30760037,
+            "retired_instructions": 12722679,
+            "cpi": 2.4177326960776107
+          }
+        ],
+        "profiling_snapshots": [
+          {
+            "clock": 30685263,
+            "retired": 12750100,
+            "fetch_wait": 4431694,
+            "data_wait": 8908979,
+            "muldiv_wait": 1420200,
+            "fence_wait": 0,
+            "icache_hit": 19193982,
+            "icache_miss": 82076,
+            "dcache_hit": 2696467,
+            "dcache_miss": 10404,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 1095005,
+            "axi_write_wait": 17537925,
+            "store_queue_stall": 4145865,
+            "store_enqueued": 678884
+          },
+          {
+            "clock": 30762054,
+            "retired": 12722814,
+            "fetch_wait": 4420482,
+            "data_wait": 9004343,
+            "muldiv_wait": 1420200,
+            "fence_wait": 0,
+            "icache_hit": 19186835,
+            "icache_miss": 80264,
+            "dcache_hit": 2712703,
+            "dcache_miss": 15842,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 1185079,
+            "axi_write_wait": 17371756,
+            "store_queue_stall": 4060342,
+            "store_enqueued": 673296
+          }
+        ],
+        "model_completion": {
+          "cycles": 65567431,
+          "reads": 172968,
+          "writes": 1375204,
+          "response_cycles": 20,
+          "completed": 2
+        },
+        "raw_output": "COREMARK_AXI_CONFIG nominal_cpu_hz=1000000 fast_l1=1 store_buffer_depth=8 fast_multiply=1 fetch_queue=1 load_forwarding=0 fast_store_ack=1 dcache_lines=256 icache_lines=256 iterations=50 response_cycles=20\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e8493\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 30683\nTotal time (secs): 30.683000\nIterations/Sec   : 1.629567\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 1.629567 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000001d4384f\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x0000000000439f4e\nS32_PERF data_wait: 0x000000000087f0b3\nS32_PERF muldiv_wait: 0x000000000015aba8\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x000000000124e07e\nS32_PERF icache_miss: 0x000000000001409c\nS32_PERF dcache_hit: 0x0000000000292513\nS32_PERF dcache_miss: 0x00000000000028a4\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x000000000010b55d\nS32_PERF axi_write_wait: 0x00000000010b9b85\nS32_PERF store_queue_stall: 0x00000000003f42c9\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001d43071\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 30760\nTotal time (secs): 30.760000\nIterations/Sec   : 1.625488\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x0000000001d56446\nS32_PERF retired: 0x0000000000c2227e\nS32_PERF fetch_wait: 0x0000000000437382\nS32_PERF data_wait: 0x0000000000896537\nS32_PERF muldiv_wait: 0x000000000015aba8\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x000000000124c493\nS32_PERF icache_miss: 0x0000000000013988\nS32_PERF dcache_hit: 0x000000000029647f\nS32_PERF dcache_miss: 0x0000000000003de2\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x0000000000121537\nS32_PERF axi_write_wait: 0x000000000109126c\nS32_PERF store_queue_stall: 0x00000000003df4b6\nS32_PERF store_enqueued: 0x00000000000a4610\nTimed CPU cycles: 0x0000000001d55c65\nTimed retired instructions: 0x0000000000c221f7\nS32_BAREMETAL_DONE:0\n\nCOREMARK_AXI_SUMMARY cycles=65567431 reads=172968 writes=1375204 response_cycles=20 completed=2\n",
+        "artifacts": {
+          "report": {
+            "path": "fpga/arty_a7_35t/build/fetch-control-lf0-coremark-axi20.json",
+            "sha256": "c78927b67b66b6652022764694acdff1e750cce0a8fa0af3e0d47a8ba354fbe2",
+            "bytes": 1350
+          },
+          "log": {
+            "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-control-lf0-coremark-axi20.log",
+            "sha256": "44f55c9723e2ed678316b49aed7a52f1cdea78dcba09436514d90c9600b07d26",
+            "bytes": 3971
+          }
+        }
+      },
+      {
+        "name": "fetch-control-coremark-axi20",
+        "source_head_label": "528c986f3e19747ff959b1d0ff5ade4bb207c58c",
+        "load_forwarding": 1,
+        "records": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 29.273,
+            "iterations_per_second": 1.708059,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.708059,
+            "cycles": 29272982,
+            "retired_instructions": 12749965,
+            "cpi": 2.295926459405967
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 29.183,
+            "iterations_per_second": 1.713326,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.713326,
+            "cycles": 29183354,
+            "retired_instructions": 12722679,
+            "cpi": 2.2938057306955555
+          }
+        ],
+        "profiling_snapshots": [
+          {
+            "clock": 29274993,
+            "retired": 12750100,
+            "fetch_wait": 4337427,
+            "data_wait": 9188514,
+            "muldiv_wait": 1744383,
+            "fence_wait": 0,
+            "icache_hit": 19276627,
+            "icache_miss": 77998,
+            "dcache_hit": 2696467,
+            "dcache_miss": 10404,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 1001005,
+            "axi_write_wait": 17519722,
+            "store_queue_stall": 4369469,
+            "store_enqueued": 678884
+          },
+          {
+            "clock": 29185365,
+            "retired": 12722814,
+            "fetch_wait": 4228152,
+            "data_wait": 9235071,
+            "muldiv_wait": 1744150,
+            "fence_wait": 0,
+            "icache_hit": 19280149,
+            "icache_miss": 72180,
+            "dcache_hit": 2712703,
+            "dcache_miss": 15842,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 1002842,
+            "axi_write_wait": 17361125,
+            "store_queue_stall": 4250389,
+            "store_enqueued": 673296
+          }
+        ],
+        "model_completion": {
+          "cycles": 62594823,
+          "reads": 160940,
+          "writes": 1375515,
+          "response_cycles": 20,
+          "completed": 2
+        },
+        "raw_output": "COREMARK_AXI_CONFIG nominal_cpu_hz=1000000 fast_l1=1 store_buffer_depth=8 fast_multiply=1 fetch_queue=1 load_forwarding=1 fast_store_ack=1 dcache_lines=256 icache_lines=256 iterations=50 response_cycles=20\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e8493\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29273\nTotal time (secs): 29.273000\nIterations/Sec   : 1.708059\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 1.708059 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000001beb371\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x0000000000422f13\nS32_PERF data_wait: 0x00000000008c34a2\nS32_PERF muldiv_wait: 0x00000000001a9dff\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000001262353\nS32_PERF icache_miss: 0x00000000000130ae\nS32_PERF dcache_hit: 0x0000000000292513\nS32_PERF dcache_miss: 0x00000000000028a4\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000f462d\nS32_PERF axi_write_wait: 0x00000000010b546a\nS32_PERF store_queue_stall: 0x000000000042ac3d\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001beab96\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29183\nTotal time (secs): 29.183000\nIterations/Sec   : 1.713326\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x0000000001bd5555\nS32_PERF retired: 0x0000000000c2227e\nS32_PERF fetch_wait: 0x0000000000408438\nS32_PERF data_wait: 0x00000000008cea7f\nS32_PERF muldiv_wait: 0x00000000001a9d16\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000001263115\nS32_PERF icache_miss: 0x00000000000119f4\nS32_PERF dcache_hit: 0x000000000029647f\nS32_PERF dcache_miss: 0x0000000000003de2\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000f4d5a\nS32_PERF axi_write_wait: 0x000000000108e8e5\nS32_PERF store_queue_stall: 0x000000000040db15\nS32_PERF store_enqueued: 0x00000000000a4610\nTimed CPU cycles: 0x0000000001bd4d7a\nTimed retired instructions: 0x0000000000c221f7\nS32_BAREMETAL_DONE:0\n\nCOREMARK_AXI_SUMMARY cycles=62594823 reads=160940 writes=1375515 response_cycles=20 completed=2\n",
+        "artifacts": {
+          "report": {
+            "path": "fpga/arty_a7_35t/build/fetch-control-coremark-axi20.json",
+            "sha256": "4ffa771d489b71a22c0c0f3c7e20a0ec74b826a90f3c9594dce095a51df0cbef",
+            "bytes": 1351
+          },
+          "log": {
+            "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-control-coremark-axi20.log",
+            "sha256": "ea22fee2b26ee8f24f67975ee000c1cad0dd855b91dc0420c3dc85497b8323fe",
+            "bytes": 3971
+          }
+        }
+      },
+      {
+        "name": "atomic-trigger-coremark-axi20",
+        "source_head_label": "6ec10fa6e78d2439f74db95bac7fc50d445a4842",
+        "load_forwarding": 1,
+        "records": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 29.273,
+            "iterations_per_second": 1.708059,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.708059,
+            "cycles": 29272982,
+            "retired_instructions": 12749965,
+            "cpi": 2.295926459405967
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 29.183,
+            "iterations_per_second": 1.713326,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.713326,
+            "cycles": 29183354,
+            "retired_instructions": 12722679,
+            "cpi": 2.2938057306955555
+          }
+        ],
+        "profiling_snapshots": [
+          {
+            "clock": 29274993,
+            "retired": 12750100,
+            "fetch_wait": 4337427,
+            "data_wait": 9188514,
+            "muldiv_wait": 1744383,
+            "fence_wait": 0,
+            "icache_hit": 19276627,
+            "icache_miss": 77998,
+            "dcache_hit": 2696467,
+            "dcache_miss": 10404,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 1001005,
+            "axi_write_wait": 17519722,
+            "store_queue_stall": 4369469,
+            "store_enqueued": 678884
+          },
+          {
+            "clock": 29185365,
+            "retired": 12722814,
+            "fetch_wait": 4228152,
+            "data_wait": 9235071,
+            "muldiv_wait": 1744150,
+            "fence_wait": 0,
+            "icache_hit": 19280149,
+            "icache_miss": 72180,
+            "dcache_hit": 2712703,
+            "dcache_miss": 15842,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 1002842,
+            "axi_write_wait": 17361125,
+            "store_queue_stall": 4250389,
+            "store_enqueued": 673296
+          }
+        ],
+        "model_completion": {
+          "cycles": 62594823,
+          "reads": 160940,
+          "writes": 1375515,
+          "response_cycles": 20,
+          "completed": 2
+        },
+        "raw_output": "COREMARK_AXI_CONFIG nominal_cpu_hz=1000000 fast_l1=1 store_buffer_depth=8 fast_multiply=1 fetch_queue=1 load_forwarding=1 fast_store_ack=1 dcache_lines=256 icache_lines=256 iterations=50 response_cycles=20\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e8493\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29273\nTotal time (secs): 29.273000\nIterations/Sec   : 1.708059\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 1.708059 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000001beb371\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x0000000000422f13\nS32_PERF data_wait: 0x00000000008c34a2\nS32_PERF muldiv_wait: 0x00000000001a9dff\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000001262353\nS32_PERF icache_miss: 0x00000000000130ae\nS32_PERF dcache_hit: 0x0000000000292513\nS32_PERF dcache_miss: 0x00000000000028a4\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000f462d\nS32_PERF axi_write_wait: 0x00000000010b546a\nS32_PERF store_queue_stall: 0x000000000042ac3d\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001beab96\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29183\nTotal time (secs): 29.183000\nIterations/Sec   : 1.713326\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x0000000001bd5555\nS32_PERF retired: 0x0000000000c2227e\nS32_PERF fetch_wait: 0x0000000000408438\nS32_PERF data_wait: 0x00000000008cea7f\nS32_PERF muldiv_wait: 0x00000000001a9d16\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000001263115\nS32_PERF icache_miss: 0x00000000000119f4\nS32_PERF dcache_hit: 0x000000000029647f\nS32_PERF dcache_miss: 0x0000000000003de2\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000f4d5a\nS32_PERF axi_write_wait: 0x000000000108e8e5\nS32_PERF store_queue_stall: 0x000000000040db15\nS32_PERF store_enqueued: 0x00000000000a4610\nTimed CPU cycles: 0x0000000001bd4d7a\nTimed retired instructions: 0x0000000000c221f7\nS32_BAREMETAL_DONE:0\n\nCOREMARK_AXI_SUMMARY cycles=62594823 reads=160940 writes=1375515 response_cycles=20 completed=2\n",
+        "artifacts": {
+          "report": {
+            "path": "fpga/arty_a7_35t/build/atomic-trigger-coremark-axi20.json",
+            "sha256": "4ffa771d489b71a22c0c0f3c7e20a0ec74b826a90f3c9594dce095a51df0cbef",
+            "bytes": 1351
+          },
+          "log": {
+            "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__atomic-trigger-coremark-axi20.log",
+            "sha256": "ea22fee2b26ee8f24f67975ee000c1cad0dd855b91dc0420c3dc85497b8323fe",
+            "bytes": 3971
+          }
+        }
+      },
+      {
+        "name": "muldiv-cancel-coremark-axi20",
+        "source_head_label": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+        "load_forwarding": 1,
+        "records": [
+          {
+            "mode": "performance",
+            "iterations": 50,
+            "seconds": 29.273,
+            "iterations_per_second": 1.708059,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.708059,
+            "cycles": 29272982,
+            "retired_instructions": 12749965,
+            "cpi": 2.295926459405967
+          },
+          {
+            "mode": "validation",
+            "iterations": 50,
+            "seconds": 29.183,
+            "iterations_per_second": 1.713326,
+            "compiler": "Clang 23.1.1",
+            "compiler_flags": "-O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none",
+            "memory_location": "Synapse32 RAM, static data, M-mode, interrupts disabled",
+            "validated": true,
+            "cpu_mhz": 1.0,
+            "coremark_per_mhz": 1.713326,
+            "cycles": 29183354,
+            "retired_instructions": 12722679,
+            "cpi": 2.2938057306955555
+          }
+        ],
+        "profiling_snapshots": [
+          {
+            "clock": 29274993,
+            "retired": 12750100,
+            "fetch_wait": 4337427,
+            "data_wait": 9188514,
+            "muldiv_wait": 1744383,
+            "fence_wait": 0,
+            "icache_hit": 19276627,
+            "icache_miss": 77998,
+            "dcache_hit": 2696467,
+            "dcache_miss": 10404,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 1001005,
+            "axi_write_wait": 17519722,
+            "store_queue_stall": 4369469,
+            "store_enqueued": 678884
+          },
+          {
+            "clock": 29185365,
+            "retired": 12722814,
+            "fetch_wait": 4228152,
+            "data_wait": 9235071,
+            "muldiv_wait": 1744150,
+            "fence_wait": 0,
+            "icache_hit": 19280149,
+            "icache_miss": 72180,
+            "dcache_hit": 2712703,
+            "dcache_miss": 15842,
+            "itlb_miss": 0,
+            "dtlb_miss": 0,
+            "axi_read_wait": 1002842,
+            "axi_write_wait": 17361125,
+            "store_queue_stall": 4250389,
+            "store_enqueued": 673296
+          }
+        ],
+        "model_completion": {
+          "cycles": 62594823,
+          "reads": 160940,
+          "writes": 1375515,
+          "response_cycles": 20,
+          "completed": 2
+        },
+        "raw_output": "COREMARK_AXI_CONFIG nominal_cpu_hz=1000000 fast_l1=1 store_buffer_depth=8 fast_multiply=1 fetch_queue=1 load_forwarding=1 fast_store_ack=1 dcache_lines=256 icache_lines=256 iterations=50 response_cycles=20\nS32_BAREMETAL_CPU_HZ: 1000000\nM-mode; satp=0; mie=0; mstatus.MIE=0; no OpenSBI or OS\nS32_TIMER_START\nS32_TIMER_END\nTimer selftest cycles: 0x00000000001e8493\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29273\nTotal time (secs): 29.273000\nIterations/Sec   : 1.708059\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 1.708059 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x0000000001beb371\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x0000000000422f13\nS32_PERF data_wait: 0x00000000008c34a2\nS32_PERF muldiv_wait: 0x00000000001a9dff\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000001262353\nS32_PERF icache_miss: 0x00000000000130ae\nS32_PERF dcache_hit: 0x0000000000292513\nS32_PERF dcache_miss: 0x00000000000028a4\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000f462d\nS32_PERF axi_write_wait: 0x00000000010b546a\nS32_PERF store_queue_stall: 0x000000000042ac3d\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001beab96\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0\nS32_BAREMETAL_READY\nS32_BAREMETAL_RUN: v 50\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 29183\nTotal time (secs): 29.183000\nIterations/Sec   : 1.713326\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x6bf4\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x0000000001bd5555\nS32_PERF retired: 0x0000000000c2227e\nS32_PERF fetch_wait: 0x0000000000408438\nS32_PERF data_wait: 0x00000000008cea7f\nS32_PERF muldiv_wait: 0x00000000001a9d16\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000001263115\nS32_PERF icache_miss: 0x00000000000119f4\nS32_PERF dcache_hit: 0x000000000029647f\nS32_PERF dcache_miss: 0x0000000000003de2\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000000f4d5a\nS32_PERF axi_write_wait: 0x000000000108e8e5\nS32_PERF store_queue_stall: 0x000000000040db15\nS32_PERF store_enqueued: 0x00000000000a4610\nTimed CPU cycles: 0x0000000001bd4d7a\nTimed retired instructions: 0x0000000000c221f7\nS32_BAREMETAL_DONE:0\n\nCOREMARK_AXI_SUMMARY cycles=62594823 reads=160940 writes=1375515 response_cycles=20 completed=2\n",
+        "artifacts": {
+          "report": {
+            "path": "fpga/arty_a7_35t/build/muldiv-cancel-coremark-axi20.json",
+            "sha256": "4ffa771d489b71a22c0c0f3c7e20a0ec74b826a90f3c9594dce095a51df0cbef",
+            "bytes": 1351
+          },
+          "log": {
+            "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__muldiv-cancel-coremark-axi20.log",
+            "sha256": "ea22fee2b26ee8f24f67975ee000c1cad0dd855b91dc0420c3dc85497b8323fe",
+            "bytes": 3971
+          }
+        }
+      }
+    ],
+    "matched_comparison": {
+      "source_commit": "528c986f3e19747ff959b1d0ff5ade4bb207c58c",
+      "only_parameter_varied": "LOAD_FORWARDING",
+      "performance_gain_percent": 4.816739661517455,
+      "validation_gain_percent": 5.403792584134726,
+      "atomic_fix_keeps_both_seed_cycles_and_scores_identical": true,
+      "muldiv_cancel_fix_keeps_both_seed_cycles_and_scores_identical": true
+    }
+  },
+  "functional_checks": [
+    {
+      "name": "merge_regressions",
+      "source_commit": "ce5da4bce806d038988f5ef34ac507162e6f6738",
+      "status": "pass",
+      "description": "Upstream merge:20 memory-wait tests including 1,128 interrupt positions, precise ifetch faults, triggers, CSR pending/trap priority and CSR tests pass.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__fetch-boundary-merge-validation.json",
+        "sha256": "4a4ea2fc1cebbacf88484afe1582098ff0dd9d33018a9afeb43ff8d16b80c910",
+        "bytes": 2235
+      },
+      "report": {
+        "source_head": "ce5da4bce806d038988f5ef34ac507162e6f6738",
+        "memory_wait_load_forwarding": 1,
+        "memory_latencies": [
+          0,
+          1,
+          2,
+          4
+        ],
+        "interrupt_sweep_positions": 1128,
+        "interrupt_sweep_failures": 0,
+        "memory_wait_reference_instructions": 223,
+        "memory_wait_reference_result_stores": 11,
+        "yosys": "not installed; not run",
+        "sources": {
+          "rtl/riscv_cpu.v": "e27ecdc7519c5b468b03ccbadcfb6fb664e5cc411efad380ab5b689db2072b58",
+          "rtl/execution_unit.v": "044b059dca21c3b277f8a8a4af10b3f8997b7564d64cce7c97c1f2c37919869a",
+          "rtl/core_modules/csr_file.v": "8f3035498ee4dd61f2823ca2357a33049c1f522600dc41b6df042e4699b27b74"
+        },
+        "logs": [
+          {
+            "test": "memory-wait",
+            "path": "build/fetch-boundary-merge-memory-wait.log",
+            "sha256": "4bc5003143f608d4881f2a04d06a0a61b2c969249e5b18185df8d1c60ce76060",
+            "simulation_runs": 5,
+            "reported_tests": 20,
+            "failed": 0
+          },
+          {
+            "test": "ifetch-fault",
+            "path": "build/fetch-boundary-merge-ifetch-fault.log",
+            "sha256": "3f4d67d1377386c027f9acfb0dd4e737ded3f8b9fdaeaf60f13005c8da3cb477",
+            "simulation_runs": 2,
+            "reported_tests": 2,
+            "failed": 0
+          },
+          {
+            "test": "triggers",
+            "path": "build/fetch-boundary-merge-triggers.log",
+            "sha256": "61aeb3673c53147f5521ec4b4a05a873b4cdff200c061fb0fbe8a1a25d77e455",
+            "simulation_runs": 1,
+            "reported_tests": 2,
+            "failed": 0
+          },
+          {
+            "test": "csr-pending-rmw",
+            "path": "build/fetch-boundary-merge-csr-pending-rmw.log",
+            "sha256": "39485a9ee1d3a86bea555386c54df3520ba0d3cf82b9f152cc78e8adccb6278b",
+            "simulation_runs": 1,
+            "reported_tests": 1,
+            "failed": 0
+          },
+          {
+            "test": "csr-trap-priority",
+            "path": "build/fetch-boundary-merge-csr-trap-priority.log",
+            "sha256": "6e758a6e700aa0bca3833f82b23a08e4b7334e085cecb82128652943e2bca86d",
+            "simulation_runs": 1,
+            "reported_tests": 1,
+            "failed": 0
+          },
+          {
+            "test": "csr",
+            "path": "build/fetch-boundary-merge-csr.log",
+            "sha256": "0bb2235b49adf04082515a74ef53c5c7b72fb50c31adf04717c2c9349ddb3b47",
+            "simulation_runs": 19,
+            "reported_tests": 19,
+            "failed": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "frontend_transactions",
+      "source_commit": "72b5b58fc3852744e7951e8755480067e2c99e48",
+      "status": "pass",
+      "description": "32 cache transaction cases: cancel/flush/context return/fault races, ordered fill/snoops, collision forwarding, tags, errors and reset pass.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-boundary-transactions-final.log",
+        "sha256": "4849b7dd02e367c6bd2613e98cb6d69b58fb0c67b5409550ab5aff82fbe5af45",
+        "bytes": 393
+      },
+      "pass_lines": [
+        "PASS: frontend cache transactions 32 cases; cancel/flush/context return and fault races; ordered fill/snoops; collision forwarding/tags/error/reset"
+      ]
+    },
+    {
+      "name": "frontend_and_memory",
+      "source_commit": "528c986f3e19747ff959b1d0ff5ade4bb207c58c",
+      "status": "pass",
+      "description": "Queued/pipelined fetch,20 restart cases, credits/redirect generations, access/page-fault handling, load forwarding/raw response contracts, trigger comparison 10,804 cases, store/fence/atomic tests and registered/direct cache bank cases pass.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-control-directed.log",
+        "sha256": "6f7539c17c1866b4da8f47d15ea6d4b5b287e201da2eb2c84adb767c07ec9e57",
+        "bytes": 48704
+      },
+      "pass_lines": [
+        "PASS: pipelined fetch hits, misses, walks, permissions, precise access faults, MMIO rejection and cancellation",
+        "PASS: frontend cache transactions 32 cases; cancel/flush/context return and fault races; ordered fill/snoops; collision forwarding/tags/error/reset",
+        "PASS: fetch port registered restart 20 cases, warm targets, misses, DONE, completion errors, old-grant drains and canceled TLB fills",
+        "PASS fetch queue: credits/full, push/pop/grant, immediate architectural kill, registered restart grants, old reply/fault discard, same-PC/consecutive redirects, branch/context collision, fault-stop reset, empty bypass",
+        "INSTR_FAULT_CASE_PASS supervisor=0 delegate=0 wrongpath=0 page=0",
+        "INSTR_FAULT_CASE_PASS supervisor=1 delegate=0 wrongpath=0 page=0",
+        "INSTR_FAULT_CASE_PASS supervisor=1 delegate=1 wrongpath=0 page=0",
+        "INSTR_FAULT_CASE_PASS supervisor=0 delegate=0 wrongpath=1 page=0",
+        "INSTR_FAULT_CASE_PASS supervisor=0 delegate=0 wrongpath=0 page=1",
+        "INSTR_FAULT_CASE_PASS supervisor=1 delegate=0 wrongpath=0 page=1",
+        "INSTR_FAULT_CASE_PASS supervisor=1 delegate=1 wrongpath=0 page=1",
+        "INSTR_FAULT_CASE_PASS supervisor=0 delegate=0 wrongpath=1 page=1",
+        "INSTR_ACCESS_FAULT_PASS",
+        "PASS fetch access-fault case0: handled cause1 atPC80000400 without fabric halt",
+        "PASS fetch access-fault case1: canceled in-flight wrong-path bus error drained without trap/halt",
+        "PASS fetch access-fault case2: data read error retains fatal behavior",
+        "PASS posted stores depth=4 fastmul=1 cycles=55950 post=11 hit=1 miss=100 fence=208 fi=103 lr=102 sc=206 amo=103 failedsc=103 successsc=103 md=69",
+        "Ran 4 tests in 0.001s",
+        "PASS: early store response mode=0 responses=11 grants=15 commits=5",
+        "PASS: early store response mode=1 responses=11 grants=15 commits=5",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_alu",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_store",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_csr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_jalr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_mul",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=mret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=sret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=wfi",
+        "LOAD_FAULT_PRIORITY_PASS",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_alu",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_store",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_csr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_jalr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_mul",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=mret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=sret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=wfi",
+        "LOAD_FAULT_PRIORITY_PASS",
+        "LOAD_RESPONSE_CONTRACT_PASS formatted=0 loads=202 stores=17",
+        "LOAD_RESPONSE_CONTRACT_PASS formatted=1 loads=202 stores=17",
+        "PASS: trigger base comparison 10804 cases; loadhits=3441 storehits=3437 exechits=4; all4 slots, wrap/negative offsets, disabled/wrong kind, forwarding and atomic/priority cases",
+        "PASS posted stores depth=4 fastmul=1 cycles=55947 post=11 hit=1 miss=101 fence=209 fi=104 lr=103 sc=208 amo=104 failedsc=104 successsc=104 md=69",
+        "PASS: independent one-cycle L1 hits, line fills, subwords, write snoops, tags, permissions, redirects",
+        "PASS: L1 bank lines=0 registered_writes=0 fill/tags/byte snoops/collision forwarding/error/reset",
+        "PASS: L1 bank lines=1 registered_writes=0 fill/tags/byte snoops/collision forwarding/error/reset",
+        "PASS: L1 bank lines=4 registered_writes=0 fill/tags/byte snoops/collision forwarding/error/reset",
+        "PASS: L1 bank lines=256 registered_writes=0 fill/tags/byte snoops/collision forwarding/error/reset",
+        "PASS: L1 bank lines=0 registered_writes=1 fill/tags/byte snoops/collision forwarding/error/reset",
+        "PASS: L1 bank lines=1 registered_writes=1 fill/tags/byte snoops/collision forwarding/error/reset",
+        "PASS: L1 bank lines=4 registered_writes=1 fill/tags/byte snoops/collision forwarding/error/reset",
+        "PASS: L1 bank lines=256 registered_writes=1 fill/tags/byte snoops/collision forwarding/error/reset",
+        "Ran 5 tests in 0.407s",
+        "OK (skipped=1)"
+      ]
+    },
+    {
+      "name": "posted_stores_final",
+      "source_commit": "528c986f3e19747ff959b1d0ff5ade4bb207c58c",
+      "status": "pass",
+      "description": "Posted-store tests at depths 4 and 8 with fast multiply pass, including fences, FENCE.I, LR/SC/AMO and muldiv.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-control-posted-final.log",
+        "sha256": "93e273534cf9811155009b29ce695ef14cf5237c9d3c30c6256ef77e42895e31",
+        "bytes": 788
+      },
+      "pass_lines": [
+        "PASS posted stores depth=4 fastmul=1 cycles=55947 post=11 hit=1 miss=101 fence=209 fi=104 lr=103 sc=208 amo=104 failedsc=104 successsc=104 md=69",
+        "PASS posted stores depth=8 fastmul=1 cycles=55947 post=11 hit=1 miss=101 fence=209 fi=104 lr=103 sc=208 amo=104 failedsc=104 successsc=104 md=69"
+      ]
+    },
+    {
+      "name": "warm_fetch_throughput",
+      "source_commit": "528c986f3e19747ff959b1d0ff5ade4bb207c58c",
+      "status": "pass",
+      "description": "Warm 64-instruction trace retains grant/response/EX-completion interval exactly 1 cycle with fetch queue enabled.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-control-throughput.log",
+        "sha256": "549440d70a08a788cb73d8b7e70e353ee05a88c44007fe6855d7cb39b8c4baea",
+        "bytes": 9378
+      },
+      "pass_lines": []
+    },
+    {
+      "name": "linux_shell",
+      "source_commit": "528c986f3e19747ff959b1d0ff5ade4bb207c58c",
+      "status": "pass",
+      "description": "Full Linux FPGA AXI/Sv32/PLIC simulation boots and executes UART shell command in 262,187,278 cycles.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-control-linux.log",
+        "sha256": "8ab29405a8e7569af268b54bed7f8509dc02cbb17960500643fe821fc2e23190",
+        "bytes": 7649
+      },
+      "pass_lines": [
+        "PASS: Linux BusyBox shell executed a UART command through FPGA AXI/Sv32/PLIC fabric in 262187278 cycles"
+      ]
+    },
+    {
+      "name": "atomic_fix_memory_path",
+      "source_commit": "6ec10fa6e78d2439f74db95bac7fc50d445a4842",
+      "status": "pass",
+      "description": "Full test-memory-path passes including formatted/raw loads, older fault priority, triggers, fences and atomics.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__atomic-trigger-directed.log",
+        "sha256": "66f6e3b4b5ffe0a428d941d8d652a5eb4b1988d6e6d22c2b19c109e21f225756",
+        "bytes": 22655
+      },
+      "pass_lines": [
+        "Ran 4 tests in 0.000s",
+        "PASS: early store response mode=0 responses=11 grants=15 commits=5",
+        "PASS: early store response mode=1 responses=11 grants=15 commits=5",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_alu",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_store",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_csr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_jalr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_mul",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=mret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=sret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=wfi",
+        "LOAD_FAULT_PRIORITY_PASS",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_alu",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_store",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_csr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_jalr",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=dependent_mul",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=mret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=sret",
+        "LOAD_FAULT_PRIORITY_CASE_PASS case=wfi",
+        "LOAD_FAULT_PRIORITY_PASS",
+        "LOAD_RESPONSE_CONTRACT_PASS formatted=0 loads=202 stores=17",
+        "LOAD_RESPONSE_CONTRACT_PASS formatted=1 loads=202 stores=17",
+        "PASS: trigger base comparison 10804 cases; loadhits=3441 storehits=3437 exechits=4; all4 slots, wrap/negative offsets, disabled/wrong kind, forwarding and atomic/priority cases",
+        "PASS posted stores depth=4 fastmul=1 cycles=55947 post=11 hit=1 miss=101 fence=209 fi=104 lr=103 sc=208 amo=104 failedsc=104 successsc=104 md=69"
+      ]
+    },
+    {
+      "name": "atomic_fix_cpu_regressions",
+      "source_commit": "6ec10fa6e78d2439f74db95bac7fc50d445a4842",
+      "status": "pass",
+      "description": "Trigger, pending CSR RMW and CSR trap-priority CPU tests: 3 passed.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__atomic-trigger-cpu-tests.log",
+        "sha256": "7cb2bede34f8bea5be8964daf14039ce2f116498e71db8f6146fc662b9b95a05",
+        "bytes": 99
+      },
+      "pass_lines": [
+        "3 passed in 35.60s"
+      ]
+    },
+    {
+      "name": "atomic_fix_linux_shell",
+      "source_commit": "6ec10fa6e78d2439f74db95bac7fc50d445a4842",
+      "status": "pass",
+      "description": "Full Linux FPGA AXI/Sv32/PLIC simulation boots and executes UART shell command in 262,187,278 cycles, exactly  matching 528c986.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__atomic-trigger-linux.log",
+        "sha256": "8ab29405a8e7569af268b54bed7f8509dc02cbb17960500643fe821fc2e23190",
+        "bytes": 7649
+      },
+      "pass_lines": [
+        "PASS: Linux BusyBox shell executed a UART command through FPGA AXI/Sv32/PLIC fabric in 262187278 cycles"
+      ]
+    },
+    {
+      "name": "atomic_trigger_forwarding",
+      "source_commit": "4e1a9f77266a4324aff5e25d3c7ac2bd4a47aa19",
+      "rtl_source_commit": "6ec10fa6e78d2439f74db95bac7fc50d445a4842",
+      "status": "pass",
+      "cases": 11088,
+      "hits": 2248,
+      "description": "All 11 atomics and four trigger slots with distinct RF/MEM/WB operands, ignored immediate fields, enable/kind/stage control, and misalignment/execute/interrupt priority. This commit adds regression coverage without changing RTL.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__atomic-trigger-forwarding-final.log",
+        "sha256": "72994fa7bbbbec403f6c1e39eac46367c97a3c26a3d15fe0a0c38f2fe888927a",
+        "bytes": 438
+      },
+      "pass_lines": [
+        "PASS: atomic trigger forwarding 11088 cases hits=2248; all11 operations/all4 slots, distinct MEM/WB bases, ignored immediate, kinds/enable/hold/valid and misalignment/execute/interrupt priority"
+      ]
+    },
+    {
+      "name": "muldiv_normal_arithmetic",
+      "source_commit": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+      "rtl_source_commit": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+      "status": "pass",
+      "description": "Normal RV32M arithmetic, held results and cancellation: 1,633 cases per FAST_MULTIPLY mode, 0 and 1.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__muldiv-cancel-arithmetic.log",
+        "sha256": "43c86535c47d09756659652046c918b14b073e17717eb93d6c4e82f78b5d3533",
+        "bytes": 560
+      },
+      "pass_lines": [
+        "PASS: 1633 RV32M cases, held results and cancellation",
+        "PASS: 1633 RV32M cases, held results and cancellation"
+      ]
+    },
+    {
+      "name": "muldiv_cancellation_restart",
+      "source_commit": "5a127b68af502aa873070c5f928573aadfc281cc",
+      "rtl_source_commit": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+      "status": "pass",
+      "description": "Cancellation at every busy edge across all eight operations: 296 checked cancel/restarts in mode 0 and 176 in mode 1, 472 total; held done and cancel/start/consume collisions pass.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__muldiv-cancel-final.log",
+        "sha256": "0684e69902d20b9c1f1094fc99c1e0000e12ea9aecfaa35d7d853a70de47ac90",
+        "bytes": 835
+      },
+      "pass_lines": [
+        "PASS: muldiv cancellation fast=0 cancel_positions=296 verified_restarts=296; all8ops/everybusyedge, held done, cancel+start+consume, stale-result exclusion, div0/overflow replacements",
+        "PASS: muldiv cancellation fast=1 cancel_positions=176 verified_restarts=176; all8ops/everybusyedge, held done, cancel+start+consume, stale-result exclusion, div0/overflow replacements"
+      ]
+    },
+    {
+      "name": "muldiv_linux_shell",
+      "source_commit": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+      "rtl_source_commit": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+      "status": "pass",
+      "description": "Managed Linux simulation boots and executes a UART shell command in 262,187,278 cycles, exactly matching 528c986 and 6ec10fa.",
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__muldiv-cancel-linux-final.log",
+        "sha256": "8ab29405a8e7569af268b54bed7f8509dc02cbb17960500643fe821fc2e23190",
+        "bytes": 7649
+      },
+      "pass_lines": [
+        "PASS: Linux BusyBox shell executed a UART command through FPGA AXI/Sv32/PLIC fabric in 262187278 cycles"
+      ],
+      "exit_status": {
+        "exit_code": 0
+      },
+      "exit_status_artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__muldiv-cancel-linux-exit.json",
+        "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+        "bytes": 17
+      }
+    }
+  ],
+  "notes": [
+    "Simulation scores are not physical FPGA measurements. The nominal 1 MHz timer normalizes scores to the model cycles; the physical clock target is 58.823529 MHz.",
+    "Each simulation variant has one 50-iteration performance-seed run and one 50-iteration validation-seed run, not medians of repeated physical runs. Both exceed10 simulated seconds and validate EEMBC CRCs.",
+    "Hardware event counters overlap; wait counts must not be added into a CPI decomposition. Muldiv wait can include an instruction held behind older memory before the unit starts.",
+    "Counted instructions use the CPU EX-completion/instret event, not an independent writeback retirement trace. MMIO profiling snapshots include a small bracketing overhead.",
+    "No new bitstream in the five completed routes was accepted or programmed. The accepted physical baseline remains source f0d2f83 with load forwarding disabled.",
+    "The earlier fetch-boundary-div17 premerge build was terminated during synthesis to synchronize upstream; it has no timing result and is not counted as a timing-rejected route.",
+    "The bounded atomic-trigger postroute refinement also failed setup with WNS -0.138 ns and 91 failing endpoints. Its worst remaining path is D-cache data through branch/flush control to the private iterative muldiv remainder register synchronous reset input.",
+    "The 42ae42a postroute refinement fails at WNS -0.428 ns / TNS -27.026 ns / 318 endpoints; explicit incremental timing closure fails at WNS -0.186 ns / TNS -8.012 ns / 107 endpoints despite 99.47% cell and 86.72% net reuse. No bitstream is accepted. The next approach interlocks early control consumers; see early-control-performance.json."
+  ],
+  "abandoned_premerge_build": {
+    "tag": "fetch-boundary-div17",
+    "status": "terminated_during_synthesis_for_upstream_sync",
+    "wns_ns": null,
+    "artifacts": {
+      "source_manifest": {
+        "path": "fpga/arty_a7_35t/build/performance/fetch-boundary-div17/source-manifest.txt",
+        "sha256": "8d9a01d4e72a4ca2dad6344982254bce55c5f6ee2ae1c4a0f4b5357be4f9c3d7",
+        "bytes": 9122
+      },
+      "log": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/fpga__arty_a7_35t__build__fetch-boundary-div17.log",
+        "sha256": "1e73dab68f8fc30bc0f8ec68ed48a82cab57227a4768e4e854a5c6ae32e64847",
+        "bytes": 108472
+      }
+    }
+  },
+  "critical_path_audit": {
+    "findings": {
+      "candidate": "fetch-control-div17",
+      "worst_slack_ns": -2.346,
+      "worst_datapath_ns": 18.856,
+      "finding": "Atomic trigger operand mux admits ordinary effective-address adder into atomic address equality and exception priority path.",
+      "not_observed": "Ordinary trigger_base_match subtraction was not reassociated into the worst path. Branch misalignment is not this path.",
+      "critical_cells": [
+        "system/system_inst/cpu/ex_mem_inst0/mem_addr_out_reg[19]_i_2",
+        "system/system_inst/cpu/ex_mem_inst0/mem_addr_out_reg[23]_i_2",
+        "system/system_inst/cpu/ex_mem_inst0/mem_addr_out_reg[27]_i_2",
+        "system/system_inst/cpu/ex_mem_inst0/division_i_166",
+        "system/system_inst/cpu/ex_mem_inst0/division_i_177",
+        "system/system_inst/cpu/ex_mem_inst0/division_reg_i_121",
+        "system/system_inst/cpu/id_ex_inst0/mcause[3]_i_9",
+        "system/system_inst/cpu/csr_file_inst/instret_counter_reg[46]"
+      ],
+      "logical_mapping": [
+        "EX_MEM division_i_166 LUT3 INIT47 implements inverted selected bit: atomic opcode selects forwarded rs1, otherwise selects effective-address carry output.",
+        "EX_MEM division_i_177 combines selected address bits with CSR trigger_tdata2 slot2 bits; division_reg_i_121 with DI0 reduces equality in CARRY4.",
+        "Parent connection names comparator output ex_unit_inst0/trigger_match_return27_out, while distinct 32-bit trigger_base_match_return* arithmetic remains present.",
+        "Atomic opcode select is ID_EX mem_addr_out[31]_i_4, INIT0x4000; bit0/1 NAND division_i_8 plus opcode bits2,3,5 asserted and4,6 deasserted decode0x2f.",
+        "atomic_trigger_hit is consumed only in opcode0x2f execution case, in which the original mux already always selected rs1."
+      ],
+      "minimal_fix": "Set atomic trigger_data_addr=rs1_value. No register, ISA, trigger CSR timing or ordinary load/store behavior change.",
+      "audit_note": "One read-only Vivado invocation wrote routed timing and mapped functional netlist. Optional timing-path POINTS query unsupported in this Vivado version; driver exit1 after useful outputs. No implementation or checkpoint mutation.",
+      "evidence": [
+        {
+          "path": "build/fetch-control-cone-audit/mapped.v",
+          "sha256": "048fdb13a7fe0f5198d1eae68a41bc728a4cb5bdde3e8ec9e2eb2ad67ca4437a"
+        },
+        {
+          "path": "build/fetch-control-cone-audit/timing-input-pins.rpt",
+          "sha256": "e092fe405ce934e72909abb06c1c530c080981464562b983dac01ff027b93eb8"
+        },
+        {
+          "path": "build/fetch-control-cone-audit/critical-cone-excerpts.txt",
+          "sha256": "c31ac3c012ac1a0dae446d8a36fe99e8de79d0267c39858a4ad6301f11717f7b"
+        },
+        {
+          "path": "build/fetch-control-cone-audit-driver.log",
+          "sha256": "db7f216691815f70a600cca811bf428bedec9f9c9c6477cf1413c1c8f55b77f2"
+        },
+        {
+          "path": "fpga/arty_a7_35t/build/performance/fetch-control-div17/source/rtl/execution_unit.v",
+          "sha256": "044b059dca21c3b277f8a8a4af10b3f8997b7564d64cce7c97c1f2c37919869a"
+        }
+      ]
+    },
+    "findings_artifact": {
+      "path": "build/fetch-control-cone-audit/findings.json",
+      "sha256": "ee34a31290e7f9063c1d2e4dfff177ccb714b6161343679a4bcd5c52523bc5fb",
+      "bytes": 2955
+    },
+    "primitive_excerpts": "mapped.v:6666\n6666:   (* OPT_MODIFIED = \"RETARGET\" *) \n6667:   LUT3 #(\n6668:     .INIT(8'h47)) \n6669:     division_i_166\n6670:        (.I0(\\exec_output_out[27]_i_39_n_0 ),\n6671:         .I1(division_i_210),\n6672:         .I2(\\imm_out_reg[27] [3]),\n6673:         .O(division_i_166_n_0));\n6674:   (* OPT_MODIFIED = \"RETARGET\" *) \n\nmapped.v:6750\n6750:     .INIT(64'h0000066006600000)) \n6751:     division_i_177\n6752:        (.I0(division_i_164_n_0),\n6753:         .I1(division_reg_i_72_0[84]),\n6754:         .I2(division_reg_i_72_0[83]),\n6755:         .I3(division_i_165_n_0),\n6756:         .I4(division_reg_i_72_0[82]),\n6757:         .I5(division_i_166_n_0),\n6758:         .O(division_i_177_n_0));\n6759:   LUT6 #(\n\nmapped.v:7758\n7758:   CARRY4 division_reg_i_121\n7759:        (.CI(division_reg_i_175_n_0),\n7760:         .CO({NLW_division_reg_i_121_CO_UNCONNECTED[3],\\trigger_addr_reg[2][31] ,NLW_division_reg_i_121_CO_UNCONNECTED[1:0]}),\n7761:         .CYINIT(1'b0),\n7762:         .DI({1'b0,1'b0,1'b0,1'b0}),\n7763:         .O(NLW_division_reg_i_121_O_UNCONNECTED[3:0]),\n7764:         .S({1'b0,division_i_176_n_0,division_i_177_n_0,division_i_178_n_0}));\n7765:   CARRY4 division_reg_i_122\n\nmapped.v:17059\n17059:   CARRY4 \\mem_addr_out_reg[19]_i_2 \n17060:        (.CI(\\mem_addr_out_reg[15]_i_2_n_0 ),\n17061:         .CO({\\mem_addr_out_reg[19]_i_2_n_0 ,\\NLW_mem_addr_out_reg[19]_i_2_CO_UNCONNECTED [2:0]}),\n17062:         .CYINIT(1'b0),\n17063:         .DI(\\^ex_inst0_rs1_value_out [18:15]),\n17064:         .O(\\rs1_value_out_reg[19]_0 ),\n17065:         .S({\\mem_addr_out[19]_i_3_n_0 ,\\mem_addr_out[19]_i_4_n_0 ,\\mem_addr_out[19]_i_5_n_0 ,\\mem_addr_out[19]_i_6_n_0 }));\n\nmapped.v:17149\n17149:   CARRY4 \\mem_addr_out_reg[27]_i_2 \n17150:        (.CI(\\mem_addr_out_reg[23]_i_2_n_0 ),\n17151:         .CO({\\mem_addr_out_reg[27]_i_2_n_0 ,\\NLW_mem_addr_out_reg[27]_i_2_CO_UNCONNECTED [2:0]}),\n17152:         .CYINIT(1'b0),\n17153:         .DI({\\exec_output_out[27]_i_39_n_0 ,\\exec_output_out[27]_i_40_n_0 ,\\exec_output_out[27]_i_41_n_0 ,\\exec_output_out[27]_i_42_n_0 }),\n17154:         .O(\\imm_out_reg[27] ),\n17155:         .S({\\mem_addr_out[27]_i_7_n_0 ,\\mem_addr_out[27]_i_8_n_0 ,\\mem_addr_out[27]_i_9_n_0 ,\\mem_addr_out[27]_i_10_n_0 }));\n17156:   FDCE #(\n\nmapped.v:26103\n26103:         .O(\\instr_id_out_reg[6]_0 ));\n26104:   LUT2 #(\n26105:     .INIT(4'h7)) \n26106:     division_i_8\n26107:        (.I0(id_ex_inst0_opcode_out[0]),\n26108:         .I1(id_ex_inst0_opcode_out[1]),\n26109:         .O(division_i_8_n_0));\n26110:   LUT6 #(\n\nmapped.v:35548\n35548:         .I4(id_ex_inst0_opcode_out[6]),\n35549:         .I5(id_ex_inst0_opcode_out[4]),\n35550:         .O(\\mem_addr_out[31]_i_3_n_0 ));\n35551:   LUT6 #(\n35552:     .INIT(64'h0000000000004000)) \n35553:     \\mem_addr_out[31]_i_4 \n35554:        (.I0(division_i_8_n_0),\n35555:         .I1(opcode_out),\n35556:         .I2(id_ex_inst0_opcode_out[2]),\n35557:         .I3(id_ex_inst0_opcode_out[3]),\n35558:         .I4(id_ex_inst0_opcode_out[6]),\n35559:         .I5(id_ex_inst0_opcode_out[4]),\n35560:         .O(\\opcode_out_reg[5]_0 ));\n\nmapped.v:66635\n66635:        (.I0(trigger_enabled[1]),\n66636:         .I1(\\trigger_ctl_reg_n_0_[1][1] ),\n66637:         .O(division_i_71_n_0));\n66638:   (* PHYS_OPT_MODIFIED = \"PIN_SWAP\" *) \n66639:   LUT6 #(\n66640:     .INIT(64'hFF80808080808080)) \n66641:     division_i_73\n66642:        (.I0(trigger_enabled[2]),\n66643:         .I1(\\trigger_ctl_reg_n_0_[2][1] ),\n66644:         .I2(division_i_32_1),\n66645:         .I3(trigger_enabled[0]),\n66646:         .I4(\\trigger_ctl_reg_n_0_[0][1] ),\n66647:         .I5(division_i_32_0),\n66648:         .O(division_i_73_n_0));\n66649:   LUT2 #(\n\nmapped.v:73381\n73381:         .CO(\\NLW_mstatus_reg[7]_i_41_CO_UNCONNECTED [3:0]),\n73382:         .CYINIT(1'b0),\n73383:         .DI({1'b0,\\trigger_addr_reg[3][31]_0 [27:25]}),\n73384:         .O(trigger_base_match_return43_out[31:28]),\n73385:         .S({\\mstatus[7]_i_27 ,\\mstatus[7]_i_66_n_0 ,\\mstatus[7]_i_67_n_0 ,\\mstatus[7]_i_68_n_0 }));\n73386:   (* ADDER_THRESHOLD = \"35\" *) \n73387:   CARRY4 \\mstatus_reg[7]_i_42 \n73388:        (.CI(\\mstatus_reg[7]_i_62_n_0 ),\n73389:         .CO({\\mstatus_reg[7]_i_42_n_0 ,\\NLW_mstatus_reg[7]_i_42_CO_UNCONNECTED [2:0]}),\n73390:         .CYINIT(1'b0),\n73391:         .DI(\\trigger_addr_reg[3][31]_0 [24:21]),\n73392:         .O(trigger_base_match_return43_out[27:24]),\n73393:         .S({\\mstatus[7]_i_69_n_0 ,\\mstatus[7]_i_70_n_0 ,\\mstatus[7]_i_71_n_0 ,\\mstatus[7]_i_72_n_0 }));\n73394:   (* ADDER_THRESHOLD = \"35\" *) \n\nmapped.v:312137\n312137:         .dfatal(dfatal),\n312138:         .div_by_zero(\\ex_unit_inst0/alu_inst/div_by_zero ),\n312139:         .division_i_18_0({division_i_45_n_0,division_i_46_n_0,division_i_47_n_0,division_i_48_n_0}),\n312140:         .division_i_20({division_i_62_n_0,division_i_63_n_0,division_i_64_n_0,division_i_65_n_0}),\n312141:         .division_i_210(id_ex_inst0_n_44),\n312142:         .division_reg_i_104_0({division_i_199_n_0,division_i_200_n_0,division_i_201_n_0}),\n312143:         .division_reg_i_113_0(csr_file_inst_n_723),\n312144:         .division_reg_i_117_0(csr_file_inst_n_721),\n312145:         .division_reg_i_175_0(csr_file_inst_n_722),\n312146:         .division_reg_i_179_0(csr_file_inst_n_720),\n312147:         .division_reg_i_27_0({division_i_86_n_0,division_i_87_n_0}),\n312148:         .division_reg_i_31_0({division_i_105_n_0,division_i_106_n_0}),\n312149:         .division_reg_i_35_0(division_i_128_n_0),\n312150:         .division_reg_i_44_0({division_i_133_n_0,division_i_135_n_0,division_i_136_n_0}),\n312151:         .division_reg_i_44_1(division_i_137_n_0),\n312152:         .division_reg_i_61_0({division_i_150_n_0,division_i_152_n_0,division_i_153_n_0}),\n312153:         .division_reg_i_61_1(division_i_154_n_0),\n312154:         .division_reg_i_72_0({trigger_tdata2[127:99],trigger_tdata2[95:67],trigger_tdata2[63:35],trigger_tdata2[31:3]}),\n312155:         .division_reg_i_85_0({division_i_191_n_0,division_i_192_n_0,division_i_193_n_0}),\n\nmapped.v:312516\n312516:         .rst(cpu_rst),\n312517:         .store_pending(store_pending),\n312518:         .\\trigger_addr_reg[0][31] (\\ex_unit_inst0/trigger_match_return39_out ),\n312519:         .\\trigger_addr_reg[1][31] (\\ex_unit_inst0/trigger_match_return38_out ),\n312520:         .\\trigger_addr_reg[2][31] (\\ex_unit_inst0/trigger_match_return27_out ),\n312521:         .\\trigger_addr_reg[3][31] (\\ex_unit_inst0/trigger_match_return16_out ),\n312522:         .trigger_base_match_return20_out(\\ex_unit_inst0/trigger_base_match_return20_out ),\n312523:         .trigger_base_match_return3(\\ex_unit_inst0/trigger_base_match_return3 ),\n312524:         .trigger_base_match_return4(\\ex_unit_inst0/trigger_base_match_return4 ),\n312525:         .trigger_base_match_return43_out(\\ex_unit_inst0/trigger_base_match_return43_out ),\n312526:         .\\type_q_reg[0] (mem_unit_inst0_n_3),\n",
+    "primitive_excerpts_artifact": {
+      "path": "build/fetch-control-cone-audit/critical-cone-excerpts.txt",
+      "sha256": "c31ac3c012ac1a0dae446d8a36fe99e8de79d0267c39858a4ad6301f11717f7b",
+      "bytes": 6865
+    }
+  },
+  "pending_physical_candidate": {
+    "tag": "muldiv-cancel-div17",
+    "source_commit": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+    "status": "normal_postopt_and_incremental_all_rejected_setup",
+    "accepted": false,
+    "programmed": false,
+    "successor_evidence": "early-control-performance.json"
+  },
+  "accepted_hardware_baseline_refresh": {
+    "source_commit": "f0d2f83270b7de6fb22c5a363bc56b5736d34c3f",
+    "load_forwarding": 0,
+    "bitstream": {
+      "path": "fpga/arty_a7_35t/build/performance/store-path-div17/postopt/synapse32_store-path-div17.bit",
+      "sha256": "3b072166a94ad5c519c83416912b479a0d83fe01af1d3d87567f04c00dfd1fc2",
+      "bytes": 1526345
+    },
+    "linux_payload": {
+      "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu59/fw_payload.bin",
+      "sha256": "8227fa608b21e2473aa32ee4fe739cd39a3cbaf940694c2783213a629219c1c4",
+      "bytes": 21550312
+    },
+    "frozen_uart_capture": {
+      "path": "fpga/arty_a7_35t/build/fetch-baseline-frozen.uart.log",
+      "sha256": "c2668817fb8558850ec30fc6e133f9492e56f7a574f6ab3bca831325fe699a66",
+      "bytes": 69561
+    },
+    "baremetal": {
+      "report": {
+        "metadata": {
+          "cpu_mhz": 58.823529,
+          "environment": "bare-metal M-mode, satp=0, interrupts disabled",
+          "payload_sha256": "8c5d0e98a60306f357eb833aab36db1cb9d9d7732d11e22f1131a771eb1c7a0c",
+          "timer_selftest_host_seconds": 1.9996318959747441,
+          "timer_selftest_cycles": 117647090
+        },
+        "pilots": [
+          {
+            "mode": "performance",
+            "seconds": 0.468,
+            "iterations": 50,
+            "output": "S32_BAREMETAL_RUN: p 50\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 468\nTotal time (secs): 0.468000\nIterations/Sec   : 106.837607\nERROR! Must execute for at least 10 secs for a valid result!\nIterations       : 50\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x0158\nErrors detected\nS32_PERF clock: 0x0000000001a48078\nS32_PERF retired: 0x0000000000c28d14\nS32_PERF fetch_wait: 0x000000000044cdb4\nS32_PERF data_wait: 0x0000000000574ef1\nS32_PERF muldiv_wait: 0x000000000015aba8\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x000000000115fd17\nS32_PERF icache_miss: 0x0000000000010d1c\nS32_PERF dcache_hit: 0x0000000000293af7\nS32_PERF dcache_miss: 0x00000000000012c0\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x000000000012bab8\nS32_PERF axi_write_wait: 0x0000000000b0f961\nS32_PERF store_queue_stall: 0x000000000014dd86\nS32_PERF store_enqueued: 0x00000000000a5be4\nTimed CPU cycles: 0x0000000001a478b0\nTimed retired instructions: 0x0000000000c28c8d\nS32_BAREMETAL_DONE:0"
+          }
+        ],
+        "results": [
+          {
+            "mode": "performance",
+            "repeat": 0,
+            "iterations": 1603,
+            "seconds": 15.008,
+            "iterations_per_second": 106.809701,
+            "cpu_mhz": 58.823529,
+            "cycles": 882837677,
+            "retired_instructions": 408756719,
+            "cpi": 2.159812025010407,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 1603\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15008\nTotal time (secs): 15.008000\nIterations/Sec   : 106.809701\nIterations       : 1603\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x6ab4\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 106.809701 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x00000000349f107b\nS32_PERF retired: 0x00000000185d2276\nS32_PERF fetch_wait: 0x000000000895dc07\nS32_PERF data_wait: 0x000000000aebd98b\nS32_PERF muldiv_wait: 0x0000000002b6c1dc\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000022d0f2ae\nS32_PERF icache_miss: 0x0000000000215f53\nS32_PERF dcache_hit: 0x000000000529d31b\nS32_PERF dcache_miss: 0x0000000000024cc8\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x0000000002501a75\nS32_PERF axi_write_wait: 0x0000000016290bcf\nS32_PERF store_queue_stall: 0x00000000029d2c47\nS32_PERF store_enqueued: 0x00000000014c120e\nTimed CPU cycles: 0x00000000349f08ad\nTimed retired instructions: 0x00000000185d21ef\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 882839675,
+              "retired": 408756854,
+              "fetch_wait": 144038919,
+              "data_wait": 183228811,
+              "muldiv_wait": 45531612,
+              "fence_wait": 0,
+              "icache_hit": 584118958,
+              "icache_miss": 2187091,
+              "dcache_hit": 86627099,
+              "dcache_miss": 150728,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 38804085,
+              "axi_write_wait": 371788751,
+              "store_queue_stall": 43854919,
+              "store_enqueued": 21762574
+            }
+          },
+          {
+            "mode": "performance",
+            "repeat": 1,
+            "iterations": 1603,
+            "seconds": 15.008,
+            "iterations_per_second": 106.809701,
+            "cpu_mhz": 58.823529,
+            "cycles": 882835920,
+            "retired_instructions": 408756719,
+            "cpi": 2.159807726610116,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 1603\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15008\nTotal time (secs): 15.008000\nIterations/Sec   : 106.809701\nIterations       : 1603\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x6ab4\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 106.809701 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x00000000349f0991\nS32_PERF retired: 0x00000000185d2276\nS32_PERF fetch_wait: 0x000000000895d8d9\nS32_PERF data_wait: 0x000000000aebd5b1\nS32_PERF muldiv_wait: 0x0000000002b6c1dc\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000022d0f236\nS32_PERF icache_miss: 0x0000000000215f53\nS32_PERF dcache_hit: 0x000000000529d31b\nS32_PERF dcache_miss: 0x0000000000024cc8\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x000000000250171d\nS32_PERF axi_write_wait: 0x0000000016290406\nS32_PERF store_queue_stall: 0x00000000029d2878\nS32_PERF store_enqueued: 0x00000000014c120e\nTimed CPU cycles: 0x00000000349f01d0\nTimed retired instructions: 0x00000000185d21ef\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 882837905,
+              "retired": 408756854,
+              "fetch_wait": 144038105,
+              "data_wait": 183227825,
+              "muldiv_wait": 45531612,
+              "fence_wait": 0,
+              "icache_hit": 584118838,
+              "icache_miss": 2187091,
+              "dcache_hit": 86627099,
+              "dcache_miss": 150728,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 38803229,
+              "axi_write_wait": 371786758,
+              "store_queue_stall": 43853944,
+              "store_enqueued": 21762574
+            }
+          },
+          {
+            "mode": "performance",
+            "repeat": 2,
+            "iterations": 1603,
+            "seconds": 15.008,
+            "iterations_per_second": 106.809701,
+            "cpu_mhz": 58.823529,
+            "cycles": 882837131,
+            "retired_instructions": 408756719,
+            "cpi": 2.1598106892525477,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: p 1603\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 15008\nTotal time (secs): 15.008000\nIterations/Sec   : 106.809701\nIterations       : 1603\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x6ab4\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 106.809701 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none / Synapse32 RAM, static data, M-mode, interrupts disabled\nS32_PERF clock: 0x00000000349f0e59\nS32_PERF retired: 0x00000000185d2276\nS32_PERF fetch_wait: 0x000000000895d771\nS32_PERF data_wait: 0x000000000aebdb88\nS32_PERF muldiv_wait: 0x0000000002b6c1dc\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000022d0f259\nS32_PERF icache_miss: 0x0000000000215f53\nS32_PERF dcache_hit: 0x000000000529d31b\nS32_PERF dcache_miss: 0x0000000000024cc8\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x00000000025013bb\nS32_PERF axi_write_wait: 0x00000000162911ef\nS32_PERF store_queue_stall: 0x00000000029d3181\nS32_PERF store_enqueued: 0x00000000014c120e\nTimed CPU cycles: 0x00000000349f068b\nTimed retired instructions: 0x00000000185d21ef\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 882839129,
+              "retired": 408756854,
+              "fetch_wait": 144037745,
+              "data_wait": 183229320,
+              "muldiv_wait": 45531612,
+              "fence_wait": 0,
+              "icache_hit": 584118873,
+              "icache_miss": 2187091,
+              "dcache_hit": 86627099,
+              "dcache_miss": 150728,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 38802363,
+              "axi_write_wait": 371790319,
+              "store_queue_stall": 43856257,
+              "store_enqueued": 21762574
+            }
+          },
+          {
+            "mode": "validation",
+            "repeat": 3,
+            "iterations": 1603,
+            "seconds": 14.893,
+            "iterations_per_second": 107.634459,
+            "cpu_mhz": 58.823529,
+            "cycles": 876069893,
+            "retired_instructions": 407888892,
+            "cpi": 2.1478150304715826,
+            "validated": true,
+            "output": "S32_BAREMETAL_RUN: v 1603\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 14893\nTotal time (secs): 14.893000\nIterations/Sec   : 107.634459\nIterations       : 1603\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -nostdlib -Wl,--gc-sections -Wl,--build-id=none\nMemory location  : Synapse32 RAM, static data, M-mode, interrupts disabled\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x1ef6\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF clock: 0x000000003437cbd1\nS32_PERF retired: 0x00000000184fe483\nS32_PERF fetch_wait: 0x0000000008405e2a\nS32_PERF data_wait: 0x000000000add53b2\nS32_PERF muldiv_wait: 0x0000000002b6c1dc\nS32_PERF fence_wait: 0x0000000000000000\nS32_PERF icache_hit: 0x0000000022cbe310\nS32_PERF icache_miss: 0x00000000001e4a13\nS32_PERF dcache_hit: 0x00000000053485ce\nS32_PERF dcache_miss: 0x0000000000024cc5\nS32_PERF itlb_miss: 0x0000000000000000\nS32_PERF dtlb_miss: 0x0000000000000000\nS32_PERF axi_read_wait: 0x0000000001f7f3bb\nS32_PERF axi_write_wait: 0x0000000015fae392\nS32_PERF store_queue_stall: 0x000000000289d9b7\nS32_PERF store_enqueued: 0x0000000001495dad\nTimed CPU cycles: 0x000000003437c405\nTimed retired instructions: 0x00000000184fe3fc\nS32_BAREMETAL_DONE:0",
+            "profiling": {
+              "clock": 876071889,
+              "retired": 407889027,
+              "fetch_wait": 138436138,
+              "data_wait": 182277042,
+              "muldiv_wait": 45531612,
+              "fence_wait": 0,
+              "icache_hit": 583787280,
+              "icache_miss": 1985043,
+              "dcache_hit": 87328206,
+              "dcache_miss": 150725,
+              "itlb_miss": 0,
+              "dtlb_miss": 0,
+              "axi_read_wait": 33027003,
+              "axi_write_wait": 368763794,
+              "store_queue_stall": 42588599,
+              "store_enqueued": 21585325
+            }
+          }
+        ]
+      },
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-baseline-baremetal.json",
+        "sha256": "7e58edadb93f2a47d4772cb7d083883440a572b17353f7517a127f973429faa9",
+        "bytes": 12749
+      },
+      "median_coremark": 106.809701,
+      "median_coremark_per_mhz": 1.8157649297103546,
+      "median_cpi": 2.1598106892525477
+    },
+    "linux": {
+      "report": [
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 0,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 19.734,
+          "iterations_per_second": 101.347927,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.7229147710604034,
+          "validated": true,
+          "output": "/bin/profile /tmp/coremark-aligned-o3 0 0 0x66 2000 7 1; echo S32_COREMARK_D\nONE_0:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 19734\nTotal time (secs): 19.734000\nIterations/Sec   : 101.347927\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x4983\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 101.347927 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x0000000045afdf8d\nS32_PERF retired: 0x000000001e6ce146\nS32_PERF fetch_wait: 0x000000000e64d190\nS32_PERF data_wait: 0x000000000e53b0b1\nS32_PERF muldiv_wait: 0x000000000363b13c\nS32_PERF fence_wait: 0x0000000000001132\nS32_PERF icache_hit: 0x000000002b3e4462\nS32_PERF icache_miss: 0x00000000004888ea\nS32_PERF dcache_hit: 0x000000000679b559\nS32_PERF dcache_miss: 0x0000000000054932\nS32_PERF itlb_miss: 0x00000000000000ea\nS32_PERF dtlb_miss: 0x0000000000000313\nS32_PERF axi_read_wait: 0x0000000005f280f7\nS32_PERF axi_write_wait: 0x000000001c2f5201\nS32_PERF store_queue_stall: 0x00000000032f3d7e\nS32_PERF store_enqueued: 0x0000000001a652c7\nS32_COREMARK_DONE_0:0",
+          "profiling": {
+            "clock": 1169153933,
+            "retired": 510452038,
+            "fetch_wait": 241488272,
+            "data_wait": 240365745,
+            "muldiv_wait": 56865084,
+            "fence_wait": 4402,
+            "icache_hit": 725501026,
+            "icache_miss": 4753642,
+            "dcache_hit": 108639577,
+            "dcache_miss": 346418,
+            "itlb_miss": 234,
+            "dtlb_miss": 787,
+            "axi_read_wait": 99778807,
+            "axi_write_wait": 472863233,
+            "store_queue_stall": 53427582,
+            "store_enqueued": 27677383
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity"
+        },
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 1,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 19.734,
+          "iterations_per_second": 101.347927,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.7229147710604034,
+          "validated": true,
+          "output": "/bin/profile /tmp/coremark-aligned-o3 0 0 0x66 2000 7 1; echo S32_COREMARK_D\nONE_1:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 19734\nTotal time (secs): 19.734000\nIterations/Sec   : 101.347927\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x4983\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 101.347927 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x0000000045ae11c1\nS32_PERF retired: 0x000000001e6c6b72\nS32_PERF fetch_wait: 0x000000000e63dbff\nS32_PERF data_wait: 0x000000000e532298\nS32_PERF muldiv_wait: 0x000000000363b1af\nS32_PERF fence_wait: 0x0000000000001080\nS32_PERF icache_hit: 0x000000002b3d8f8c\nS32_PERF icache_miss: 0x0000000000488aef\nS32_PERF dcache_hit: 0x000000000679a41c\nS32_PERF dcache_miss: 0x0000000000054713\nS32_PERF itlb_miss: 0x00000000000000f1\nS32_PERF dtlb_miss: 0x0000000000000311\nS32_PERF axi_read_wait: 0x0000000005f27360\nS32_PERF axi_write_wait: 0x000000001c2e6e55\nS32_PERF store_queue_stall: 0x00000000032f538e\nS32_PERF store_enqueued: 0x0000000001a64953\nS32_COREMARK_DONE_1:0",
+          "profiling": {
+            "clock": 1169035713,
+            "retired": 510421874,
+            "fetch_wait": 241425407,
+            "data_wait": 240329368,
+            "muldiv_wait": 56865199,
+            "fence_wait": 4224,
+            "icache_hit": 725454732,
+            "icache_miss": 4754159,
+            "dcache_hit": 108635164,
+            "dcache_miss": 345875,
+            "itlb_miss": 241,
+            "dtlb_miss": 785,
+            "axi_read_wait": 99775328,
+            "axi_write_wait": 472804949,
+            "store_queue_stall": 53433230,
+            "store_enqueued": 27674963
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity"
+        },
+        {
+          "optimization": "o3",
+          "mode": "performance",
+          "repeat": 2,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 19.733,
+          "iterations_per_second": 101.353063,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.7230020830610147,
+          "validated": true,
+          "output": "/bin/profile /tmp/coremark-aligned-o3 0 0 0x66 2000 7 1; echo S32_COREMARK_D\nONE_2:$?\n2K performance run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 19733\nTotal time (secs): 19.733000\nIterations/Sec   : 101.353063\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0xe9f5\n[0]crclist       : 0xe714\n[0]crcmatrix     : 0x1fd7\n[0]crcstate      : 0x8e3a\n[0]crcfinal      : 0x4983\nCorrect operation validated. See README.md for run and reporting rules.\nCoreMark 1.0 : 101.353063 / Clang 23.1.1 -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s / DDR3, static data, Linux userspace\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x0000000045b105d8\nS32_PERF retired: 0x000000001e6ccb9f\nS32_PERF fetch_wait: 0x000000000e65dcab\nS32_PERF data_wait: 0x000000000e54059e\nS32_PERF muldiv_wait: 0x000000000363b3bb\nS32_PERF fence_wait: 0x0000000000001125\nS32_PERF icache_hit: 0x000000002b3e1cfb\nS32_PERF icache_miss: 0x0000000000488ac6\nS32_PERF dcache_hit: 0x000000000679b764\nS32_PERF dcache_miss: 0x0000000000054a60\nS32_PERF itlb_miss: 0x00000000000000eb\nS32_PERF dtlb_miss: 0x000000000000032e\nS32_PERF axi_read_wait: 0x0000000005f35340\nS32_PERF axi_write_wait: 0x000000001c2fcdef\nS32_PERF store_queue_stall: 0x00000000032f84a4\nS32_PERF store_enqueued: 0x0000000001a65ba7\nS32_COREMARK_DONE_2:0",
+          "profiling": {
+            "clock": 1169229272,
+            "retired": 510446495,
+            "fetch_wait": 241556651,
+            "data_wait": 240387486,
+            "muldiv_wait": 56865723,
+            "fence_wait": 4389,
+            "icache_hit": 725490939,
+            "icache_miss": 4754118,
+            "dcache_hit": 108640100,
+            "dcache_miss": 346720,
+            "itlb_miss": 235,
+            "dtlb_miss": 814,
+            "axi_read_wait": 99832640,
+            "axi_write_wait": 472894959,
+            "store_queue_stall": 53445796,
+            "store_enqueued": 27679655
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity"
+        },
+        {
+          "optimization": "o3",
+          "mode": "validation",
+          "repeat": 0,
+          "binary": "/tmp/coremark-aligned-o3",
+          "seconds": 21.606,
+          "iterations_per_second": 92.56688,
+          "iterations": 2000,
+          "cpu_mhz": 58.823529,
+          "coremark_per_mhz": 1.5736369710154587,
+          "validated": true,
+          "output": "/bin/profile /tmp/coremark-aligned-o3 0x3415 0x3415 0x66 2000 7 1; echo S32_\nCOREMARK_DONE_3:$?\n2K validation run parameters for coremark.\nCoreMark Size    : 666\nTotal ticks      : 21606\nTotal time (secs): 21.606000\nIterations/Sec   : 92.566880\nIterations       : 2000\nCompiler version : Clang 23.1.1\nCompiler flags   : -O3 -std=gnu11 -march=rv32ima_zicsr_zifencei -mabi=ilp32 -msmall-data-limit=0 -static -fno-pie -fno-pic -ffunction-sections -fdata-sections -DMEM_METHOD=MEM_STATIC -DITERATIONS=0 -DPERFORMANCE_RUN=1 -Wl,--gc-sections -Wl,--build-id=none -s\nMemory location  : DDR3, static data, Linux userspace\nseedcrc          : 0x18f2\n[0]crclist       : 0xe3c1\n[0]crcmatrix     : 0x0747\n[0]crcstate      : 0x8d84\n[0]crcfinal      : 0x0cac\nCorrect operation validated. See README.md for run and reporting rules.\nS32_PERF_SCOPE: whole CPU during command, including kernel/background activity\nS32_PERF clock: 0x000000004c32730d\nS32_PERF retired: 0x000000001e5f336b\nS32_PERF fetch_wait: 0x0000000014fbb1a0\nS32_PERF data_wait: 0x000000000e4765e2\nS32_PERF muldiv_wait: 0x000000000363bc08\nS32_PERF fence_wait: 0x0000000000000f6d\nS32_PERF icache_hit: 0x000000002a3b30d3\nS32_PERF icache_miss: 0x00000000009c4809\nS32_PERF dcache_hit: 0x00000000068796a0\nS32_PERF dcache_miss: 0x00000000000542db\nS32_PERF itlb_miss: 0x00000000000000ba\nS32_PERF dtlb_miss: 0x00000000000002c9\nS32_PERF axi_read_wait: 0x000000000d7260d4\nS32_PERF axi_write_wait: 0x000000001bfebcd5\nS32_PERF store_queue_stall: 0x0000000003174cc1\nS32_PERF store_enqueued: 0x0000000001a35511\nS32_COREMARK_DONE_3:0",
+          "profiling": {
+            "clock": 1278374669,
+            "retired": 509555563,
+            "fetch_wait": 352039328,
+            "data_wait": 239560162,
+            "muldiv_wait": 56867848,
+            "fence_wait": 3949,
+            "icache_hit": 708522195,
+            "icache_miss": 10242057,
+            "dcache_hit": 109549216,
+            "dcache_miss": 344795,
+            "itlb_miss": 186,
+            "dtlb_miss": 713,
+            "axi_read_wait": 225599700,
+            "axi_write_wait": 469679317,
+            "store_queue_stall": 51858625,
+            "store_enqueued": 27481361
+          },
+          "profiling_scope": "whole CPU during command, including kernel/background activity"
+        }
+      ],
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-baseline-linux-coremark.json",
+        "sha256": "15a24aa832518e7ed2b02cc6b3f6d6a13b68c9a6c8fe0441eae280d47546371e",
+        "bytes": 10991
+      },
+      "median_coremark": 101.347927,
+      "median_coremark_per_mhz": 1.7229147710604034,
+      "cpi_scope": "whole CPU including kernel/background work"
+    },
+    "mesh": {
+      "artifact": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-baseline-mesh.json",
+        "sha256": "60a735b5ced2fbce5a3976b327e03c34f264660dfc713ee068b463effcfdad07",
+        "bytes": 320856
+      },
+      "geometry_validation": {
+        "path": "fpga/arty_a7_35t/build/fetch-boundary-baseline-mesh-geometry.log",
+        "sha256": "d28026c2d60b2a0f292cd9ba7e808d361b4b0b5dadbd8828cfc9250a261d70a3",
+        "bytes": 59
+      },
+      "summary": [
+        {
+          "points": 16,
+          "frames": 30,
+          "median_ms": 4.705,
+          "min_ms": 3.309,
+          "max_ms": 6.539,
+          "received_fps": 22.90227652483994
+        },
+        {
+          "points": 32,
+          "frames": 20,
+          "median_ms": 26.765500000000003,
+          "min_ms": 17.477,
+          "max_ms": 34.633,
+          "received_fps": 11.180009903220771
+        },
+        {
+          "points": 64,
+          "frames": 10,
+          "median_ms": 200.502,
+          "min_ms": 124.629,
+          "max_ms": 204.454,
+          "received_fps": 4.860347872972198
+        }
+      ],
+      "validated_frames": 60
+    },
+    "application_workload_evidence": {
+      "path": "fpga/arty_a7_35t/workloads/results/store-path-baseline.json",
+      "sha256": "3713929da7bbe152dc3e51165fcd0738a93284097d5182825a2c7f814fc4e052",
+      "bytes": 16323
+    },
+    "note": "This reruns previously accepted LF0 hardware with a newly packaged workload Linux image. It is not a measurement of 72b5b58, 528c986 or 6ec10fa on FPGA."
+  },
+  "physical_refinements": [
+    {
+      "tag": "atomic-trigger-div17/postopt",
+      "parent_tag": "atomic-trigger-div17",
+      "source_commit": "6ec10fa6e78d2439f74db95bac7fc50d445a4842",
+      "status": "rejected_setup_timing",
+      "accepted": false,
+      "programmed": false,
+      "bitstream_written": false,
+      "wns_ns": -0.138,
+      "tns_ns": -6.515,
+      "setup_failing_endpoints": 91,
+      "setup_total_endpoints": 43014,
+      "hold_wns_ns": 0.012,
+      "hold_tns_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "pulse_wns_ns": 0.206,
+      "worst_path": {
+        "source": "system/system_inst/data_port/l1/data_ram_reg_1/CLKARDCLK",
+        "destination": "system/system_inst/cpu/iterative_m.muldiv/remainder_reg[8]/R",
+        "requirement_ns": 17.0,
+        "data_path_delay_ns": 16.547,
+        "logic_levels": 16
+      },
+      "gate_result": "Clock methodology, critical CDC and bus-skew gates passed; setup timing failed. No bitstream written.",
+      "artifacts": {
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/postopt/timing.rpt",
+          "sha256": "52ac77e5598f1b854f1cffa9a3f6714198e1308af3dcacb9c78190f7412dd7b4",
+          "bytes": 527141
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/postopt/methodology.rpt",
+          "sha256": "fccc79f6b5a87de9d60b06a3dc4a1dd72305c96dc4f26224d5729ee305c16778",
+          "bytes": 22360
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/postopt/utilization.rpt",
+          "sha256": "0f5d4cd5b8fb6c0b14aca01b84036b15475e6b26a81f2f4529dedd7d5151146b",
+          "bytes": 13940
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/postopt/drc.rpt",
+          "sha256": "f3b408538b391b4f2b2cf855d704939285b50927b5c3ead762b04ff08f02d50a",
+          "bytes": 33911
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/postopt/cdc.rpt",
+          "sha256": "ee4d318f198ea36c54a60b29cec0251e7ee5eec2325d58b1716d38778cb12221",
+          "bytes": 11843
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/postopt/bus-skew.rpt",
+          "sha256": "498cd142f7e9d1a3909e038cc21f4d01c5f39da57a0b3bded25d247222ca74aa",
+          "bytes": 135007
+        }
+      },
+      "log": {
+        "path": "fpga/arty_a7_35t/build/atomic-trigger-postopt.vivado.log",
+        "sha256": "1287138eba5718bffb2f310495703634081269f2f054f289f1d0c33a33a4896f",
+        "bytes": 57951
+      }
+    },
+    {
+      "tag": "muldiv-cancel-div17/postopt",
+      "parent_tag": "muldiv-cancel-div17",
+      "source_commit": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+      "status": "rejected_setup_timing",
+      "accepted": false,
+      "programmed": false,
+      "bitstream_written": false,
+      "wns_ns": -0.428,
+      "tns_ns": -27.026,
+      "setup_failing_endpoints": 318,
+      "setup_total_endpoints": 43014,
+      "hold_wns_ns": 0.026,
+      "hold_tns_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "pulse_wns_ns": 0.206,
+      "worst_path": {
+        "source": "system/system_inst/data_port/l1/data_ram_reg_1/CLKARDCLK",
+        "destination": "system/system_inst/cpu/csr_file_inst/sepc_reg[17]/CE",
+        "requirement_ns": 17.0,
+        "data_path_delay_ns": 16.977,
+        "logic_levels": 18
+      },
+      "gate_result": "Required clock methodology, critical CDC and bus-skew gates passed; setup timing failed. No accepted bitstream.",
+      "artifacts": {
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/postopt/timing.rpt",
+          "sha256": "495c637b2e0656f4397cecc5dae891623f54380887e9cc0bbda04ff360b5e49b",
+          "bytes": 531062
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/postopt/methodology.rpt",
+          "sha256": "5fc849463fd4f0a63e281f0f39fd1679676fc86be7de593c5eb3a2e52539e287",
+          "bytes": 22343
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/postopt/utilization.rpt",
+          "sha256": "1eb116487a51d43a56dd4f25861d7349c85a20c203fba76ec34c923ac9fd6c24",
+          "bytes": 13937
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/postopt/drc.rpt",
+          "sha256": "2f71c8ff7f50b4670ff0d8bdfffb01cc172792590121a00e211aa2ff229a921e",
+          "bytes": 34248
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/postopt/cdc.rpt",
+          "sha256": "e4ebdf262a62769ba0461edfbf9b4f17430a8c83ebad1e60fb6d8343aeedef90",
+          "bytes": 11840
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/postopt/bus-skew.rpt",
+          "sha256": "aab19e950bcadd3b7f9751968fe736e38a2578ffc490caebef6508b4c7b8ef9e",
+          "bytes": 135004
+        }
+      }
+    },
+    {
+      "tag": "muldiv-cancel-div17/incremental",
+      "parent_tag": "muldiv-cancel-div17",
+      "source_commit": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+      "status": "rejected_setup_timing",
+      "accepted": false,
+      "programmed": false,
+      "bitstream_written": false,
+      "wns_ns": -0.186,
+      "tns_ns": -8.012,
+      "setup_failing_endpoints": 107,
+      "setup_total_endpoints": 43014,
+      "hold_wns_ns": 0.012,
+      "hold_tns_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "pulse_wns_ns": 0.206,
+      "worst_path": {
+        "source": "system/system_inst/data_port/l1/data_ram_reg_1/CLKARDCLK",
+        "destination": "system/system_inst/cpu/csr_file_inst/mie_reg[23]/CE",
+        "requirement_ns": 17.0,
+        "data_path_delay_ns": 16.822,
+        "logic_levels": 19
+      },
+      "gate_result": "Required clock methodology, critical CDC and bus-skew gates passed; setup timing failed. No accepted bitstream.",
+      "artifacts": {
+        "timing.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/incremental/timing.rpt",
+          "sha256": "c08dd5b822d1369045fc8a044bedff5b08025d4c8bf8dfc1764dfdb4c3177a8f",
+          "bytes": 643887
+        },
+        "methodology.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/incremental/methodology.rpt",
+          "sha256": "6a5001f46aa3be92f51177ff63b7d4c63121addd23e4c32eb29eb223138874cd",
+          "bytes": 22357
+        },
+        "utilization.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/incremental/utilization.rpt",
+          "sha256": "87e25d436127e786bd5a0804408295c464e074dc32ecb60434cce86c6f03fc59",
+          "bytes": 13949
+        },
+        "drc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/incremental/drc.rpt",
+          "sha256": "1ff700822a2605e74f5e463cf5e6d5ec5cd69a0a36d6a5e15912f48a600e0f4c",
+          "bytes": 33915
+        },
+        "cdc.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/incremental/cdc.rpt",
+          "sha256": "f8ddf565d4289fdef9fde2669c42bd169361d4dd27b4f041fda7d8cc5b6db37c",
+          "bytes": 11852
+        },
+        "bus-skew.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/incremental/bus-skew.rpt",
+          "sha256": "b328a661742a0ed426628451772626d99f4b7694baf8343a57f2967297902358",
+          "bytes": 147056
+        },
+        "input-manifest.txt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/incremental/input-manifest.txt",
+          "sha256": "ec472825b48f800343fe49674ab41ef0e8fb82cb39926f1309254b1b7eb3b9ef",
+          "bytes": 904
+        },
+        "reuse-input.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/incremental/reuse-input.rpt",
+          "sha256": "2dfe37e28de95782c2de1d1771c7cd738d0721a9cb281b9e5bd044106319ad4a",
+          "bytes": 8191
+        },
+        "reuse-routed.rpt": {
+          "path": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/incremental/reuse-routed.rpt",
+          "sha256": "eb7d296d5165a82006d41285bc593d51cf5418fa8e44b2b29da7c9652c4ce2a8",
+          "bytes": 8628
+        }
+      },
+      "reuse": {
+        "cells_current_percent": 99.47,
+        "nets_current_percent": 86.72,
+        "reference_is_physical_only": true,
+        "reference": "fpga/arty_a7_35t/build/performance/atomic-trigger-div17/postopt/routed.dcp",
+        "logical_candidate": "fpga/arty_a7_35t/build/performance/muldiv-cancel-div17/project/synapse32_performance.runs/impl_1/arty_linux_top_opt.dcp"
+      }
+    }
+  ],
+  "muldiv_cycle_equivalence": {
+    "report": {
+      "reference_commit": "4e1a9f7",
+      "candidate_commit": "42ae42a",
+      "edges_compared_per_mode": 200083,
+      "fast_multiply_modes": [
+        0,
+        1
+      ],
+      "all_16_rst_cancel_start_consume_combinations_seen": true,
+      "random_seed": "0x68ea279d",
+      "mismatches": 0,
+      "coverage": [
+        {
+          "fast_multiply": 0,
+          "accepted": 6409,
+          "done_cycles": 22836,
+          "canceled_while_busy": 2661,
+          "canceled_while_done": 394
+        },
+        {
+          "fast_multiply": 1,
+          "accepted": 9593,
+          "done_cycles": 48945,
+          "canceled_while_busy": 2121,
+          "canceled_while_done": 819
+        }
+      ],
+      "files": [
+        {
+          "path": "build/muldiv-cancel-cycle-miter/iterative_muldiv_reference.v",
+          "sha256": "8f4b83c7c060f5a46cfd0bae1e81c8e87aaba037ce5d67a8a32973474622d737"
+        },
+        {
+          "path": "build/muldiv-cancel-cycle-miter/tb_cycle_miter.sv",
+          "sha256": "8601fdc0ec70ac7ab0af48cc66a00546dee00c5da5419077b1a28cf96d625e0c"
+        },
+        {
+          "path": "build/muldiv-cancel-cycle-miter/compile.log",
+          "sha256": "618cc2c2eeb42a7ef7784d8f144ef273c631b18dc763af422b0a5637384deafd"
+        },
+        {
+          "path": "build/muldiv-cancel-cycle-miter/run.log",
+          "sha256": "dc8fa3c9b547c58b7cb9d98f0b8f333b00dd04c527985921072c0d6c375d3684"
+        },
+        {
+          "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/rtl__core_modules__iterative_muldiv.v",
+          "sha256": "b2f9541196191fb420a4db85311bc3f33832d4a49b99968d6ed9a60410c2f63b",
+          "original_path": "rtl/core_modules/iterative_muldiv.v"
+        }
+      ]
+    },
+    "report_original": {
+      "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__muldiv-cancel-cycle-miter__evidence.json",
+      "sha256": "b50b574a318c7324204a7760d63f5795b3c484aa4a48870194f912f551f42e99",
+      "bytes": 1413
+    },
+    "run_log": {
+      "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__muldiv-cancel-cycle-miter__run.log",
+      "sha256": "dc8fa3c9b547c58b7cb9d98f0b8f333b00dd04c527985921072c0d6c375d3684",
+      "bytes": 544
+    },
+    "note": "The report is preserved with its live candidate RTL path replaced by an identical frozen copy; original_path records that location. Original report bytes are separately hashed."
+  },
+  "muldiv_memory_wait_coverage": {
+    "source_commit": "42ae42ae126b7fbaf30f14b5e83f5abcc105dc33",
+    "load_forwarding": 1,
+    "overall_coverage": "complete_across_separate_completed_variants",
+    "completed_variants": [
+      "latency0",
+      "latency1",
+      "latency2",
+      "latency4",
+      "fast_fetch"
+    ],
+    "interrupt_sweep_positions": 1128,
+    "interrupt_sweep_failures": 0,
+    "reference_instructions": 223,
+    "reference_result_stores": 11,
+    "launches": [
+      {
+        "status": "externally_interrupted_after_partial_pass",
+        "completed_variants": [
+          "latency0",
+          "latency1",
+          "latency2"
+        ],
+        "interrupted_stage": "latency4 compilation",
+        "signal": 15,
+        "rtl_assertion_failure": false,
+        "note": "The cocotb launcher reports a host AssertionError after receiving external SIGTERM15; it is not recorded as a fully passed launcher invocation.",
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__muldiv-cancel-memory-wait.log",
+          "sha256": "9c9b09a753257c4ef7969fb50b866bcd8d69b7ece570dceff03ca350cb71d216",
+          "bytes": 67141
+        }
+      },
+      {
+        "status": "host_import_path_failure",
+        "completed_variants": [],
+        "error": "ModuleNotFoundError: No module named 'test_memory_wait'; followed by empty XML parse error",
+        "rtl_assertion_failure": false,
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__muldiv-cancel-memory-wait-remaining.log",
+          "sha256": "9e1f2b9e2a98687aeffd5b517b5c6f48088e93c1399f8a93888a480644bc5d79",
+          "bytes": 15502
+        }
+      },
+      {
+        "status": "pass",
+        "completed_variants": [
+          "latency4",
+          "fast_fetch"
+        ],
+        "description": "Corrected host import path; both remaining variants report TESTS=4 PASS=4 FAIL=0.",
+        "artifact": {
+          "path": "fpga/arty_a7_35t/build/fetch-boundary-evidence/build__muldiv-cancel-memory-wait-remaining-final.log",
+          "sha256": "fd089b43a0ebb030cf75edd92c49022a81a6898fdadc3de9f9fbedaf4cc46d58",
+          "bytes": 35308
+        }
+      }
+    ],
+    "pass_lines": [
+      "INFO     cocotb:simulator.py:266   2970.00ns INFO     cocotb.top                         latency 0: 294 cycles, 223 instret, 8 wait cycles, 11 result stores",
+      "INFO     cocotb:simulator.py:266                                                         ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                             6430.00           0.12      54855.19  **",
+      "INFO     cocotb:simulator.py:266   6540.00ns INFO     cocotb.top                         latency 1: 651 cycles, 223 instret, 401 wait cycles, 11 result stores",
+      "INFO     cocotb:simulator.py:266                                                         ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                            10160.00           0.15      66682.33  **",
+      "INFO     cocotb:simulator.py:266  11300.00ns INFO     cocotb.top                         latency 2: 1127 cycles, 223 instret, 905 wait cycles, 11 result stores",
+      "INFO     cocotb:simulator.py:266 13398680.00ns INFO     cocotb.top                         latency 2: swept 1128 interrupt cycles, 0 failures",
+      "INFO     cocotb:simulator.py:266                                                           ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                         13402620.00         147.11      91107.39  **",
+      "INFO cocotb:  18820.00ns INFO     cocotb.top                         latency 4: 1879 cycles, 223 instret, 1657 wait cycles, 11 result stores",
+      "INFO cocotb:                                                         ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                            23160.00           0.34      67354.42  **",
+      "INFO cocotb:                                                         ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                             9050.00           0.16      57822.09  **",
+      "PASS: remaining latency4 and fast-fetch variants"
+    ]
+  }
+}
