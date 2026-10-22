@@ -263,7 +263,16 @@ The queue hides wrong-path instructions immediately, then sends a registered
 cancellation and target to the port. A canceled local lookup can accept the
 new target on that edge. Registered cancellation also withdraws an ungranted
 lower request before arbitration, avoiding an unnecessary wrong-path DDR read;
-an already granted lower read must first drain.
+an already granted lower read must first drain. A successful RAM read still
+populates the physical I-cache when its instruction is canceled, preventing
+repeated speculative fall-through reads from going back to DDR. Canceled CPU
+responses, faults and TLB fills remain suppressed. Every new fetch checks its
+current translation and permissions before using those physical bytes.
+Older posted stores drain before a lower read; new stores cannot enqueue
+through its completion edge, and later stores snoop the pending cache fill.
+An uncanceled instruction read returns on the lower completion cycle and can
+grant the next lookup on that edge. A same-line successor uses fill forwarding;
+an error returns one fault token and accepts no following request on that edge.
 Instruction TLB flushes cross the same control boundary. This keeps late CPU
 redirects out of fetch arbitration while retaining precise fault/PC tags.
 

@@ -62,24 +62,30 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
     wire lower_granted=((state==PTE_REQ)||(state==ACCESS_REQ))&&bus_req&&bus_gnt;
     wire restart_slot=PIPE_FETCH&&RESTART_ON_CANCEL&&fetch_cancel&&!lower_pending&&!lower_granted;
     wire restart_gnt=req&&!fatal_error&&!invalidate&&restart_slot;
+    // The bridge has already registered a completed lower read. Return its
+    // instruction token directly and start the next lookup on that same edge.
+    // Concurrent cache fill/lookup forwarding covers the same-line successor.
+    // Errors return exactly one fault token and leave the next request ungranted.
+    wire fetch_complete=PIPE_FETCH&&(state==ACCESS_WAIT)&&bus_done&&!stale;
+    wire fetch_next_slot=fetch_complete&&!bus_error;
     assign gnt=req&&!fatal_error&&!invalidate&&
                (restart_slot||(!(PIPE_FETCH&&fetch_cancel)&&
-                ((state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit&&!stale))));
+                ((state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit&&!stale)||fetch_next_slot)));
     // A write has no response data to register. Once its actual completion is
     // visible, acknowledge it directly and avoid a separate DONE cycle. This
     // never acknowledges a grant, a permission fault, or a failed transaction.
     wire early_store_response=EARLY_STORE_RESPONSE&&!FETCH&&we_q&&
                               (state==ACCESS_WAIT)&&bus_done&&!bus_error;
     assign rvalid=((state==DONE)||((state==CACHE_LOOKUP)&&cache_hit)||
-                   early_store_response)&&!stale;
+                   early_store_response||fetch_complete)&&!stale;
     assign page_fault=rvalid&&fault_q;
-    assign access_fault=PIPE_FETCH&&rvalid&&access_fault_q;
+    assign access_fault=PIPE_FETCH&&rvalid&&(fetch_complete ? bus_error : access_fault_q);
     // Lower-bus arbitration must not depend on the EX-stage redirect path.
     // RESTART_ON_CANCEL receives the queue's registered cancellation. Stop an
     // ungranted old read before arbitration so a redirect need not drain an
     // unnecessary DDR access. An earlier grant is already in WAIT and retains
     // ownership below. Legacy ports with live EX cancellation still allow the
-    // same-edge grant and drain it without a response or fill.
+    // same-edge grant and drain it without a CPU response.
     assign bus_req=(((state==PTE_REQ)&&ram_pte)||
                     ((state==ACCESS_REQ)&&(!PIPE_FETCH||ram_pte)))&&
                    !(PIPE_FETCH&&(walk_discard||(RESTART_ON_CANCEL&&fetch_cancel)));
@@ -120,13 +126,16 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
     // than gating its RAM enable with the late EX redirect/flush or queue
     // backpressure. Only gnt captures a transaction and only !stale returns
     // its token; unused reads cannot issue a bus access, fill, or fault.
-    wire cache_read_slot=(state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit)||restart_slot;
+    wire cache_read_slot=(state==IDLE)||(PIPE_FETCH&&(state==CACHE_LOOKUP)&&cache_hit)||restart_slot||fetch_next_slot;
     wire cache_lookup=((PIPE_FETCH ? cache_read_slot : gnt)&&direct_cache)||(state==CACHE_REQUEST);
     wire [31:0] cache_addr=((state==CACHE_REQUEST)&&!restart_slot) ? bus_addr : hit_physical;
     wire cache_hit;
     wire [31:0] cache_word;
+    // A canceled successful RAM read still warms the physically tagged cache.
+    // CPU tokens and TLB fills remain canceled. The fabric drains older stores
+    // before a read and blocks new store enqueueing through its completion;
+    // later stores snoop the pending fill as well as committed cache lines.
     wire cache_fill=(CACHE_LINES>0)&&(state==ACCESS_WAIT)&&bus_done&&!bus_error&&!we_q&&
-                    !(PIPE_FETCH&&stale)&&
                     (`IS_INSTR_MEM(bus_addr)||`IS_DATA_MEM(bus_addr));
     physical_l1_cache #(.LINES(CACHE_LINES),.REGISTER_WRITES(PIPE_FETCH)) l1 (
         .clk(clk),.rst(rst),.lookup(cache_lookup),.lookup_addr(cache_addr),
@@ -183,7 +192,7 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
             end
         end
     endtask
-    assign rdata=(state==CACHE_LOOKUP) ? (FETCH ? cache_word : loaded(cache_word,type_q)) : response_q;
+    assign rdata=fetch_complete ? (bus_error ? 32'h13 : bus_rdata) : (state==CACHE_LOOKUP) ? (FETCH ? cache_word : loaded(cache_word,type_q)) : response_q;
     always @(posedge clk) begin
         if(rst) begin cache_hits<=0;cache_misses<=0;store_wait_cycles<=0;end
         else begin
@@ -213,7 +222,8 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
         end else if(restart_gnt) capture_request();
         else if(PIPE_FETCH&&state!=IDLE&&stale) begin
             // Granted bus operations cannot be withdrawn. Drain their response
-            // without a CPU token or TLB/cache fill. A grant may occur on this
+            // without a CPU token or TLB fill. Successful RAM reads may populate
+            // the physical cache. A grant may occur on this
             // same cancel edge because bus_req deliberately uses only registers.
             case(state)
                 PTE_REQ: state<=(bus_req&&bus_gnt) ? PTE_WAIT : IDLE;
@@ -263,7 +273,9 @@ module sv32_bus_port #(parameter FETCH=0, CACHE_LINES=0, PIPELINED_FETCH=0,
                 else if(bus_gnt) state<=ACCESS_WAIT;
             end
             ACCESS_WAIT: if(bus_done) begin
-                if(bus_error) begin
+                if(fetch_complete) begin
+                    if(gnt) capture_request(); else state<=IDLE;
+                end else if(bus_error) begin
                     if(PIPE_FETCH) begin access_fault_q<=1; fault_q<=0; response_q<=32'h13; state<=DONE; end
                     else begin fatal_error<=1; state<=IDLE; end
                 end

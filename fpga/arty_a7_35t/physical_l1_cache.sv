@@ -52,8 +52,8 @@ module physical_l1_cache #(parameter LINES=256, REGISTER_WRITES=0) (
     wire [15:0] write_mask;
     generate if(REGISTER_WRITES) begin: registered_writes
         // Register the complete ordered write-event stream, including snoops.
-        // A late fetch cancellation may suppress fill, but cannot select the
-        // BRAM's write address/data/byte enables on the same cycle. Capturing
+        // CPU redirect control cannot select the BRAM's write address/data/
+        // byte enables on the same cycle. Capturing
         // fill and snoop data separately also keeps that late control out of
         // the 128-bit input registers. Data, tags and validity commit together;
         // pending metadata and byte forwarding cover the one-cycle delay.
