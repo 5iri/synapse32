@@ -295,6 +295,12 @@ set_kconfig_disabled "$BUSYBOX_CONFIG" CONFIG_IFCONFIG
 set_kconfig_disabled "$BUSYBOX_CONFIG" CONFIG_ROUTE
 # RV32 has time64 syscalls; BusyBox 1.36.1's hwclock assumes SYS_settimeofday.
 set_kconfig_disabled "$BUSYBOX_CONFIG" CONFIG_HWCLOCK
+# BusyBox's const-pointer trick lets Clang load vi's globals before INIT_G
+# stores their address. Use BusyBox's documented mutable-pointer workaround.
+busybox_compiler_macros="$("${KERNEL_CROSS_COMPILE}gcc" -dM -E -x c /dev/null)"
+if grep -q '^#define __clang__ 1$' <<< "$busybox_compiler_macros"; then
+    set_kconfig_string "$BUSYBOX_CONFIG" CONFIG_EXTRA_CFLAGS "-DBB_GLOBAL_CONST="
+fi
 make -C "$BUSYBOX_DIR" O="$BUSYBOX_OUT_DIR" -j"$(num_jobs)" ARCH=riscv CROSS_COMPILE="$KERNEL_CROSS_COMPILE" busybox
 cp "$BUSYBOX_OUT_DIR/busybox" "$BUSYBOX_BIN"
 chmod 0755 "$BUSYBOX_BIN"

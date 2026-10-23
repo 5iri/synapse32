@@ -73,6 +73,23 @@ not on PATH. Source downloads require internet access. `SKIP_SOURCE_FETCH=1`
 reuses already pinned Linux/OpenSBI/BusyBox checkouts. Both routes produce
 `build/linux-image/fw_payload.bin` plus ELF, kernel Image, DTB and Verilog hex.
 
+For Clang builds, the builder sets BusyBox's documented `-DBB_GLOBAL_CONST=`
+workaround. Without it, BusyBox 1.36.1 can load its old globals pointer during
+`vi` initialization and crash at address `0x24`. The fix covers all applets
+using that pointer. GCC builds retain their existing configuration. The
+[regression evidence](workloads/results/busybox-vi.json) includes the original
+failure, corrected QEMU runs, and editing on the physical FPGA. To test a
+rebuilt static BusyBox without a board:
+
+```sh
+python3 fpga/arty_a7_35t/tests/test_busybox_vi.py \
+  --qemu /path/to/qemu-riscv32 \
+  --busybox fpga/arty_a7_35t/build/linux-image/busybox-build/busybox
+```
+
+The test uses a PTY and checks startup, saved file bytes, reopening, changes,
+undo, and exit status.
+
 ## Load and use
 
 Connect the board's USB JTAG/UART port. Install Python's `pyserial` package, select
