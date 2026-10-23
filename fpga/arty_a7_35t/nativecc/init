@@ -1,0 +1,18 @@
+#!/bin/sh
+# /init is entered after Linux frees its embedded initramfs/init memory.
+# Rootfs's initial tmpfs cap is computed before that memory is freed. Raising
+# the ceiling allocates no pages; it permits the staged compiler extraction.
+printf '\nS32_NATIVECC_EXTRACT_BEGIN\n'
+# On this 64 MiB board, fragmentation boosting can reserve another 4 MiB
+# while the archive and extracted files coexist. Keep a fixed 1 MiB reserve.
+/bin/busybox mount -t proc proc /proc
+echo 0 > /proc/sys/vm/watermark_boost_factor
+echo 1024 > /proc/sys/vm/min_free_kbytes
+if /bin/busybox mount -t rootfs -o remount,size=48m rootfs / \
+    && /bin/busybox tar -xJf /nativecc.tar.xz -C /; then
+    /bin/busybox rm -f /nativecc.tar.xz
+    printf 'S32_NATIVECC_READY\n'
+else
+    printf 'S32_NATIVECC_EXTRACT_FAILED: continuing to the diagnostic shell\n'
+fi
+exec /sbin/synapse-init

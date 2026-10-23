@@ -14,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("port", help="same UART device as the running reader")
     parser.add_argument("--log", type=Path, required=True, help="UART log from the running reader")
+    parser.add_argument("--from-start", action="store_true", help="show the captured boot before following live output")
     parser.add_argument("--input-delay", type=float, default=0.1, help="seconds between input bytes")
     args = parser.parse_args()
     if not sys.stdin.isatty():
@@ -33,7 +34,8 @@ def main():
         parser.error("no active UART reader; start test_board.py --keep-open first")
 
     with args.log.open("rb") as log:
-        log.seek(0, os.SEEK_END)
+        if not args.from_start:
+            log.seek(0, os.SEEK_END)
         uart_fd = os.open(args.port, os.O_WRONLY | os.O_NOCTTY | os.O_NONBLOCK)
         keyboard = sys.stdin.fileno()
         saved = termios.tcgetattr(keyboard)

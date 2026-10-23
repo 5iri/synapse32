@@ -17,6 +17,10 @@ The [CoreMark workflow](coremark/README.md) builds the official integer
 benchmark for FPGA Linux; [physical performance results](coremark/RESULTS.md)
 record validated scores and the TLB comparison.
 
+The optional [native C development image](nativecc/README.md) adds GCC and
+binutils that run inside FPGA Linux. Linux 7.3.0 and on-board C compilation,
+linking, integer arithmetic and software floating-point tests have passed.
+
 The CPU sees 64 MiB of unified main RAM. A separate 1 MiB scratch region occupies
 the next MiB of physical DDR. UART, CLINT and PLIC accesses complete in the CPU
 clock domain. The DDR controller uses a 325 MHz memory clock / 81.25 MHz UI clock;
@@ -138,6 +142,10 @@ Use the same `--log` path as the reader. This client tails its output and sends
 keystrokes without reconfiguring the UART. Enter requests a prompt; Ctrl+C
 interrupts a Linux command, and Ctrl+] detaches the client while leaving the
 reader and loaded image running. Start with `uname -a`, `ls`, or `free`.
+Add `--from-start` to show the saved boot output before following the live
+terminal. When deliberately rebooting with the same log path, start the new
+`test_board.py` reader with `--append-log` so an attached console continues to
+see output without reopening its log.
 
 `--console-only` skips uploading and tests an already running Linux console.
 If reopening the port resets your board, remove the processor-reset jumper JP2

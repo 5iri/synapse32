@@ -1,0 +1,241 @@
+{
+  "schema": 1,
+  "status": "board_verified_with_manual_recovery_next_image_prepared",
+  "toolchain": {
+    "gcc": "12.4.0",
+    "binutils": "2.44",
+    "target": "riscv32-linux-musl",
+    "march": "rv32ima_zicsr_zifencei",
+    "abi": "ilp32",
+    "language": "C",
+    "default_link": "static",
+    "musl_cross_make_commit": "5e8042e63de29f8473fc3b0b831a587ba284e1a8",
+    "source_archives": {
+      "gcc-12.4.0.tar.xz": {
+        "sha256": "704f652604ccbccb14bdabf3478c9511c89788b12cb3bbffded37341916a9175",
+        "bytes": 83377372
+      },
+      "binutils-2.44.tar.gz": {
+        "sha256": "0cdd76777a0dfd3dd3a63f215f030208ddb91c2361d2bcc02acec0f1c16b6a2e",
+        "bytes": 51342242
+      },
+      "gmp-6.3.0.tar.xz": {
+        "sha256": "a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898",
+        "bytes": 2094196
+      },
+      "mpfr-4.2.2.tar.xz": {
+        "sha256": "b67ba0383ef7e8a8563734e2e889ef5ec3c3b898a01d00fa0a6869ad81c6ce01",
+        "bytes": 1505596
+      },
+      "mpc-1.3.1.tar.gz": {
+        "sha256": "ab642492f5cf882b74aa0cb730cd410a81edcdbec895183ce930e706c1c759b8",
+        "bytes": 773573
+      },
+      "musl-1.2.5.tar.gz": {
+        "sha256": "a9a118bbe84d8764da0ea0d28b3ab3fae8477fc7e4085d90102b8596fc7c75e4",
+        "bytes": 1080786
+      }
+    },
+    "native_programs": {
+      "gcc": {
+        "path": "opt/nativecc/bin/gcc",
+        "sha256": "c4be7affb93bf18ef8370861e0e147f8d605c46a539d06b4712f5fbe066b5e68",
+        "bytes": 2022996,
+        "elf_flags": 0,
+        "isa": "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0",
+        "static": true
+      },
+      "cc1": {
+        "path": "opt/nativecc/libexec/gcc/riscv32-linux-musl/12.4.0/cc1",
+        "sha256": "6f7fc2b1e56f4e6b1dbaa5a30cdf5abb555507846587135d37447d24468888d2",
+        "bytes": 15551796,
+        "elf_flags": 0,
+        "isa": "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0",
+        "static": true
+      },
+      "as": {
+        "path": "opt/nativecc/bin/as",
+        "sha256": "04296aabbbfa77d0b8428d4c3d9534cd0bf43ea42c7b0b0b70bf1ae1b9a93790",
+        "bytes": 1380780,
+        "elf_flags": 0,
+        "isa": "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0",
+        "static": true
+      },
+      "ld": {
+        "path": "opt/nativecc/bin/ld",
+        "sha256": "e81c9caf9510aabb077338dfd9b9e14377c5766483b4f62018033adc16a80936",
+        "bytes": 4044196,
+        "elf_flags": 0,
+        "isa": "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0",
+        "static": true
+      },
+      "collect2": {
+        "path": "opt/nativecc/libexec/gcc/riscv32-linux-musl/12.4.0/collect2",
+        "sha256": "8c2d828f17f5f94fb28a127c83b33df41fb912af43a7d2b81d1f7b54728faac2",
+        "bytes": 784212,
+        "elf_flags": 0,
+        "isa": "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0",
+        "static": true
+      }
+    }
+  },
+  "package": {
+    "prefix": "/opt/nativecc",
+    "regular_file_bytes": 30188526,
+    "manifest": {
+      "path": "fpga/arty_a7_35t/build/native-toolchain/bundle-manifest.json",
+      "sha256": "431ab79c178772a2335077a6b69140106504aa72857cdb2cf7f61c7800d30ce1",
+      "bytes": 61709
+    },
+    "initramfs_fragment": {
+      "path": "fpga/arty_a7_35t/build/native-toolchain/initramfs.list",
+      "sha256": "dcf88040075445b0f0d321d9c93524ac0efb4fc225fadb6b865522eb526903c2",
+      "bytes": 71106
+    },
+    "contents": "gcc, cc1, collect2, as, ld; musl/GCC C headers, crt/static runtimes, specs, licenses and build/source pins; no C++ frontend/headers/archives or Linux UAPI bulk"
+  },
+  "qemu": {
+    "passed": true,
+    "cpu": "rv32,c=false,f=false,d=false,zfa=false",
+    "scope": "Native compiler and helpers execute under user QEMU. Temporary host wrappers supply helper emulation; they are excluded from the target package.",
+    "cases": [
+      {
+        "name": "hello",
+        "passed": true,
+        "output": "hello from Synapse32 native C\n"
+      },
+      {
+        "name": "two-units",
+        "passed": true,
+        "output": "two=297\n"
+      },
+      {
+        "name": "arithmetic",
+        "passed": true,
+        "output": "u64=12727504021/86 fp=4.500 sqrt=1.500\n"
+      }
+    ],
+    "report": {
+      "path": "fpga/arty_a7_35t/build/native-toolchain/qemu-bundle-report.json",
+      "sha256": "460abeba934f6f3931e11f5e8424d889d3d797cf66cef13216bb120adb906b20",
+      "bytes": 8084
+    }
+  },
+  "default_static": {
+    "verified": true,
+    "method": "Plain gcc -### link without caller-supplied -static selects static linking and crtbeginT.o.",
+    "proof": {
+      "path": "fpga/arty_a7_35t/build/native-toolchain/default-static-check.log",
+      "sha256": "82566102e31e9c3f7f34ef854da2f169e35d68d060ec469391bbaf85053aa2f9",
+      "bytes": 6223
+    }
+  },
+  "kernel": {
+    "release": "7.3",
+    "source_archive": {
+      "url": "https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-7.3.tar.xz",
+      "bytes": 162399360,
+      "sha256": "87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953",
+      "verification": "SHA256 matches kernel.org HTTPS sha256sums.asc"
+    },
+    "cpu_hz": 62500000,
+    "kernel_hz": 25,
+    "architecture": "RV32IMA + Zicsr/Zifencei; Sv32 MMU, no C/F/D/V",
+    "kernel_config": {
+      "path": "fpga/arty_a7_35t/build/linux-7.3/.config",
+      "bytes": 64381,
+      "sha256": "af76526f158dbe7d99e0795aa3e1cd68380ff1fde5802d9d16cb097af8ca2864"
+    },
+    "configuration_notes": "Optimize for size; optional DEBUG_VM, SPINLOCK, MUTEX and SCHED debug disabled. DEBUG_KERNEL remains selected through EXPERT.",
+    "selection_status": "running_manually_recovered; next_boot_image_prepared_not_tested",
+    "native_archive": {
+      "path": "fpga/arty_a7_35t/build/linux-image-7.3-cpu62/nativecc.tar.xz",
+      "bytes": 8562588,
+      "sha256": "f3c494cc89f6f3cdcce69417532da27a5ee87a7cdcd9446048eb106e8e051221"
+    },
+    "init_sequence": "Remount rootfs tmpfs with size=48m; extract native archive after free_initmem; delete archive; exec original init as /sbin/synapse-init.",
+    "init_wrapper_matches_tracked_source": true,
+    "prior_attempts": [
+      {
+        "payload_sha256": "aec833d5622887f95b1d4dcbbf321ca2c570d1e1c55027015b8e74d2ba6bf804",
+        "result": "Initramfs write error then panic; write error does not prove physical OOM."
+      },
+      {
+        "payload_sha256": "dd6a90dbe79e2b11f8ea4b710b06a2a85373d0a6ddaa8b2972bec8c977a8dba3",
+        "result": "Linux7.3 diagnostic fallback shell reached; deferred extraction hit ENOSPC. Root observed tmpfs cap17496KiB with27364KiB MemAvailable;48MiB remount succeeded."
+      }
+    ],
+    "running_payload": {
+      "sha256": "3c1778f2c709cb881a6dcc4bd20530e68ebe99a9500452b2cedc3bacf815c181",
+      "bytes": 29878928
+    },
+    "prepared_next_boot": {
+      "status": "prepared_not_boot_tested",
+      "payload": {
+        "path": "fpga/arty_a7_35t/build/linux-image-7.3-cpu62/fw_payload.bin",
+        "sha256": "1c37fec9c048ba7d98bc7da801d4a83ea245858497399cff3ada500f62d4168e",
+        "bytes": 29878928
+      },
+      "init_changes": "Remount rootfs48MiB; set watermark_boost_factor=0 and min_free_kbytes=1024 before deferred native extraction; remove archive before original init."
+    },
+    "current_running_setup": "3c177 payload reached Linux7.3 shell; archive extraction hit an OOM/watermark limit. Root manually disabled watermark boosting, set min_free_kbytes1024 and deleted the resident native archive before the successful compiler cases."
+  },
+  "board": {
+    "status": "board_verified_with_manual_recovery_next_image_prepared",
+    "kernel_release": "7.3.0",
+    "cpu_hz": 62500000,
+    "kernel_hz": 25,
+    "manual_recovery_required": true,
+    "core_program_hashes_match": true,
+    "target_file_verification": "Five core executable hashes match; not a complete package-file inventory.",
+    "cases": [
+      {
+        "name": "hello",
+        "passed": true,
+        "output": "Hello from C compiled on Synapse32!",
+        "compile_and_run_exit_status": 0
+      },
+      {
+        "name": "two_translation_units",
+        "passed": true,
+        "output": "two=297",
+        "compile_and_run_exit_status": 0
+      },
+      {
+        "name": "integer64_soft_float_libm",
+        "passed": true,
+        "output": "u64=12727504021/86 fp=4.500 sqrt=1.500",
+        "compile_and_run_exit_status": 0
+      }
+    ],
+    "hello_compile_O2_wall_seconds": 17.27,
+    "memory_after_archive_delete_kib": {
+      "MemTotal": 48868,
+      "MemAvailable": 12012,
+      "MemFree": 13376,
+      "Shmem": 32248
+    },
+    "fixture_source_sha256": {
+      "s32-native-hello.c": "7e37f8b987f23e2e070b7fedc69ae83b1130561a117a4d059a776668b9d563a5",
+      "s32-native-helper.c": "3551b19ca6ddc0f1505d655386d006d943554d9ab6aa1de64c876db9bb4a43b3",
+      "s32-native-main.c": "a4aba8bc4a5c23e2d38a468bc6303c7bf162057c3ebe0a54a1ab690e4a48b8c8",
+      "s32-native-math.c": "b5b8d2439c8aebf6c05839490a54e928ac055b9c6ac0fc0defca4d74e552946a"
+    },
+    "test_proof": {
+      "path": "fpga/arty_a7_35t/build/linux-7.3-evidence/native-tests.json",
+      "sha256": "a5b2dd4702b0247c6414aa52c725da8638b79b8e54ed966549a94d096b423aae",
+      "bytes": 742
+    },
+    "transcript": {
+      "path": "fpga/arty_a7_35t/build/linux-7.3-evidence/native-tests.uart.log",
+      "sha256": "ab667f465775583d516bd103e6faa64577ae6521c805e54649ab46ed7e0b929f",
+      "bytes": 6032
+    },
+    "core_hash_proof": {
+      "path": "fpga/arty_a7_35t/build/linux-7.3-evidence/native-core-hashes.json",
+      "sha256": "84d4fd8e2405499991a9c16574f45e3a0f0786cf3275601d8e22ba0139d5e197",
+      "bytes": 1174
+    },
+    "measurement_limit": "Memory values are a post-recovery baseline, not peak RSS. BusyBox time-v MaxRSS was not validated and is omitted."
+  }
+}

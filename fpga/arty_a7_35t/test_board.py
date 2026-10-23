@@ -21,6 +21,8 @@ def main():
     parser.add_argument("--timeout", type=float, default=600, help="seconds to wait for a shell after upload")
     parser.add_argument("--input-delay", type=float, default=0.1, help="seconds between console input bytes for the uncached CPU")
     parser.add_argument("--log", type=Path, default=here / "build/hardware-uart.log")
+    parser.add_argument("--append-log", action="store_true",
+                        help="append a new boot to the existing log so attached console clients keep their position")
     args = parser.parse_args()
     import serial
 
@@ -61,7 +63,7 @@ def main():
         command_sent = False
         verified = False
         deadline = time.monotonic()+args.timeout
-        with args.log.open("wb") as log:
+        with args.log.open("ab" if args.append_log else "wb") as log:
             while time.monotonic() < deadline or (verified and args.keep_open):
                 chunk = port.read(max(1, port.in_waiting))
                 if not chunk:
