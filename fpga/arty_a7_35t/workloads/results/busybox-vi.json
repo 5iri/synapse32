@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "project_source_commit": "6353898494fa7f396e96914cf8fa46479c6f1696",
+  "busybox_source": {
+    "version": "1.36.1",
+    "commit": "1a64f6a20aaf6ea4dbba68bbfa8cc1ab7e5c57c4",
+    "tree": "02f1de40c7d267ea6e6252b4c185fa05a25640b3",
+    "source_unchanged": true
+  },
+  "root_cause": {
+    "summary": "BusyBox declares ptr_to_globals as a const pointer but modifies it through an alias. In vi INIT_G, Clang 23.1.1 -Oz hoists the old pointer load before assignment, then accesses last_modified_count through that stale null pointer.",
+    "fault": {
+      "epc": "0x831bc",
+      "ra": "0x831ac",
+      "badaddr": "0x24",
+      "cause": 13,
+      "s4": 0,
+      "a0": "0x9575a020",
+      "ptr_to_globals_address": "0x1839e4",
+      "vi_main_address": "0x83184"
+    },
+    "field": "struct globals.last_modified_count, offset 0x24",
+    "exact_original_rootfs_code_matches_unstripped_elf": true,
+    "compared_virtual_address_range": [
+      "0x83184",
+      "0x83200"
+    ],
+    "original_instruction_chain": [
+      {
+        "pc": "0x831a8",
+        "instruction": "jal xzalloc",
+        "meaning": "Allocates 0x1638 zeroed bytes; board a0=0x9575a020 is nonnull."
+      },
+      {
+        "pc": "0x831b4",
+        "instruction": "lw s4,0(a1)",
+        "meaning": "Loads old ptr_to_globals value, zero, from address 0x1839e4."
+      },
+      {
+        "pc": "0x831b8",
+        "instruction": "sw a0,0(a1)",
+        "meaning": "Installs the new allocation after the stale pointer was loaded."
+      },
+      {
+        "pc": "0x831bc",
+        "instruction": "lw a0,0x24(s4)",
+        "meaning": "Dereferences stale null+0x24; matches cause13, badaddr0x24 and s4=0."
+      }
+    ],
+    "source_excerpts": [
+      {
+        "artifact": "frozen_inputs.vi_source",
+        "lines": [
+          544,
+          546
+        ],
+        "text": "#define INIT_G() do { \\\n\tSET_PTR_TO_GLOBALS(xzalloc(sizeof(G))); \\\n\tlast_modified_count--; \\"
+      },
+      {
+        "artifact": "frozen_inputs.libbb_header",
+        "lines": [
+          378,
+          380
+        ],
+        "text": " * However, this may break on weird arches or toolchains. In this case,\n * set \"-DBB_GLOBAL_CONST=''\" in CONFIG_EXTRA_CFLAGS to disable\n * this optimization."
+      },
+      {
+        "artifact": "frozen_inputs.libbb_header",
+        "lines": [
+          2297,
+          2297
+        ],
+        "text": "extern struct globals *BB_GLOBAL_CONST ptr_to_globals;"
+      },
+      {
+        "artifact": "frozen_inputs.libbb_header",
+        "lines": [
+          2319,
+          2322
+        ],
+        "text": "/* XZALLOC_CONST_PTR() is an out-of-line function to prevent\n * clang from reading pointer before it is assigned.\n */\nvoid XZALLOC_CONST_PTR(const void *pptr, size_t size) FAST_FUNC;"
+      }
+    ],
+    "compiler_only_proof": {
+      "source_changes": false,
+      "extra_flag": "-DBB_GLOBAL_CONST=",
+      "compile_exit_code": 0,
+      "before_object_offsets": "0x38 loads old pointer; 0x3c installs allocation; 0x40 dereferences old pointer.",
+      "after_object_offsets": "0x3c installs allocation; 0x40 reloads installed pointer; 0x44 dereferences it."
+    },
+    "classification": "Reproduces under QEMU user emulation with the identical BusyBox binary; FPGA-specific memory or pipeline behavior is not required to reproduce this failure."
+  },
+  "production_fix": {
+    "path": "sim/build_linux.sh",
+    "artifact": {
+      "path": "sim/build_linux.sh",
+      "bytes": 28245,
+      "sha256": "4e2c2aaa0f7bcf2880b23286a3c177a64a881499da574337112f2bf30a05e062"
+    },
+    "behavior": "Detect __clang__ using the same cross-gcc wrapper used for BusyBox; set CONFIG_EXTRA_CFLAGS=\"-DBB_GLOBAL_CONST=\" for Clang builds.",
+    "gcc_behavior_unchanged": true,
+    "full_rebuild": true,
+    "full_build_only_config_symbol_change": {
+      "CONFIG_EXTRA_CFLAGS": {
+        "before": "\"\"",
+        "after": "\"-DBB_GLOBAL_CONST=\""
+      }
+    },
+    "config_timestamp_comment_also_regenerated": true,
+    "no_fpga_reprogramming_or_linux_reset_for_live_fix": true
+  },
+  "frozen_inputs": {
+    "libbb_header": {
+      "path": "build/vi-debug/frozen/libbb.h",
+      "bytes": 101253,
+      "sha256": "e2368288f751e1745763dd6b9cab027f9a8e7c00ea9342d980aa04430aa54e92"
+    },
+    "vi_source": {
+      "path": "build/vi-debug/frozen/vi.c",
+      "bytes": 133749,
+      "sha256": "59738db64554f20acc0cf4940f619aec11bb96a8153e5d4a4804eccef86a1f35"
+    },
+    "global_pointer_definition": {
+      "path": "build/vi-debug/frozen/ptr_to_globals.c",
+      "bytes": 730,
+      "sha256": "bd0460a11b2027bf65447ffed6d3d0731382d0898cde08ee1b08ee0dd83ed816"
+    },
+    "original_vi_object": {
+      "path": "build/vi-debug/frozen/original-vi.o",
+      "bytes": 107136,
+      "sha256": "4295a9bb06fc38b60b4a072377c2a930fe2f7efccef5378e06bc29719d11654a"
+    },
+    "original_vi_compile": {
+      "path": "build/vi-debug/frozen/original-vi.o.cmd",
+      "bytes": 12707,
+      "sha256": "5968bc6861e8a91a23bd5b5cc4fb42e1603f985d1c94f1c52bfcb219099d232c"
+    },
+    "compiler_wrapper": {
+      "path": "build/vi-debug/frozen/riscv32-linux-gnu-gcc",
+      "bytes": 580,
+      "sha256": "d2caeb9e12aeb8ed0865326fc8b28d60ee688ff4a13b92f8b80b13c67438112a"
+    },
+    "compiler_driver": {
+      "path": "build/vi-debug/frozen/clang-23",
+      "bytes": 170192,
+      "sha256": "d8b91a91e48e005e1b966e6ae8b15202f113a1aa9afa6fb82c161e3c25ee82a7"
+    },
+    "linker_driver": {
+      "path": "build/vi-debug/frozen/ld.lld",
+      "bytes": 18496,
+      "sha256": "1e4bcd99d440177d14880fbaeabaf31ba25e2fdf2c25805a18c6ce007c94b016"
+    },
+    "small_config": {
+      "path": "build/vi-debug/frozen/small.config",
+      "bytes": 38111,
+      "sha256": "b83958db8c657dac7a6c15fd1b603bfaa13fd8e6af72247dae1e7938a75662ee"
+    },
+    "small_vi_compile": {
+      "path": "build/vi-debug/frozen/small-vi.o.cmd",
+      "bytes": 12287,
+      "sha256": "a05a4a52b5342da5c8f16bff1bb1b9199c78451b6a9aea685fd0d035d6a04b5b"
+    },
+    "full_config": {
+      "path": "build/vi-debug/frozen/full.config",
+      "bytes": 29504,
+      "sha256": "41de73053ecd7811d419a2313ba112f68818c27e5aac6e9b5e800dbf512002c4"
+    },
+    "full_vi_compile": {
+      "path": "build/vi-debug/frozen/full-vi.o.cmd",
+      "bytes": 12726,
+      "sha256": "c36b56e54f203dd3aef5d0f397f19879ea8c5526d9e387135fe54001c7aa8287"
+    },
+    "compiler_version": {
+      "path": "build/vi-debug/frozen/compiler-version.txt",
+      "bytes": 98,
+      "sha256": "f7e84af1d58bb2e5047e298599c2646ad4ce4e62376486963a99a12f765dd70e"
+    }
+  },
+  "binaries": {
+    "original": {
+      "binary": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-original",
+        "bytes": 1509564,
+        "sha256": "54291b90084bc7e53ab33bd64d2197109b7f618e4c07f18c923db20478218ef5"
+      },
+      "unstripped": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-original-unstripped",
+        "bytes": 2185424,
+        "sha256": "5f5a92050c82311ca460e7c10ef3b1b7793aa39c1bc9bdc2b7fcb843a5ce9a9b"
+      },
+      "config": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-fixed-evidence/config-reference",
+        "bytes": 29486,
+        "sha256": "af968f9038d731f5651a2eb97ab1b8bef20fa8c0d671bee2c01c5cb0ec1d1c22"
+      }
+    },
+    "live_small": {
+      "description": "Static RV32 BusyBox with vi and true applets, including vi undo; intended for a small live UART deployment.",
+      "binary": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-vi/busybox",
+        "bytes": 214492,
+        "sha256": "8fe2fc59219d0d5aa96a8f963a5442aff9066ea4b95b7cd107d9e68530797e23"
+      },
+      "gzip": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-vi.gz",
+        "bytes": 114233,
+        "sha256": "a94d6ff5ec408f1979d037b1e7197f3c94dab2592525300b03f9096e1323aece"
+      },
+      "config": {
+        "path": "build/vi-debug/frozen/small.config",
+        "bytes": 38111,
+        "sha256": "b83958db8c657dac7a6c15fd1b603bfaa13fd8e6af72247dae1e7938a75662ee"
+      }
+    },
+    "corrected_full": {
+      "binary": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-fixed/busybox",
+        "bytes": 1518660,
+        "sha256": "a590e9f9409176b5ea8db98be5e49f9daa2ec9948f2e14b50d3c0ed993d06721"
+      },
+      "unstripped": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-fixed/busybox_unstripped",
+        "bytes": 2195740,
+        "sha256": "af02f07476996024426d209a44fef8e8ca4f34fa58f9b3d7bcbd75cc6340d28d"
+      },
+      "config": {
+        "path": "build/vi-debug/frozen/full.config",
+        "bytes": 29504,
+        "sha256": "41de73053ecd7811d419a2313ba112f68818c27e5aac6e9b5e800dbf512002c4"
+      }
+    }
+  },
+  "tests": {
+    "qemu_fail_before": {
+      "passed_as_expected_failure": true,
+      "exit_code": -11,
+      "signal": "SIGSEGV",
+      "fault_address": "0x24",
+      "strace": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/qemu-before.log",
+        "bytes": 2422,
+        "sha256": "ec7695d903174703bda337a8dede7361a973b7bbf19f8811ced2d8e4cfbe0494"
+      },
+      "metadata": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/before.json",
+        "bytes": 435,
+        "sha256": "4b89a95cdacddb5e39492507cbb7d5c630b98331ec1e05f1b4bb79965a954c0d"
+      },
+      "pty_test_log": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/vi-before-test.log",
+        "bytes": 128,
+        "sha256": "203504772b6843d2604e41172561f5015c8d2f2596f3fc1ee6a8419eacaf2006"
+      },
+      "pty_transcript": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/vi-before.pty.log",
+        "bytes": 95,
+        "sha256": "7b5fdb361a39cd27f4e9a43140b649864668901c709d72a3dc9562192005c56b"
+      }
+    },
+    "qemu_small_after": {
+      "passed": true,
+      "exit_code": 0,
+      "cases": [
+        {
+          "case": "insert/write/quit",
+          "expected_text": "first line from vi\nsecond line\n",
+          "bytes": 31
+        },
+        {
+          "case": "reopen/append/undo/change/write/quit",
+          "expected_text": "updated line from vi\nsecond line\n",
+          "bytes": 33
+        }
+      ],
+      "log": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/vi-after-small-test.log",
+        "bytes": 167,
+        "sha256": "6386a9e9517cdc7ddbbbc908d3d40697c1d6d8c3e92a38c9ae35e7ed969d7015"
+      },
+      "pty_transcript": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/vi-after-small.pty.log",
+        "bytes": 1692,
+        "sha256": "e57a33282eafa005cc359b19b3760a660bd08dd065f51b1dfe3169fd5ed9aefc"
+      }
+    },
+    "qemu_full_after": {
+      "passed": true,
+      "exit_code": 0,
+      "cases": [
+        {
+          "name": "insert-write-quit",
+          "exact_saved_bytes": 31
+        },
+        {
+          "name": "reopen-modify-undo-write",
+          "exact_saved_bytes": 33
+        }
+      ],
+      "log": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-fixed-evidence/qemu-test.log",
+        "bytes": 167,
+        "sha256": "6386a9e9517cdc7ddbbbc908d3d40697c1d6d8c3e92a38c9ae35e7ed969d7015"
+      },
+      "pty_transcript": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/vi-after-full.pty.log",
+        "bytes": 1692,
+        "sha256": "8aeb6b7dd747da01eb4313e15450a8b3e6606d75644586ee7551fc5c3a8d0a93"
+      }
+    },
+    "physical_board": {
+      "passed": true,
+      "target": "current FPGA Linux, no reset or FPGA reprogramming",
+      "binary_sha256": "8fe2fc59219d0d5aa96a8f963a5442aff9066ea4b95b7cd107d9e68530797e23",
+      "target_binary": "/tmp/busybox-vi-fixed",
+      "alias": "vi='/tmp/busybox-vi-fixed vi'",
+      "results": [
+        {
+          "case": "insert/save/quit",
+          "exit_code": 0,
+          "exact_bytes": 36,
+          "sha256": "c64bdfbaa1cf561eddd73a91681baa43ce592c0bcde7d905419adb5f08487610"
+        },
+        {
+          "case": "normal vi alias/reopen/modify/undo/save/quit",
+          "exit_code": 0,
+          "exact_bytes": 38,
+          "sha256": "742e3f11d333fd58612ec6e35d664e4860df58103f7fc3c3ab1ab833b7ec8277"
+        }
+      ],
+      "expected_saved_text": [
+        "first line from FPGA vi\nsecond line\n",
+        "updated line from FPGA vi\nsecond line\n"
+      ],
+      "frozen_result": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/board-vi-result.json",
+        "bytes": 663,
+        "sha256": "7e6c1e03014f04c55bc83094da846c8d9b1f1ee1d1fdd13e6813b5a4020bed45"
+      },
+      "frozen_uart": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/board-vi.uart.log",
+        "bytes": 3236,
+        "sha256": "05c1487693c2cc388b8f4dece82d3234a71ed6ee24bb50012647847e437e4dcf"
+      },
+      "driver_log": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/board-vi-driver.log",
+        "bytes": 92,
+        "sha256": "d651eec2ac7f28868d5402fc85db58fcc2ff9d28fbc97ff1ba7edd6ab9b19885"
+      },
+      "deployment_log": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/deploy-small.log",
+        "bytes": 2211,
+        "sha256": "e8519f2bed46482b1f2c9554205d033c8ece3becc74b9f9c830fb38f16311cc6"
+      },
+      "test_driver": {
+        "path": "fpga/arty_a7_35t/build/vi-bringup/test_board_vi.py",
+        "bytes": 3493,
+        "sha256": "7366f9e16ce0e2e8ed8b6993bfed3703caaf8127e87eed8be521846f5dcf0230"
+      },
+      "scope": "Live corrected small editor installed in /tmp and selected by an alias in the existing shell. The corrected full binary was separately tested under QEMU."
+    }
+  },
+  "supporting_artifacts": {
+    "compiler_mapping_report": {
+      "path": "build/vi-debug/evidence.json",
+      "bytes": 3646,
+      "sha256": "ad27d9f080f0511e53a0f24c02cebb164d0fc56602c426e81342ecc12bcf466f"
+    },
+    "compiler_command": {
+      "path": "build/vi-debug/compile-command.json",
+      "bytes": 1802,
+      "sha256": "d86a2d0d959cd1c4331f319a78b31470e0145bf68b5aace68b1cbfefe079c965"
+    },
+    "compiler_before_disassembly": {
+      "path": "build/vi-debug/original-vi-main.txt",
+      "bytes": 9242,
+      "sha256": "442d28421e29f5550aa83e7eb066bfc4b579cc52f3389ddbf530564e100f9d53"
+    },
+    "compiler_after_disassembly": {
+      "path": "build/vi-debug/no-global-const-vi-main.txt",
+      "bytes": 9367,
+      "sha256": "260269bc8127ff9dcb58b4f98c46e7be6d6282d30247d256eaf6491764545785"
+    },
+    "fault_mapping_original": {
+      "path": "build/vi-debug/unstripped-crash-code.txt",
+      "bytes": 1194,
+      "sha256": "9db5f1391f8912b6cd5073cd642f5d967ca73cdf049c333c5e4bec30bcaff824"
+    },
+    "fault_mapping_rootfs": {
+      "path": "build/vi-debug/rootfs-crash-code.txt",
+      "bytes": 1183,
+      "sha256": "caae6facfa7c4361e4c08866c7dda7e8873b5a711d25fa84fdbe689c623939d1"
+    },
+    "original_board_fault": {
+      "path": "build/vi-debug/board-vi-crash.txt",
+      "bytes": 928,
+      "sha256": "4edf26ac873588247bc06448c24645c6a6118922966f0571748c6bb1733a8f48"
+    },
+    "isolated_fixed_vi_object": {
+      "path": "build/vi-debug/vi.no-global-const.o",
+      "bytes": 114016,
+      "sha256": "4e4971bba6fd59ece89676cb5eaa91138142404366ebe96253172a3313fafa78"
+    },
+    "full_build_report": {
+      "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-fixed-evidence/report.json",
+      "bytes": 6623,
+      "sha256": "eaebe04ca8665a93398872e3aa1093a51365f05e4035c5a026d7bb8c40f52713"
+    },
+    "full_build_log": {
+      "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-fixed-evidence/build.log",
+      "bytes": 73875,
+      "sha256": "d1c63fc8e64cd80bfae584b7e31892886dfa89712a8349b0a3344c4505744fc2"
+    },
+    "full_config_diff": {
+      "path": "fpga/arty_a7_35t/build/vi-bringup/busybox-fixed-evidence/config-final.patch",
+      "bytes": 511,
+      "sha256": "bccb227e40f8e7d970d12035efb67c666dd7a6708fecf17d1cc69b645967fc0e"
+    },
+    "qemu_binary": {
+      "path": "fpga/arty_a7_35t/build/qemu-profile/usr/bin/qemu-riscv32-static",
+      "bytes": 4839136,
+      "sha256": "4efa73ab59939d8729f361827f4be3526e188997b9af34393358cecd665f318b"
+    },
+    "regression_script": {
+      "path": "fpga/arty_a7_35t/tests/test_busybox_vi.py",
+      "bytes": 7509,
+      "sha256": "1b72110857a03941196321784b23901e7fce5fd21e223a1edee2ecd1930e0852"
+    }
+  },
+  "next_boot": {
+    "status": "prepared_not_booted",
+    "board_booted": false,
+    "reason_not_booted": "Preserve the user\u2019s current Linux session; the live small editor is the path validated on hardware.",
+    "cpu_clock_hz": 62500000,
+    "kernel_hz": 25,
+    "build_exit_code": 0,
+    "payload": {
+      "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62-vi/fw_payload.bin",
+      "bytes": 21550312,
+      "sha256": "59122ebbf0f86484d43d9170302b5579d39a032b536e98230b185fc82695229e"
+    },
+    "kernel_image": {
+      "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62-vi/Image",
+      "bytes": 17356004,
+      "sha256": "1c296f377a260b828226bd4cca86b71a985dba17fc418278b2fd54336f5d481d"
+    },
+    "initramfs": {
+      "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62-vi/initramfs.cpio",
+      "bytes": 3209728,
+      "sha256": "0fe5f36136794bde94b130fec666e78ac650f6e9d19d2b6deef629d67c1d9f76"
+    },
+    "dtb": {
+      "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62-vi/synapse32.dtb",
+      "bytes": 1415,
+      "sha256": "144637b877ea06d43ae046aed123fd0c3ec477ae4f627563e47a977e904711a0"
+    },
+    "original_payload": {
+      "path": "fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62/fw_payload.bin",
+      "bytes": 21550312,
+      "sha256": "66d45d0d9fb1b165eae69b8425686e3d248238262419d809a55bc8a50bcb3472"
+    },
+    "original_payload_hash_unchanged": true,
+    "dtb_byte_identical": true,
+    "kernel_config_semantic_diff": {
+      "CONFIG_INITRAMFS_SOURCE": {
+        "before": "\"/home/lazybanana/github/synapse32/fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62/initramfs.cpio\"",
+        "after": "\"/home/lazybanana/github/synapse32/fpga/arty_a7_35t/build/linux-image-workloads-25hz-cpu62-vi/initramfs.cpio\""
+      }
+    },
+    "archive_comparison": {
+      "entry_count": 37,
+      "entry_names_identical": true,
+      "content_changed_entries": [
+        "bin/busybox"
+      ],
+      "modes_ownership_link_counts_device_metadata_identical": true,
+      "timestamp_changed_entries": 26,
+      "note": "Only BusyBox file contents change. Cpio creation timestamps may differ under the inherited gen_init_cpio behavior; raw archive bytes are not claimed identical."
+    },
+    "evidence": {
+      "path": "fpga/arty_a7_35t/build/vi-bringup/image-evidence.json",
+      "bytes": 28021,
+      "sha256": "112aa27cb39644a3507116dd02340a54cc80ffc20492dc4c7c252cf850531d5b"
+    },
+    "build_script": {
+      "path": "fpga/arty_a7_35t/build/vi-bringup/build-nextboot-image.sh",
+      "bytes": 2331,
+      "sha256": "29e132124d407fd84418d616137317dc6dbfc3d659721c25fa363bc8b80abf5f"
+    },
+    "build_log": {
+      "path": "fpga/arty_a7_35t/build/vi-bringup/nextboot-image-build.log",
+      "bytes": 20212,
+      "sha256": "e06a70dbb116b03c30546cf3e9e63ca8cdf6491bfd204fcbe415395d7c23465f"
+    }
+  },
+  "remote_copy": {
+    "status": "sha256_verified",
+    "host": "siriboi",
+    "sha256": "59122ebbf0f86484d43d9170302b5579d39a032b536e98230b185fc82695229e",
+    "bytes": 21550312,
+    "verification_method": "SCP completed; remote shasum -a256 output matches the local payload hash.",
+    "proof": {
+      "path": "fpga/arty_a7_35t/build/vi-bringup/remote-sha256.txt",
+      "bytes": 100,
+      "sha256": "83acf5aaa5299b659015f97099bb4e5dad33e230af87cce0b988d91126974799"
+    },
+    "remote_path": "~/synapse32-linux-25hz-cpu62-vi.bin"
+  },
+  "limitations": [
+    "The live shell alias and /tmp editor last for the current boot.",
+    "The board editor tests preserve the running FPGA bitstream and Linux session.",
+    "This change fixes BusyBox user-space initialization; it does not change CoreMark binaries, kernel settings, CPU clock, or RTL."
+  ]
+}
