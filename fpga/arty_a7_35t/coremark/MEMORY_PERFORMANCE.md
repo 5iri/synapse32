@@ -8,41 +8,54 @@ also passes. `FAST_MULTIPLY=0` means iterative multiplication and division.
 
 ## Current tested profile
 
-The board is running `cache-cancel-div16`, built from `099154d`, at **62.5 MHz**.
+The board is running `fetch-refill-div16`, built from `b6688bb`, at **62.5 MHz**.
 It has 4 KiB instruction/data caches, an eight-entry store queue, fast multiply,
 queued instruction fetch, early store acknowledgement and completed-load data
-forwarding. Load-dependent control operations use selective interlocks. The
-registered fetch cancellation also suppresses ungranted wrong-path lower reads.
-Setup **+0.160 ns**, hold **+0.008 ns** and pulse-width **+0.206 ns** pass, as do
-the clock-methodology, DRC, critical CDC and bus-skew gates. Linux boots and
-executes shell commands on the physical board.
+forwarding. Load-dependent control operations use selective interlocks.
+Successful canceled RAM instruction reads now populate the physical I-cache,
+while canceled CPU tokens, faults and TLB fills remain suppressed. An uncanceled
+instruction read returns on lower completion and can grant its next lookup on
+that edge.
+
+The initial route missed setup by **0.339 ns**. Refinement of that same frozen
+checkpoint passes setup **+0.305 ns**, hold **+0.017 ns** and pulse width
+**+0.206 ns**, with zero failing endpoints. Clock methodology, DRC, critical CDC
+and bus-skew checks pass. Linux boots and executes shell commands on the board.
 
 | Physical profile | CPU MHz | Bare-metal CoreMark | Bare-metal /MHz | Linux CoreMark | Linux /MHz |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Previous store-path baseline | 58.823529 | 106.809701 | 1.815765 | 101.347927 | 1.722915 |
-| Current control-interlock/cancel profile | 62.5 | 112.407494 | 1.798520 | 100.877635 | 1.614042 |
+| Earlier store-path baseline | 58.823529 | 106.809701 | 1.815765 | 101.347927 | 1.722915 |
+| Previous cancellation profile, `099154d` | 62.5 | 112.407494 | 1.798520 | 100.877635 | 1.614042 |
+| Current instruction completion/refill profile, `b6688bb` | 62.5 | 114.811032 | 1.836977 | 114.455763 | 1.831292 |
 
-These are complete profile comparisons at different clocks. Bare-metal
-throughput improves **5.24%**, while Linux CoreMark decreases **0.46%**; the
-new profile does not improve every workload or normalized score. The same
-application executables run in both Linux images, at HZ=25. Compression,
-decompression, SQLite inserts and the fixed query mix improve **2.13%, 2.79%,
-2.06% and 2.13%**, respectively. Mesh medians are **4.605 / 25.2795 / 193.056 ms**
-for 16 / 32 / 64 points. All 60 frames pass geometry validation and exactly
-match the baseline's points and triangles.
+Compared with the previous **62.5 MHz** profile, bare-metal throughput improves
+**2.14%** and Linux CoreMark improves **13.46%**. Clock, cache capacities and
+firmware/application bytes are unchanged; Linux uses the exact same 25 Hz image.
+Both environments pass three performance runs and one validation-seed run,
+lasting at least 14.6 seconds. Bare metal uses the same 1,686 iterations and
+Linux the same 2,000 iterations as the preceding profile.
 
-A bounded 8 KiB instruction-cache model experiment gains only **1.35% / 1.03%**
-for performance/validation seeds over the current 4 KiB model. It was not built
-for the board. The tested 4 KiB configuration remains selected.
+All 12 compression/SQLite samples validate. Median compression and decompression
+throughput is **129,851 / 1,536,048 input bytes/s**; SQLite insertion and the fixed
+query mix reach **1,156.282 rows/s / 90.986 statements/s**. Improvements are
+**1.28% / 1.60% / 4.04% / 2.68%**, respectively. SQLite uses an in-memory database;
+the query mix contains statements with different costs. Mesh compute medians
+are **4.3615 / 24.069 / 189.2395 ms** for 16 / 32 / 64 points, reductions of
+**5.29% / 4.79% / 1.98%**. All 60 frames pass independent geometry validation and
+exactly match the previous profile's point coordinates and triangle indices.
 
-[Complete results, source/artifact hashes and validation evidence](results/cache-cancel-performance.json)
-include the preceding mixed-result build and the software-image differences.
-The matching bitstream and Linux image were copied to
-`siriboi:~/synapse32-cache-cancel-div16.bit` and
-`siriboi:~/synapse32-linux-25hz-cpu62.bin`, with remote SHA-256 verification.
+[Complete source, model, timing and physical evidence](results/fetch-refill-performance.json)
+includes the initial rejected route and accepted refinement. The new bitstream
+was copied to `siriboi:~/synapse32-fetch-refill-div16.bit`; the existing matching
+`siriboi:~/synapse32-linux-25hz-cpu62.bin` was verified. Local and remote SHA-256
+hashes match. The 64-point Linux mesh viewer is available at
+<http://127.0.0.1:8765/> while its retained UART session runs.
+
 See the [board build commands](../README.md#cpu-clock-profiles) and
-[Linux workload instructions](../workloads/README.md). The sections below
-preserve earlier stages and their measurements.
+[Linux workload instructions](../workloads/README.md). Earlier measurements,
+including the bounded 8 KiB cache experiment and preceding software-image
+differences, remain in [the previous evidence](results/cache-cancel-performance.json)
+and the historical sections below.
 
 ## Accepted physical results
 
@@ -653,3 +666,60 @@ Source and build settings, complete model outputs/counters, functional evidence,
 firmware/bitstream hashes, every physical CoreMark/workload sample and the frozen
 UART capture are preserved in
 [early-control-performance.json](results/early-control-performance.json).
+
+
+## Instruction completion and retained speculative fills
+
+The Linux frontend trace identifies a repeated speculative fall-through at
+VA `0x135c0` after the index-search loop's back edge. Its physical line aliases
+a CRC line 8 KiB away. Registered cancellation cannot withdraw a read that has
+already been granted. Previously, its successful response drained without
+allocating, so later loop iterations could repeat the same DDR read while the
+conflicting resident tag remained unchanged. These events are not all genuine
+alternations between executed instructions.
+
+`b6688bb` retains successful canceled RAM reads in the physically tagged cache.
+CPU responses, faults and TLB fills stay canceled, and each new fetch still
+checks current translation and permissions. Older posted stores drain before a
+lower read; new stores cannot enqueue through its completion edge. Subsequent
+stores update pending fills through the existing snoop pipeline. Failed reads
+never allocate. The separate completion change returns an uncanceled read
+immediately and can grant its successor on that edge, with fill forwarding for
+a same-line lookup. An uncanceled failed completion emits one NOP fault token
+and accepts no successor on that edge.
+
+A public-port trace reproduces **16 lower reads in 16 repeated canceled
+fall-through requests before, versus one after**. This isolates the port
+mechanism; it is not a full CPU branch program. The new retained-fill regression
+fails before the change and passes **33 cases** afterward. It covers completion
+and earlier cancellation across redirects, flushes, satp, translation and
+privilege changes, fresh permission checks, same-edge restart, errors, pending
+byte/halfword/word snoops, invalidation and reset. Six focused completion cases,
+the existing 32 transaction/20 restart cases, architectural fault checks and
+full-system posted-store/fence/atomic tests also pass.
+
+The fixed 1 MHz bare-metal payload, 50 iterations per seed and 20-cycle AXI
+responses give these isolated model comparisons, with identical timed retired
+instruction counts and valid performance/validation CRCs:
+
+| Model change from `099154d` | Performance CoreMark/MHz | Validation CoreMark/MHz |
+| --- | ---: | ---: |
+| Reference | 1.680277 | 1.683048 |
+| Earlier instruction completion only | 1.682029 | 1.684636 |
+| Retain successful canceled fills only | 1.700796 | 1.696583 |
+| Both changes, selected | 1.702649 | 1.698485 |
+
+A separate Linux diagnostic reuses the exact image and a 20-iteration command
+with 20-cycle AXI responses. Whole-command cycles fall from **24,315,844 to
+23,340,539 (4.01%)**, granted instruction DDR reads fall **17.92%**, and fetch
+wait falls **11.97%**. Its scope includes startup, printing, kernel and background
+activity; retired instructions change **0.137%**. This short diagnostic is not a
+reportable CoreMark score. Its top-128 maps no longer contain the hot VA or
+primary physical conflict pair, bounding them at **170 / 105 events**,
+respectively, rather than establishing zero. Accepted physical scores use the
+longer repeated runs in the current-profile table above.
+
+The complete evidence links the isolated models, raw outputs/counters, failing
+and passing regressions, frozen sources, rejected initial route, accepted
+refinement, physical UART, all benchmark records, geometry and remote hashes:
+[fetch-refill-performance.json](results/fetch-refill-performance.json).

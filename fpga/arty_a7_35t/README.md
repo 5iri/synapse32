@@ -163,7 +163,7 @@ The UART test retains a conservative 100 ms input spacing by default;
 The default CPU divider is 20: a 1 GHz MMCM VCO produces 50 MHz. Divider 17
 produces about 58.82 MHz, 18 produces 55.56 MHz, and 16 produces 62.5 MHz.
 The DDR memory and reference clocks stay unchanged. Clock limits depend on the
-RTL configuration. The current control-interlock profile uses divider 16,
+RTL configuration. The current tested profile uses divider 16,
 with load forwarding enabled; the earlier store-path profile uses divider 17.
 The builder checks setup/hold, clock methodology, DRC, critical CDC and AXI bus
 skew. Physical benchmark acceptance is recorded separately from timing closure.
@@ -172,18 +172,24 @@ Use the same divider for hardware and Linux so UART and the CLINT timebase
 match. Build the tested hardware configuration explicitly:
 
 ```sh
-PERF_TAG=cache-cancel-div16 CPU_DIVIDE=16 BOOT_BAUD=2000000 \
+PERF_TAG=fetch-refill-div16 CPU_DIVIDE=16 BOOT_BAUD=2000000 \
   FAST_L1=1 ICACHE_LINES=256 DCACHE_LINES=256 STORE_BUFFER_DEPTH=8 \
   FAST_MULTIPLY=1 FETCH_QUEUE=1 LOAD_FORWARDING=1 FAST_STORE_ACK=1 \
   vivado -mode batch -nojournal -source fpga/arty_a7_35t/build_performance.tcl
 ```
 
-Then build matching Linux and explicitly select that bitstream:
+The tested route uses the refinement below. Its initial route misses setup by
+0.339 ns; refinement reuses the frozen checkpoint and constraints and passes
+setup at +0.305 ns, hold at +0.017 ns, and pulse width at +0.206 ns.
+Run it after the routed checkpoint exists, then build matching Linux and select
+the refined bitstream:
 
 ```sh
+PERF_TAG=fetch-refill-div16 vivado -mode batch -nojournal \
+  -source fpga/arty_a7_35t/refine_performance.tcl
 CPU_DIVIDE=16 KERNEL_HZ=25 LLVM=1 BUILD_WORKLOADS=1 make -C fpga/arty_a7_35t linux
 vivado -mode batch -nojournal -source fpga/arty_a7_35t/program.tcl \
-  -tclargs fpga/arty_a7_35t/build/performance/cache-cancel-div16/synapse32_cache-cancel-div16.bit
+  -tclargs fpga/arty_a7_35t/build/performance/fetch-refill-div16/postopt/synapse32_fetch-refill-div16.bit
 BOOT_BAUD=2000000 make -C fpga/arty_a7_35t test-board PORT=/dev/ttyUSB1
 ```
 
@@ -264,8 +270,8 @@ cancellation and target to the port. A canceled local lookup can accept the
 new target on that edge. Registered cancellation also withdraws an ungranted
 lower request before arbitration, avoiding an unnecessary wrong-path DDR read;
 an already granted lower read must first drain. A successful RAM read still
-populates the physical I-cache when its instruction is canceled, preventing
-repeated speculative fall-through reads from going back to DDR. Canceled CPU
+populates the physical I-cache when its instruction is canceled, so later
+speculative fall-through lookups can hit without another DDR read. Canceled CPU
 responses, faults and TLB fills remain suppressed. Every new fetch checks its
 current translation and permissions before using those physical bytes.
 Older posted stores drain before a lower read; new stores cannot enqueue
@@ -291,11 +297,11 @@ performance-build script so comparisons must enable them explicitly. Run
 `make test-memory-path` for the directed regressions and see the
 [memory microbenchmark](memory_bench/README.md) for measurement commands.
 
-The 62.5 MHz control-interlock bitstream passes setup, hold, clock methodology,
-DRC, critical CDC and bus-skew checks. Its bare-metal median is 112.407494
-CoreMark, or 1.798520/MHz. Earlier full control-bypass attempts failed timing;
+The refined 62.5 MHz bitstream passes setup, hold, clock methodology,
+DRC, critical CDC and bus-skew checks. Its bare-metal median is 114.811032
+CoreMark, or 1.836977/MHz. Earlier full control-bypass attempts failed timing;
 the selective interlocks above let the data bypass run at the higher clock.
-See [the measured profile and complete validation evidence](coremark/results/cache-cancel-performance.json),
+See [the measured profile and complete validation evidence](coremark/results/fetch-refill-performance.json),
 with historical configurations in [memory-path measurements](coremark/MEMORY_PERFORMANCE.md).
 
 `FAST_MULTIPLY=1` uses four DSPs for two-cycle RV32 multiplication; division
