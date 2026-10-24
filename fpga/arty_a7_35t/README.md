@@ -198,6 +198,11 @@ Older bitstreams have no software reset register: Linux prints “Restarting
 system” and stops. Adding the reset device-tree node alone does not fix those
 bitstreams; the hardware and image must be updated together.
 
+The [software-reset validation record](results/software-reset.json) identifies
+the matched bitstream and payload and records simulation, firmware, host and
+physical timing checks. Its hardware-test status is separate from timing
+acceptance; check that status before treating a build as board-validated.
+
 ## Kernel timer tick
 
 The board build defaults to **25 Hz**, selected after testing 12, 25, 50 and

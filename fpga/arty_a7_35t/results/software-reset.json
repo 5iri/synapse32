@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "status": "prepared_not_hardware_tested_UART_access_required",
+  "source_commit": "1aa0c64b5536062f619107fe7f15fe2c470303bf",
+  "hardware_tested": false,
+  "standalone_reboot": false,
+  "host_assisted_reload": true,
+  "uart_access": "/dev/ttyUSB2 is root:uucp; user ACL grant is pending.",
+  "contract": {
+    "address": "0x20002000",
+    "offset": 0,
+    "key": "0x53333252",
+    "byte_enable": "0xf",
+    "reads": 0,
+    "reset_clocks": 8,
+    "sequence": "Drain older transactions; finish MMIO response and UART FIFO/shifter/stop bit; reset CPU/fabric/peripherals/caches/loader while preserving MIG/calibration/MMCM/AXI CDC.",
+    "cold_warm": "Both return to the 2 Mbaud UART loader; fresh payload upload required.",
+    "host_reload": "Opt-in --auto-reboot keeps one UART descriptor open and reuploads the frozen host payload. This is host-assisted, not standalone Linux reboot.",
+    "volatile_files": "RAM files and process state are lost; no persistent kernel copy or filesystem is provided.",
+    "shutdown_supported": false
+  },
+  "functional": {
+    "command": "bash fpga/arty_a7_35t/test_software_reset.sh",
+    "cases": [
+      {
+        "axi_latency": 2,
+        "boots": 3,
+        "resets": 2,
+        "ignored_writes": 8,
+        "tx_bytes": 36
+      },
+      {
+        "axi_latency": 20,
+        "boots": 3,
+        "resets": 2,
+        "ignored_writes": 8,
+        "tx_bytes": 36
+      }
+    ],
+    "checks": "CRC-verified uploads, wrong/partial/offset writes ignored, posted-store and UART drain, response before reset, loader/cache state cleared; behavioral MIG remains calibrated.",
+    "memory_path_exit": 0,
+    "uart_regression": "2 passed in24.30s"
+  },
+  "firmware": {
+    "command": "bash fpga/arty_a7_35t/test_sbi_reset_binding.sh",
+    "passed": true,
+    "opensbi_commit": "a2b255b88918715173942f2c5e1f97ac9e90c877",
+    "checks": "Real OpenSBI FDT/regmap/reset/registry/SRST code under RV32 QEMU: permission alone does not advertise SRST; new DT registers cold/warm and writes the full key; shutdown unsupported.",
+    "scope": "RAM-backed mock MMIO and adapted privileged hart reset glue; no hardware reset exercised.",
+    "baseline_kernel_init_native_inputs_byte_identical": true
+  },
+  "host": {
+    "reboot_command": "python3 fpga/arty_a7_35t/tests/test_board_reboot.py",
+    "reboot_tests": 6,
+    "reboot_passed": true,
+    "reboot_seconds": 12.771,
+    "console_command": "python3 fpga/arty_a7_35t/tests/test_console_reload.py",
+    "console_tests": 1,
+    "console_passed": true,
+    "console_proof": "Agent-reported PTY pass; source pinned below."
+  },
+  "artifacts": {
+    "bitstream": {
+      "path": "fpga/arty_a7_35t/build/performance/software-reset-div16/postopt/synapse32_software-reset-div16.bit",
+      "bytes": 1517005,
+      "sha256": "7a6cd33fa85a89d8ea9db01648728714b521a1634c72b4de1502da896b7d0d19"
+    },
+    "payload": {
+      "path": "fpga/arty_a7_35t/build/linux-image-7.3-cpu62-reset/fw_payload.bin",
+      "bytes": 29878928,
+      "sha256": "a390c273ecbc6e7cb0c166a9bfe6f5d6504d59c94e161636a1a721107c0cc5fb"
+    },
+    "functional_evidence": {
+      "path": "build/software-reset-evidence.json",
+      "bytes": 4183,
+      "sha256": "71a3cf34c6100e0a267dc9a75b7d47a3316ee3bba036bf2955e4345f5b27b558"
+    },
+    "firmware_evidence": {
+      "path": "fpga/arty_a7_35t/build/reset-firmware-evidence/results.json",
+      "bytes": 3464,
+      "sha256": "1dba3f3822a2fb7e9d985692bd344a6ea338322399fdc690caca96c97c8e9c94"
+    },
+    "host_log": {
+      "path": "build/reboot-host-tests.log",
+      "bytes": 788,
+      "sha256": "19981b22641af8f29482ade855676aeea6670ede0611a3a830842398eba0d341"
+    },
+    "dt_source": {
+      "path": "sim/synapse32.dts",
+      "bytes": 2117,
+      "sha256": "2bdb1d05a0cd99f45ff25ba64c2924c055bf27b3e06169bb5a611034e0e0985f"
+    },
+    "firmware_source": {
+      "path": "fpga/arty_a7_35t/tests/test_sbi_reset_binding.c",
+      "bytes": 5506,
+      "sha256": "87d775e62f5828955ebd5790cc167b08de34a6aeace96e6e0252e7c29db781e7"
+    },
+    "console_source": {
+      "path": "fpga/arty_a7_35t/tests/test_console_reload.py",
+      "bytes": 4169,
+      "sha256": "0852c2c241df85b252587cd50d13245e8e6b3ef5e44ad1e282035e3e310089ad"
+    },
+    "physical_audit": {
+      "path": "build/software-reset-physical-audit.json",
+      "bytes": 5510,
+      "sha256": "900a30f6128950aaece1723a933356d7478897929a08b325daf97515784f5fad"
+    }
+  },
+  "physical": {
+    "status": "routed_timing_accepted_only",
+    "frequency_mhz": 62.5,
+    "setup_wns_ns": 0.109,
+    "hold_whs_ns": 0.024,
+    "pulse_wpws_ns": 0.206,
+    "setup_hold_pulse_total_negative_slack_ns": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "failing_endpoints": 0.0,
+    "minimum_bus_skew_slack_ns": 11.358,
+    "gates": "Critical CDC, MIG TIMING-4/6/27, methodology/DRC and bus skew pass.",
+    "frozen_source_files_verified": 47,
+    "reset_recovery_slack_ns": 3.361,
+    "reset_removal_slack_ns": 0.266
+  }
+}
