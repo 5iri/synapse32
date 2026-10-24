@@ -28,8 +28,8 @@ extern void *mmap(void *, size_t, int, int, int, long long);
 #define RESET_BASE 0x20002000UL
 #define RESET_KEY 0x53333252U
 
-struct sbi_domain root;
 static unsigned long shared_base, shared_size, shared_flags;
+static int shared_result;
 static unsigned long jump_buffer[5];
 static unsigned int extension_registrations, reset_calls;
 static volatile unsigned int *reset_register;
@@ -52,12 +52,22 @@ int sbi_printf(const char *format, ...)
     __builtin_va_end(arguments);
     return result;
 }
+/* Exercise the real region constructor, root insertion and sanitizer. The old
+ * four-byte reg produced order 2, below OpenSBI's minimum order 3. */
+#define sbi_domain_root_add_memrange actual_sbi_domain_root_add_memrange
+#include "lib/sbi/sbi_domain.c"
+#undef sbi_domain_root_add_memrange
+u32 last_hartindex_having_scratch;
+u32 hartindex_to_hartid_table[1];
+static struct sbi_hartmask possible_harts = { .bits = { 1 } };
+static struct sbi_domain_memregion root_regions[ROOT_REGION_MAX + 1];
 int sbi_domain_root_add_memrange(unsigned long address, unsigned long size,
                                unsigned long alignment, unsigned long flags)
 {
     CHECK(alignment == 4096);
     shared_base = address; shared_size = size; shared_flags = flags;
-    return 0;
+    shared_result = actual_sbi_domain_root_add_memrange(address, size, alignment, flags);
+    return shared_result;
 }
 int sbi_ecall_register_extension(struct sbi_ecall_extension *extension)
 {
@@ -90,14 +100,24 @@ int main(int argc, char **argv)
     void *file, *fdt;
     struct sbi_trap_regs registers = {0};
     struct sbi_ecall_return result = {0};
-    unsigned int expected, type;
+    unsigned int expected, invalid_region, type;
     CHECK(argc == 3);
     expected = argv[2][0] == '1';
+    invalid_region = argv[2][0] == '2';
     fdt = calloc(1, 65536);
     CHECK(fdt != NULL);
     file = fopen(argv[1], "rb"); CHECK(file != NULL);
     CHECK(fread(fdt, 1, 65536, file) > 0); fclose(file);
     CHECK(fdt_check_header(fdt) == 0);
+    root.regions = root_regions;
+    root.possible_harts = &possible_harts;
+    root.fw_region_inited = true;
+    root.next_mode = PRV_S;
+    root.next_addr = 0x80400000;
+    root_regions[0].order = __riscv_xlen;
+    root_regions[0].flags = SBI_DOMAIN_MEMREGION_M_RWX | SBI_DOMAIN_MEMREGION_SU_RWX;
+    root_memregs_count = 1;
+    CHECK(sanitize_domain(&root) == 0);
     root.next_arg1 = (unsigned long)fdt;
     root.system_reset_allowed = true; /* Permission alone must not advertise SRST. */
     CHECK(ecall_srst.register_extensions() == 0);
@@ -109,10 +129,21 @@ int main(int argc, char **argv)
     CHECK(ecall_srst.register_extensions() == 0);
     CHECK(extension_registrations == expected);
     if (!expected) {
-        printf("PASS: DT without reset device does not advertise SRST\n");
+        if (invalid_region) {
+            CHECK(shared_base == RESET_BASE && shared_size == 4);
+            CHECK(shared_result == SBI_EINVAL);
+            CHECK(root_regions[1].base == RESET_BASE && root_regions[1].order == 2);
+            printf("PASS: actual OpenSBI domain sanitizer rejects four-byte/order-2 region; SRST absent\n");
+        } else {
+            CHECK(shared_base == 0);
+            printf("PASS: DT without reset device does not advertise SRST\n");
+        }
         return 0;
     }
-    CHECK(shared_base == RESET_BASE && shared_size == 4);
+    CHECK(shared_base == RESET_BASE && shared_size == 4096);
+    CHECK(shared_result == 0);
+    CHECK(sanitize_domain(&root) == 0);
+    CHECK(root_regions[0].base == RESET_BASE && root_regions[0].order == 12);
     CHECK(shared_flags & SBI_DOMAIN_MEMREGION_MMIO);
     CHECK((shared_flags & SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW) ==
           SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);

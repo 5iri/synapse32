@@ -77,7 +77,7 @@
 
 	reset_control: reset-controller@20002000 {
 		compatible = "syscon";
-		reg = <0x20002000 0x4>;
+		reg = <0x20002000 0x1000>;
 		reg-io-width = <4>;
 	};
 

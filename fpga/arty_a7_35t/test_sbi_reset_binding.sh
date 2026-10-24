@@ -8,11 +8,13 @@ qemu="${QEMU_RISCV32:-$board/build/qemu-profile/usr/bin/qemu-riscv32-static}"
 dtc="${DTC:-$board/build/linux-7.3/scripts/dtc/dtc}"
 mkdir -p "$output"
 "$dtc" -I dts -O dtb -o "$output/reset.dtb" "$board/../../sim/synapse32.dts"
-# Removing the two nodes creates a fail-before/no-device reference DTB.
-python3 - "$board/../../sim/synapse32.dts" "$output/no-reset.dts" <<'PY'
+# Keep both a missing-device reference and the hardware-failing four-byte range.
+python3 - "$board/../../sim/synapse32.dts" "$output/no-reset.dts" "$output/reset-four-byte.dts" <<'PY'
 from pathlib import Path
 import re, sys
 text = Path(sys.argv[1]).read_text()
+assert text.count("reg = <0x20002000 0x1000>;") == 1
+Path(sys.argv[3]).write_text(text.replace("reg = <0x20002000 0x1000>;", "reg = <0x20002000 0x4>;"))
 for pattern in [r'\n\treset_control: reset-controller@20002000 \{.*?\n\t\};',
                 r'\n\treboot \{.*?\n\t\};']:
     text, count = re.subn(pattern, '', text, flags=re.S)
@@ -20,11 +22,14 @@ for pattern in [r'\n\treset_control: reset-controller@20002000 \{.*?\n\t\};',
 Path(sys.argv[2]).write_text(text)
 PY
 "$dtc" -I dts -O dtb -o "$output/no-reset.dtb" "$output/no-reset.dts"
+"$dtc" -I dts -O dtb -o "$output/reset-four-byte.dtb" "$output/reset-four-byte.dts"
 "$compiler" -O2 -ffreestanding -fno-builtin -ffunction-sections -fdata-sections \
     -static -Wl,--gc-sections -DCONFIG_FDT_RESET=1 -DCONFIG_FDT_REGMAP=1 \
     -I"$sbi/include" -I"$sbi/lib/utils/libfdt" -I"$sbi" \
     "$board/tests/test_sbi_reset_binding.c" \
-    "$sbi/lib/sbi/sbi_string.c" "$sbi/lib/sbi/sbi_ecall_srst.c" \
+    "$sbi/lib/sbi/sbi_math.c" "$sbi/lib/sbi/sbi_bitops.c" \
+    "$sbi/lib/sbi/sbi_bitmap.c" "$sbi/lib/sbi/sbi_string.c" \
+    "$sbi/lib/sbi/sbi_ecall_srst.c" \
     "$sbi/lib/utils/fdt/fdt_helper.c" "$sbi/lib/utils/reset/fdt_reset.c" \
     "$sbi/lib/utils/reset/fdt_reset_syscon.c" \
     "$sbi/lib/utils/regmap/regmap.c" "$sbi/lib/utils/regmap/fdt_regmap.c" \
@@ -33,4 +38,5 @@ PY
     "$sbi/lib/utils/libfdt/fdt_addresses.c" "$sbi/lib/utils/libfdt/fdt_check.c" \
     -o "$output/test_sbi_reset_binding" > "$output/compile.log" 2>&1
 "$qemu" -cpu rv32,c=false,f=false,d=false,zfa=false "$output/test_sbi_reset_binding" "$output/no-reset.dtb" 0
+"$qemu" -cpu rv32,c=false,f=false,d=false,zfa=false "$output/test_sbi_reset_binding" "$output/reset-four-byte.dtb" 2
 "$qemu" -cpu rv32,c=false,f=false,d=false,zfa=false "$output/test_sbi_reset_binding" "$output/reset.dtb" 1
