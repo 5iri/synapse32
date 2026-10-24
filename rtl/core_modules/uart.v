@@ -21,7 +21,9 @@ module uart #(parameter DIVISOR_SCALE = 1, DEFAULT_DIVISOR = 10) (
     output wire        uart_valid,
     output wire        interrupt,
     output wire        tx,
-    input  wire        rx
+    input  wire        rx,
+    // Includes FIFO, pending launch and the complete final stop bit.
+    output wire        tx_idle
 );
 
 wire [2:0] reg_sel = addr[4:2];
@@ -66,6 +68,7 @@ reg [4:0] tx_fifo_count;
 wire tx_fifo_empty = (tx_fifo_count == 0);
 wire tx_fifo_full = (tx_fifo_count == TX_FIFO_DEPTH);
 wire tx_temt = !tx_busy && !tx_start_pending && tx_fifo_empty;
+assign tx_idle = tx_temt;
 // In FIFO mode, LSR[5] reports the TX FIFO/holding register is empty.
 wire tx_thre = fifo_enabled ? tx_fifo_empty : (!tx_busy && !tx_start_pending);
 reg tx_fifo_pushed;

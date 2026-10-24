@@ -37,6 +37,12 @@
 `define PERIPH_SIZE         32'h10000000  // 256MB region
 `define PERIPH_END          32'h2FFFFFFF
 
+// Platform reset control: a keyed full-word write returns to the UART loader.
+`define RESET_CTRL_BASE     32'h20002000
+`define RESET_CTRL_SIZE     32'h00001000
+`define RESET_CTRL_END      32'h20002FFF
+`define RESET_CTRL_KEY      32'h53333252
+
 // UART Peripheral
 `define UART_BASE           32'h20000000
 `define UART_SIZE           32'h00001000  // 4KB region
@@ -59,6 +65,7 @@
 `define IS_DATA_MEM(addr)   ((addr) >= `DATA_MEM_BASE && (addr) <= `DATA_MEM_END)
 `define IS_PERIPH_MEM(addr) ((addr) >= `PERIPH_BASE && (addr) <= `PERIPH_END)
 `define IS_UART_MEM(addr)   ((addr) >= `UART_BASE && (addr) <= `UART_END)
+`define IS_RESET_CTRL(addr) ((addr) >= `RESET_CTRL_BASE && (addr) <= `RESET_CTRL_END)
 `define IS_PLIC_MEM(addr)   ((addr) >= `PLIC_BASE && (addr) <= `PLIC_END)
 
 `endif // MEMORY_MAP_VH

@@ -11,6 +11,8 @@ module synapse_ddr3_system #(
 ) (
     input wire clk, rst, calibrated, uart_rx,
     output wire uart_tx, boot_done, fault, core_enable,
+    // One registered pulse, after the keyed MMIO store response is delivered.
+    output reg warm_reset_request,
     output wire [31:0] pc_debug,
     input wire load_req, load_finish,
     input wire [31:0] load_addr, load_data,
@@ -24,6 +26,7 @@ module synapse_ddr3_system #(
     output wire [15:0] wstrb
 );
     reg booted;
+    reg reboot_pending, reboot_response_done, reboot_issued;
     reg [31:0] boot_index;
     reg [31:0] boot_rom[0:BOOT_WORDS-1];
     generate if(!SERIAL_BOOT) begin: rom_init
@@ -38,7 +41,7 @@ module synapse_ddr3_system #(
     wire [2:0] load_type;
     wire [1:0] ipriv, dpriv;
     wire ignt, ivalid, ifault, dgnt, dvalid, dfault;
-    wire timer_irq, uart_irq, plic_irq;
+    wire timer_irq, uart_irq, plic_irq, uart_tx_idle;
     wire store_pending, store_queue_fault, data_atomic;
     wire retire_event, fetch_wait_event, data_wait_event, muldiv_wait_event, fence_wait_event;
     wire i_hit_event, i_miss_event, i_tlb_miss_event;
@@ -159,7 +162,7 @@ module synapse_ddr3_system #(
     reg posted_done_q;
     // Do not enqueue while an earlier read is in flight: this prevents a stale
     // I refill and avoids two writes to a cache's BRAM fill/snoop port.
-    wire store_enq_req=postable_store&&booted&&!cpu_rst&&
+    wire store_enq_req=postable_store&&booted&&!cpu_rst&&!reboot_pending&&
                        !(state==1&&!transaction_we_q);
     wire lower_read_allowed=!store_pending&&!store_enq_fire;
     wire [1:0] select_owner=!booted ? 2'd0 : (queue_bus_req ? 2'd3 : (direct_dreq ? 2'd1 : 2'd2));
@@ -175,14 +178,15 @@ module synapse_ddr3_system #(
     wire select_plic=`IS_PLIC_MEM(select_addr);
     wire select_msip=(select_addr==32'h02000000);
     wire select_perf=(select_addr[31:12]==20'h20001);
-    wire select_mmio=select_uart||select_timer||select_plic||select_msip||select_perf;
+    wire select_reset=`IS_RESET_CTRL(select_addr);
+    wire select_mmio=select_uart||select_timer||select_plic||select_msip||select_perf||select_reset;
     reg [1:0] state, owner;
     reg [31:0] mmio_result;
     reg bad_address;
     wire bridge_ready, bridge_done, bridge_error;
     wire [31:0] bridge_result;
     wire bridge_read_wait, bridge_write_wait;
-    wire accept=(state==0)&&bridge_ready&&calibrated&&select_req&&!fault;
+    wire accept=(state==0)&&bridge_ready&&calibrated&&select_req&&!fault&&!reboot_pending;
     wire complete=(state==1&&bridge_done)||(state==2);
     assign completed_ram_store=complete&&transaction_ram_q&&transaction_we_q;
     assign bus_result=state==2 ? mmio_result : bridge_result;
@@ -240,6 +244,11 @@ module synapse_ddr3_system #(
     wire [31:0] timer_data, uart_data, plic_data;
     wire timer_valid, uart_valid, plic_valid;
     wire mmio_fire=accept&&select_mmio;
+    // This unposted write is accepted only after older stores and AXI traffic
+    // have drained. Partial/wrong-key writes and all reads are harmless.
+    wire reset_write=mmio_fire&&select_reset&&select_we&&
+                     (select_addr[11:0]==0)&&(select_be==4'b1111)&&
+                     (select_data==`RESET_CTRL_KEY);
     wire [31:0] perf_data;
     wire [15:0] perf_events={store_enq_fire,store_enq_req&&!store_enq_ready,
         bridge_write_wait,bridge_read_wait,d_tlb_miss_event,i_tlb_miss_event,
@@ -264,7 +273,7 @@ module synapse_ddr3_system #(
         .clk(clk),.rst(cpu_rst),.addr(select_addr),.write_data(select_data),
         .write_enable(mmio_fire&&select_uart&&select_we),
         .read_enable(mmio_fire&&select_uart&&!select_we),
-        .read_data(uart_data),.uart_valid(uart_valid),.tx(uart_tx),.rx(uart_rx),.interrupt(uart_irq)
+        .read_data(uart_data),.uart_valid(uart_valid),.tx(uart_tx),.rx(uart_rx),.interrupt(uart_irq),.tx_idle(uart_tx_idle)
     );
     plic plic_inst (
         .clk(clk),.rst(cpu_rst),.addr(select_addr),.write_data(select_data),
@@ -275,17 +284,28 @@ module synapse_ddr3_system #(
     always @(posedge clk) begin
         if(rst) begin
             booted<=0; boot_index<=0; state<=0; owner<=0;
+            reboot_pending<=0; reboot_response_done<=0; reboot_issued<=0; warm_reset_request<=0;
             mmio_result<=0; bad_address<=0; fault_q<=0;
             transaction_addr_q<=0;transaction_data_q<=0;transaction_be_q<=0;
             transaction_we_q<=0;transaction_ram_q<=0;
         end else begin
+            warm_reset_request<=0;
+            if(reset_write) reboot_pending<=1;
+            // Complete the ordinary MMIO response, then drain every UART byte
+            // through its final stop bit. Pending blocks new lower requests;
+            // the UART clock keeps running until the reboot marker is visible.
+            if(reboot_pending&&complete&&(owner==1)) reboot_response_done<=1;
+            if(reboot_pending&&reboot_response_done&&uart_tx_idle&&!reboot_issued) begin
+                warm_reset_request<=1;
+                reboot_issued<=1;
+            end
             if(accept) begin
                 owner<=select_owner; bad_address<=!select_ram&&!select_mmio;
                 transaction_addr_q<=select_addr;transaction_data_q<=select_data;
                 transaction_be_q<=select_be;transaction_we_q<=select_we;transaction_ram_q<=select_ram;
                 state<=select_ram ? 1 : 2;
-                mmio_result<=select_perf ? perf_data : (select_msip ? {31'b0,msip} :
-                             (select_uart ? uart_data : (select_timer ? timer_data : plic_data)));
+                mmio_result<=select_reset ? 32'b0 : (select_perf ? perf_data : (select_msip ? {31'b0,msip} :
+                             (select_uart ? uart_data : (select_timer ? timer_data : plic_data))));
             end else if(complete) begin
                 state<=0;
                 // Queued instruction reads can be speculative. Their errors
@@ -300,4 +320,14 @@ module synapse_ddr3_system #(
             if(ifatal||dfatal||store_queue_fault) fault_q<=1;
         end
     end
+`ifndef SYNTHESIS
+    always @(posedge clk) if(!rst) begin
+        if(reset_write&&(store_pending||!bridge_ready||state!=0))
+            $fatal(1,"Reset MMIO accepted before the lower fabric drained");
+        if(reboot_pending&&(accept||store_enq_fire))
+            $fatal(1,"New lower transaction accepted after reset was armed");
+        if(warm_reset_request&&(!reboot_response_done||!uart_tx_idle||state!=0||!bridge_ready||store_pending||arvalid||awvalid||wvalid))
+            $fatal(1,"Local reset requested with an outstanding lower transaction");
+    end
+`endif
 endmodule

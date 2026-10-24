@@ -85,7 +85,7 @@ module bram_coremark_system #(
     uart #(.DIVISOR_SCALE(16),.DEFAULT_DIVISOR((CLOCK_HZ+115200*8)/(115200*16))) console (
         .clk(clk),.rst(core_rst),.addr(da),.write_data(dw),
         .write_enable(dfire&&uart_access),.read_enable(rfire&&uart_access),
-        .read_data(uart_data),.uart_valid(),.interrupt(),.tx(uart_tx),.rx(rx_sync[1])
+        .read_data(uart_data),.uart_valid(),.interrupt(),.tx(uart_tx),.rx(rx_sync[1]),.tx_idle()
     );
     wire timer_irq;
     timer clock_timer (.clk(clk),.rst(core_rst),.addr(da),.write_data(dw),

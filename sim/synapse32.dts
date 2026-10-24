@@ -74,4 +74,18 @@
 		reg-io-width = <4>;
 		no-loopback-test;
 	};
+
+	reset_control: reset-controller@20002000 {
+		compatible = "syscon";
+		reg = <0x20002000 0x4>;
+		reg-io-width = <4>;
+	};
+
+	reboot {
+		compatible = "syscon-reboot";
+		regmap = <&reset_control>;
+		offset = <0>;
+		mask = <0xffffffff>;
+		value = <0x53333252>; /* Full-word "S32R" returns to the UART loader. */
+	};
 };

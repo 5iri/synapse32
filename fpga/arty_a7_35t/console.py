@@ -16,11 +16,16 @@ def main():
     parser.add_argument("--log", type=Path, required=True, help="UART log from the running reader")
     parser.add_argument("--from-start", action="store_true", help="show the captured boot before following live output")
     parser.add_argument("--input-delay", type=float, default=0.1, help="seconds between input bytes")
+    parser.add_argument("--console-baud", type=int, default=115200,
+                        help="console speed selected by the reader (default: 115200)")
     args = parser.parse_args()
     if not sys.stdin.isatty():
         parser.error("run this console in an interactive terminal")
     if args.input_delay < 0:
         parser.error("--input-delay must be nonnegative")
+    console_speed = getattr(termios, f"B{args.console_baud}", None)
+    if console_speed is None:
+        parser.error("console baud is not supported by this host")
 
     # A live reader must retain its handle: configuring or reopening a closed
     # USB UART can pulse the board's DTR-connected RESET pin. Check its flock
@@ -41,6 +46,7 @@ def main():
         saved = termios.tcgetattr(keyboard)
         queued = bytearray(b"\n")
         next_write = 0.0
+        input_paused = False
         print("Connected to FPGA Linux. Ctrl+] exits; Ctrl+C interrupts a Linux command.", flush=True)
         try:
             tty.setraw(keyboard)
@@ -56,7 +62,16 @@ def main():
                         return
                     queued.extend(data.replace(b"\r", b"\n"))
                 now = time.monotonic()
-                if queued and now >= next_write:
+                loading = termios.tcgetattr(uart_fd)[4] != console_speed
+                if loading:
+                    queued.clear()
+                    if not input_paused:
+                        print('\r\nFPGA is reloading; terminal input paused.\r\n', flush=True)
+                    input_paused = True
+                elif input_paused:
+                    print('\r\nConsole speed restored; wait for the Linux prompt.\r\n', flush=True)
+                    input_paused = False
+                if not loading and queued and now >= next_write:
                     os.write(uart_fd, queued[:1])
                     del queued[:1]
                     next_write = now + args.input_delay

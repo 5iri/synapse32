@@ -38,6 +38,15 @@ module arty_ddr3_top #(
         end
     end
     wire rst=reset_sync[2];
+    wire warm_reset_request;
+    reg [7:0] warm_reset_hold=0;
+    always @(posedge fabric_clk) begin
+        if(rst) warm_reset_hold<=0;
+        else warm_reset_hold<={warm_reset_hold[6:0],warm_reset_request};
+    end
+    // Reset only the drained CPU/fabric and serial loader. Keep the MMCM,
+    // calibrated MIG and both sides of the AXI CDC alive across a warm reset.
+    wire local_rst=rst||(|warm_reset_hold);
     wire [27:0] addr;
     wire arvalid, arready, rvalid, rready, rlast;
     wire awvalid, awready, wvalid, wready, bvalid, bready;
@@ -51,7 +60,7 @@ module arty_ddr3_top #(
     always @(posedge fabric_clk) uart_sync<={uart_sync[0],uart_rx};
     generate if(SERIAL_BOOT) begin: serial_loader
         uart_boot_loader #(.CLOCK_HZ(CLOCK_HZ),.BAUD(BOOT_BAUD)) loader (
-            .clk(fabric_clk),.rst(rst),.enabled(cal_sync[1]&&!boot_done),.rx(uart_rx),
+            .clk(fabric_clk),.rst(local_rst),.enabled(cal_sync[1]&&!boot_done),.rx(uart_rx),
             .tx(loader_tx),.req(load_req),.addr(load_addr),.data(load_data),
             .ready(load_ready),.done(load_done),.bus_fault(system_fault),.finish(load_finish),.error(loader_error)
         );
@@ -67,11 +76,11 @@ module arty_ddr3_top #(
         .STORE_BUFFER_DEPTH(STORE_BUFFER_DEPTH),.FAST_MULTIPLY(FAST_MULTIPLY),.FETCH_QUEUE(FETCH_QUEUE),
         .LOAD_FORWARDING(LOAD_FORWARDING),.FAST_STORE_ACK(FAST_STORE_ACK),
         .UART_DEFAULT_DIVISOR((CLOCK_HZ+115200*8)/(115200*16))) system_inst (
-        .clk(fabric_clk),.rst(rst),.calibrated(cal_sync[1]),
+        .clk(fabric_clk),.rst(local_rst),.calibrated(cal_sync[1]),
         .uart_tx(cpu_tx),.uart_rx(uart_sync[1]),.boot_done(boot_done),.fault(system_fault),
         .load_req(load_req),.load_finish(load_finish),.load_addr(load_addr),.load_data(load_data),
         .load_ready(load_ready),.load_done(load_done),
-        .core_enable(core_enable),.pc_debug(pc_debug),.axi_addr(addr),
+        .core_enable(core_enable),.warm_reset_request(warm_reset_request),.pc_debug(pc_debug),.axi_addr(addr),
         .arvalid(arvalid),.arready(arready),.rvalid(rvalid),.rready(rready),
         .rlast(rlast),.rdata(rdata),.rresp(rresp),.awvalid(awvalid),.awready(awready),
         .wvalid(wvalid),.wready(wready),.wdata(wdata),.wstrb(wstrb),

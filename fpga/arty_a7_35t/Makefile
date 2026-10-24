@@ -7,6 +7,7 @@ IMAGE ?= build/linux-image/fw_payload.bin
 UART_LOG ?= build/hardware-uart.log
 
 .PHONY: nativecc linux-dev
+.PHONY: test-software-reset test-sbi-reset test-board-tools
 
 .PHONY: bitstream performance-bitstream linux llvm-toolchain program upload test-board test test-fetch test-memory-path memory-bench test-phy test-linux test-core test-l1 test-store-buffer test-posted-stores test-perf-counters test-bram-coremark test-coremark-axi triangulator deploy-triangulator visualizer test-triangulator coremark coremark-baremetal coremark-profile coremark-linux-profiler workloads test-workloads deploy-workloads
 workloads:
@@ -15,6 +16,13 @@ nativecc:
 	bash nativecc/build.sh
 linux-dev: nativecc
 	bash nativecc/build_image.sh
+test-software-reset:
+	bash test_software_reset.sh
+test-sbi-reset:
+	bash test_sbi_reset_binding.sh
+test-board-tools:
+	$(PYTHON_RUN) tests/test_board_reboot.py
+	$(PYTHON_RUN) tests/test_console_reload.py
 test-workloads:
 	$(PYTHON_RUN) -m unittest discover -s workloads -p 'test_*.py'
 deploy-workloads: workloads

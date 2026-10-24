@@ -161,6 +161,43 @@ LED0 means clocks locked, LED1 DDR calibrated, LED2 image accepted / CPU running
 and LED3 a loader or fabric fault. On success, expect OpenSBI, Linux messages,
 `Synapse32 Linux userspace is up.`, and a BusyBox `~ #` prompt.
 
+## Reboot from Linux
+
+Software reboot requires a reset-capable bitstream and its matching device
+tree. The keyed reset register at `0x20002000` waits for older DDR stores and
+the final UART output to drain, then resets the CPU, caches, peripherals and
+UART loader. DDR calibration and clocking remain active. OpenSBI exposes this
+through the standard SBI reset extension using a `syscon-reboot` binding.
+
+Reset returns to the UART loader. The loaded kernel cannot simply be entered
+again: Linux has reused initialization memory, and the design has no persistent
+boot storage. To reload Linux automatically from the connected host, run:
+
+```sh
+python3 fpga/arty_a7_35t/test_board.py /dev/ttyUSB2 /path/to/matching/fw_payload.bin \
+  --program-bitstream /path/to/reset-capable.bit \
+  --baud 2000000 --input-delay 0.002 --timeout 1800 \
+  --auto-reboot --append-log --log fpga/arty_a7_35t/build/reboot-linux.uart.log
+```
+
+This programs the bitstream once, uploads Linux, and retains the same UART
+connection while watching for a verified kernel reboot request. A later
+`reboot` inside Linux switches the reader back to loader speed and uploads the
+same saved payload again, without a JTAG or DTR reset. The image bytes are frozen
+when the reader starts, so a concurrent host rebuild cannot change that session's
+kernel or clock configuration. Use the interactive console with this log path.
+The updated console pauses keyboard transmission while the image is loading.
+
+To enable reloads for Linux that is already running, use `--console-only
+--auto-reboot` with the matching payload, omitting `--program-bitstream`.
+Keep the host reader running for this workflow. Standalone Linux reboot needs a
+separate reliable image source such as persistent storage or a protected RAM
+copy. Files created in the RAM filesystem are lost on reset.
+
+Older bitstreams have no software reset register: Linux prints “Restarting
+system” and stops. Adding the reset device-tree node alone does not fix those
+bitstreams; the hardware and image must be updated together.
+
 ## Kernel timer tick
 
 The board build defaults to **25 Hz**, selected after testing 12, 25, 50 and

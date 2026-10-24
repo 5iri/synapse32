@@ -346,6 +346,7 @@ module top #(
         .read_enable(data_read_fire && uart_access),
         .read_data(uart_read_data),
         .uart_valid(uart_valid),
+        .tx_idle(),
         .interrupt(uart_interrupt),
         .tx(uart_tx),
         .rx(uart_rx)

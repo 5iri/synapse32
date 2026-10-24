@@ -30,6 +30,7 @@ module uart_plic_tb (
         .read_enable(read_enable),
         .read_data(uart_read_data),
         .uart_valid(uart_valid),
+        .tx_idle(),
         .interrupt(uart_interrupt),
         .tx(tx),
         .rx(rx)
