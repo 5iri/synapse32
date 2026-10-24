@@ -13,10 +13,17 @@ translation units, 64-bit division and software floating-point/libm operations.
 The hello-world compilation took **17.27 seconds** at 62.5 MHz. Linux reported
 12,012 KiB available before the compiler tests and 11,808 KiB afterward.
 
-The running session was recovered by resizing the RAM filesystem, disabling
-fragmentation watermark boosting, setting a 1 MiB free-memory reserve, and
-deleting the packed compiler archive. The revised startup wrapper includes
-these steps, but its complete automatic boot has **not yet been tested**.
+Automatic compiler setup has now passed three physical boots, including two
+host-assisted Linux reboots. A C program compiled and ran after the final
+reboot. Startup resizes the RAM filesystem, disables fragmentation watermark
+boosting, sets a 1 MiB free-memory reserve, and removes the archive after
+extraction. The earlier arithmetic tests and 17.27-second compilation figure
+come from the manually recovered session recorded in the results.
+
+The current XZ compiler archive takes about nine minutes to unpack at 62.5 MHz;
+Linux reaches its shell about ten minutes after kernel entry. Uploading this
+development image at 2 Mbaud adds about 150 seconds. Keep the host reader open
+while startup finishes.
 
 Once installed, use the FPGA console:
 
@@ -63,8 +70,9 @@ and the 25 Hz tick, and selects size optimization. It puts a separately packed
 compiler archive in the initramfs. After Linux frees initialization memory,
 `/init` raises the tmpfs capacity and extracts the compiler. Both XZ archives
 use CRC32 and a 64 KiB dictionary. Output is
-`build/linux-image-7.3-cpu62/fw_payload.bin`; the current prepared image is
-recorded separately from the tested running session in the results file.
+`build/linux-image-7.3-cpu62/fw_payload.bin`. The results file identifies the
+matching reset-capable bitstream and payload tested on the physical board;
+see the [reboot workflow](../README.md#reboot-from-linux).
 
 Sources and the bootstrap checkout are pinned in [sources.json](sources.json).
 Downloads use bounded resumable ranges and are checked against SHA256 pins.

@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "status": "prepared_not_hardware_tested_UART_access_required",
-  "source_commit": "1aa0c64b5536062f619107fe7f15fe2c470303bf",
-  "hardware_tested": false,
+  "status": "physical_board_verified_two_linux_reboots",
+  "source_commit": "cae4721e528f118701c222cd42dd18d20fbff998",
+  "hardware_tested": true,
   "standalone_reboot": false,
   "host_assisted_reload": true,
-  "uart_access": "/dev/ttyUSB2 is root:uucp; user ACL grant is pending.",
+  "uart_access": "User granted lazybanana read/write ACL on /dev/ttyUSB2; hardware test completed.",
   "contract": {
     "address": "0x20002000",
     "offset": 0,
@@ -17,7 +17,8 @@
     "cold_warm": "Both return to the 2 Mbaud UART loader; fresh payload upload required.",
     "host_reload": "Opt-in --auto-reboot keeps one UART descriptor open and reuploads the frozen host payload. This is host-assisted, not standalone Linux reboot.",
     "volatile_files": "RAM files and process state are lost; no persistent kernel copy or filesystem is provided.",
-    "shutdown_supported": false
+    "shutdown_supported": false,
+    "decoded_region_bytes": 4096
   },
   "functional": {
     "command": "bash fpga/arty_a7_35t/test_software_reset.sh",
@@ -45,8 +46,8 @@
     "command": "bash fpga/arty_a7_35t/test_sbi_reset_binding.sh",
     "passed": true,
     "opensbi_commit": "a2b255b88918715173942f2c5e1f97ac9e90c877",
-    "checks": "Real OpenSBI FDT/regmap/reset/registry/SRST code under RV32 QEMU: permission alone does not advertise SRST; new DT registers cold/warm and writes the full key; shutdown unsupported.",
-    "scope": "RAM-backed mock MMIO and adapted privileged hart reset glue; no hardware reset exercised.",
+    "checks": "Actual OpenSBI domain construction/insertion/sanitization, FDT/regmap/reset/registry/SRST code under RV32 QEMU: old four-byte region rejected; 4 KiB page accepted; no node omits SRST; cold/warm write full key; shutdown unsupported.",
+    "scope": "Regression uses actual domain code with RAM-backed mock MMIO and adapted privileged hart reset glue. Physical Linux reboot is recorded separately below.",
     "baseline_kernel_init_native_inputs_byte_identical": true
   },
   "host": {
@@ -66,9 +67,9 @@
       "sha256": "7a6cd33fa85a89d8ea9db01648728714b521a1634c72b4de1502da896b7d0d19"
     },
     "payload": {
-      "path": "fpga/arty_a7_35t/build/linux-image-7.3-cpu62-reset/fw_payload.bin",
+      "path": "fpga/arty_a7_35t/build/linux-image-7.3-cpu62-reset-page/fw_payload.bin",
       "bytes": 29878928,
-      "sha256": "a390c273ecbc6e7cb0c166a9bfe6f5d6504d59c94e161636a1a721107c0cc5fb"
+      "sha256": "dd89f7c94b8145c92509e6789e75041a0cded3965224824b12c257a78984b132"
     },
     "functional_evidence": {
       "path": "build/software-reset-evidence.json",
@@ -76,9 +77,9 @@
       "sha256": "71a3cf34c6100e0a267dc9a75b7d47a3316ee3bba036bf2955e4345f5b27b558"
     },
     "firmware_evidence": {
-      "path": "fpga/arty_a7_35t/build/reset-firmware-evidence/results.json",
-      "bytes": 3464,
-      "sha256": "1dba3f3822a2fb7e9d985692bd344a6ea338322399fdc690caca96c97c8e9c94"
+      "path": "fpga/arty_a7_35t/build/reset-firmware-evidence/results-page.json",
+      "bytes": 4880,
+      "sha256": "d4cb21178ea468ce28f08beffdb6454e4b09c31cf24be319e57d82e444dd2e5d"
     },
     "host_log": {
       "path": "build/reboot-host-tests.log",
@@ -87,13 +88,13 @@
     },
     "dt_source": {
       "path": "sim/synapse32.dts",
-      "bytes": 2117,
-      "sha256": "2bdb1d05a0cd99f45ff25ba64c2924c055bf27b3e06169bb5a611034e0e0985f"
+      "bytes": 2120,
+      "sha256": "c58f1a74b50d9748311259d5e8f00ec46888ad5a37ff0468f5d7ac48c6cc1ea1"
     },
     "firmware_source": {
       "path": "fpga/arty_a7_35t/tests/test_sbi_reset_binding.c",
-      "bytes": 5506,
-      "sha256": "87d775e62f5828955ebd5790cc167b08de34a6aeace96e6e0252e7c29db781e7"
+      "bytes": 7084,
+      "sha256": "d5098f6da4eb231459a9f5fd0f957a7450077c7330689db5f1455404bb94d438"
     },
     "console_source": {
       "path": "fpga/arty_a7_35t/tests/test_console_reload.py",
@@ -104,10 +105,35 @@
       "path": "build/software-reset-physical-audit.json",
       "bytes": 5510,
       "sha256": "900a30f6128950aaece1723a933356d7478897929a08b325daf97515784f5fad"
+    },
+    "firmware_runner": {
+      "path": "fpga/arty_a7_35t/test_sbi_reset_binding.sh",
+      "bytes": 2561,
+      "sha256": "67beae10ca19cb3fbd8b9ca0c0a88f56aba9f4cc45e5f732f47a773716d0cfa1"
+    },
+    "hardware_evidence": {
+      "path": "fpga/arty_a7_35t/build/reboot-board-evidence/results.json",
+      "bytes": 3006,
+      "sha256": "c15e27738e6cf1ff3f3aa131f35743455ad80b17f84bca99e3b1946df747e1bf"
+    },
+    "hardware_uart": {
+      "path": "fpga/arty_a7_35t/build/reboot-board-evidence/full.uart.log",
+      "bytes": 25452,
+      "sha256": "ef7dda9278897935b644acf7539b97c2d2fadb84b5e7e227d964dc7a7e4fe979"
+    },
+    "hardware_driver": {
+      "path": "fpga/arty_a7_35t/build/reboot-board-evidence/driver.log",
+      "bytes": 27805,
+      "sha256": "cd02f5fb54abc45c78dbd610a3c226975d183eb3bb6f4170204a5d7ad9009814"
+    },
+    "hardware_runner": {
+      "path": "fpga/arty_a7_35t/build/test_linux_reboot_board.py",
+      "bytes": 4351,
+      "sha256": "45169ed514402542c41faeede3547f7e109e8a33f4e5c0da99fc2dd342388e29"
     }
   },
   "physical": {
-    "status": "routed_timing_accepted_only",
+    "status": "routed_timing_accepted_and_physical_board_reboots_verified",
     "frequency_mhz": 62.5,
     "setup_wns_ns": 0.109,
     "hold_whs_ns": 0.024,
@@ -123,5 +149,62 @@
     "frozen_source_files_verified": 47,
     "reset_recovery_slack_ns": 3.361,
     "reset_removal_slack_ns": 0.266
+  },
+  "bitstream_source_commit": "1aa0c64b5536062f619107fe7f15fe2c470303bf",
+  "hardware": {
+    "passed": true,
+    "kernel_release": "7.3.0",
+    "boots": 3,
+    "linux_reboot_commands": 2,
+    "initial_jtag_programs": 1,
+    "jtag_between_software_reboots": 0,
+    "loader_crc_acknowledgements": 3,
+    "automatic_native_compiler_installations": 3,
+    "native_compile_after_final_reboot_passed": true,
+    "reader_pid": 1816471,
+    "serial_fd_observations": [
+      {
+        "3": "/dev/ttyUSB2"
+      },
+      {
+        "3": "/dev/ttyUSB2"
+      },
+      {
+        "3": "/dev/ttyUSB2"
+      }
+    ],
+    "retention_evidence": "The same reader PID and UART FD/device were sampled after each boot; source and PTY regression additionally verify one Serial context across reloads. FD snapshots alone cannot prove no close/reopen occurred.",
+    "boot_ids": [
+      "7f244415-7b15-46ac-bb1e-351d5d326095",
+      "9dc1ac50-cddd-4e46-97f9-0418d3c3638c",
+      "c7db1a9f-bb04-4c2b-b972-82654c915cb4"
+    ],
+    "host_assisted": true,
+    "standalone": false,
+    "vm_settings_each_boot": {
+      "watermark_boost_factor": 0,
+      "min_free_kbytes": 1024
+    },
+    "rootfs_capacity_mib": 48,
+    "first_probe_uptimes_seconds": [
+      602.93,
+      606.62,
+      567.09
+    ],
+    "mem_available_after_boot_kib": [
+      10640,
+      10588,
+      10648
+    ],
+    "uart_log_scope": "full.uart.log includes preserved output of the failed initial four-byte attempt; software-reset-driver.log is fresh for the corrected three-boot test."
+  },
+  "prior_hardware_failure": {
+    "payload_sha256": "a390c273ecbc6e7cb0c166a9bfe6f5d6504d59c94e161636a1a721107c0cc5fb",
+    "reason": "Four-byte syscon DT range produced region order2, rejected by OpenSBI sanitizer before Linux. Fixed to the hardware-decoded 4 KiB page; strengthened regression uses actual domain code.",
+    "uart": {
+      "path": "fpga/arty_a7_35t/build/reset-domain-failed-attempt/software-reset-linux.uart.log",
+      "bytes": 156,
+      "sha256": "87c8f57d82d1199609f478759d1ad39386a7c486e128fb828cd88d85af52f465"
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "board_verified_with_manual_recovery_next_image_prepared",
+  "status": "board_verified_automatic_boot_and_software_reboot",
   "toolchain": {
     "gcc": "12.4.0",
     "binutils": "2.44",
@@ -147,13 +147,13 @@
       "sha256": "af76526f158dbe7d99e0795aa3e1cd68380ff1fde5802d9d16cb097af8ca2864"
     },
     "configuration_notes": "Optimize for size; optional DEBUG_VM, SPINLOCK, MUTEX and SCHED debug disabled. DEBUG_KERNEL remains selected through EXPERT.",
-    "selection_status": "running_manually_recovered; next_boot_image_prepared_not_tested",
+    "selection_status": "automatic_boot_and_two_host_assisted_linux_reboots_verified",
     "native_archive": {
       "path": "fpga/arty_a7_35t/build/linux-image-7.3-cpu62/nativecc.tar.xz",
       "bytes": 8562588,
       "sha256": "f3c494cc89f6f3cdcce69417532da27a5ee87a7cdcd9446048eb106e8e051221"
     },
-    "init_sequence": "Remount rootfs tmpfs with size=48m; extract native archive after free_initmem; delete archive; exec original init as /sbin/synapse-init.",
+    "init_sequence": "Mount proc; disable watermark boosting; set min_free_kbytes=1024; remount rootfs tmpfs with size=48m; extract native archive after free_initmem; delete archive; exec original init as /sbin/synapse-init.",
     "init_wrapper_matches_tracked_source": true,
     "prior_attempts": [
       {
@@ -166,10 +166,15 @@
       }
     ],
     "running_payload": {
+      "path": "fpga/arty_a7_35t/build/linux-image-7.3-cpu62-reset-page/fw_payload.bin",
+      "bytes": 29878928,
+      "sha256": "dd89f7c94b8145c92509e6789e75041a0cded3965224824b12c257a78984b132"
+    },
+    "previous_running_payload": {
       "sha256": "3c1778f2c709cb881a6dcc4bd20530e68ebe99a9500452b2cedc3bacf815c181",
       "bytes": 29878928
     },
-    "prepared_next_boot": {
+    "previous_prepared_image": {
       "status": "prepared_not_boot_tested",
       "payload": {
         "path": "fpga/arty_a7_35t/build/linux-image-7.3-cpu62/fw_payload.bin",
@@ -178,14 +183,15 @@
       },
       "init_changes": "Remount rootfs48MiB; set watermark_boost_factor=0 and min_free_kbytes=1024 before deferred native extraction; remove archive before original init."
     },
-    "current_running_setup": "3c177 payload reached Linux7.3 shell; archive extraction hit an OOM/watermark limit. Root manually disabled watermark boosting, set min_free_kbytes1024 and deleted the resident native archive before the successful compiler cases."
+    "previous_manually_recovered_setup": "3c177 payload reached Linux7.3 shell; archive extraction hit an OOM/watermark limit. Root manually disabled watermark boosting, set min_free_kbytes1024 and deleted the resident native archive before the successful compiler cases.",
+    "current_running_setup": "Matching reset-capable bitstream and 4 KiB reset DT payload booted Linux7.3.0 and installed GCC automatically three times, including two host-assisted Linux reboots. No manual memory/extraction recovery was needed."
   },
   "board": {
-    "status": "board_verified_with_manual_recovery_next_image_prepared",
+    "status": "board_verified_automatic_boot_and_software_reboot",
     "kernel_release": "7.3.0",
     "cpu_hz": 62500000,
     "kernel_hz": 25,
-    "manual_recovery_required": true,
+    "manual_recovery_required": false,
     "core_program_hashes_match": true,
     "target_file_verification": "Five core executable hashes match; not a complete package-file inventory.",
     "cases": [
@@ -236,6 +242,35 @@
       "sha256": "84d4fd8e2405499991a9c16574f45e3a0f0786cf3275601d8e22ba0139d5e197",
       "bytes": 1174
     },
-    "measurement_limit": "Memory values are a post-recovery baseline, not peak RSS. BusyBox time-v MaxRSS was not validated and is omitted."
+    "measurement_limit": "Memory values are a post-recovery baseline, not peak RSS. BusyBox time-v MaxRSS was not validated and is omitted.",
+    "historical_cases_setup": "The three arithmetic/translation-unit cases and their timing/memory figures below were measured in the earlier manually recovered session. Automatic startup and the new post-reboot compilation have separate evidence.",
+    "automatic_startup": {
+      "passed": true,
+      "boots": 3,
+      "software_reboots": 2,
+      "no_manual_memory_or_extraction_recovery": true,
+      "native_compile_after_final_reboot_passed": true,
+      "boot_ids": [
+        "7f244415-7b15-46ac-bb1e-351d5d326095",
+        "9dc1ac50-cddd-4e46-97f9-0418d3c3638c",
+        "c7db1a9f-bb04-4c2b-b972-82654c915cb4"
+      ],
+      "payload": {
+        "path": "fpga/arty_a7_35t/build/linux-image-7.3-cpu62-reset-page/fw_payload.bin",
+        "bytes": 29878928,
+        "sha256": "dd89f7c94b8145c92509e6789e75041a0cded3965224824b12c257a78984b132"
+      },
+      "test_proof": {
+        "path": "fpga/arty_a7_35t/build/reboot-board-evidence/results.json",
+        "bytes": 3006,
+        "sha256": "c15e27738e6cf1ff3f3aa131f35743455ad80b17f84bca99e3b1946df747e1bf"
+      },
+      "transcript": {
+        "path": "fpga/arty_a7_35t/build/reboot-board-evidence/S32_RESET_COMPILE.uart.log",
+        "bytes": 229,
+        "sha256": "fcffedec0027bc088cbec1813dc6c4111826c0be5e1bdb33a8a4638eb7a2a3f4"
+      }
+    },
+    "core_hash_verification_setup": "Five executable hashes were checked in the earlier manually recovered session. The current payload uses the byte-identical host-verified compiler archive; those five target hashes were not repeated after these reboots."
   }
 }

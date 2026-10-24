@@ -188,6 +188,17 @@ when the reader starts, so a concurrent host rebuild cannot change that session'
 kernel or clock configuration. Use the interactive console with this log path.
 The updated console pauses keyboard transmission while the image is loading.
 
+In a second terminal, attach to that reader with:
+
+```sh
+python3 fpga/arty_a7_35t/console.py /dev/ttyUSB2 \
+  --log fpga/arty_a7_35t/build/reboot-linux.uart.log --input-delay 0.003
+```
+
+Type `reboot` inside Linux. Add `--from-start` to the console command to replay
+the saved boot messages. Ctrl+] detaches the console and leaves the reader
+running. Use the same UART device and log path in both commands.
+
 To enable reloads for Linux that is already running, use `--console-only
 --auto-reboot` with the matching payload, omitting `--program-bitstream`.
 Keep the host reader running for this workflow. Standalone Linux reboot needs a
@@ -200,8 +211,12 @@ bitstreams; the hardware and image must be updated together.
 
 The [software-reset validation record](results/software-reset.json) identifies
 the matched bitstream and payload and records simulation, firmware, host and
-physical timing checks. Its hardware-test status is separate from timing
-acceptance; check that status before treating a build as board-validated.
+physical timing checks. The 62.5 MHz build passed two Linux 7.3 software
+reboots on the board: three distinct boot IDs, automatic GCC setup on every
+boot, and a native compile/run after the final reboot. JTAG programming ran
+once; both reloads used the retained host reader. The compiler development
+image takes about ten minutes from kernel entry to its shell, plus about
+150 seconds to upload at 2 Mbaud.
 
 ## Kernel timer tick
 
